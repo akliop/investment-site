@@ -7,7 +7,7 @@ import uuid
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', "stealth_mining_key_xmr_2024")
 
-# إعداد قاعدة البيانات لملاءمة Vercel (استخدام /tmp هو الطريق الوحيد)
+# إعداد قاعدة البيانات لملاءمة Vercel
 if os.environ.get('VERCEL'):
     db_path = '/tmp/mining_vault.sqlite'
 else:
@@ -38,15 +38,14 @@ class User(db.Model):
     bonus_10_paid = db.Column(db.Boolean, default=False)
     bonus_30_paid = db.Column(db.Boolean, default=False)
     
-    # بونص الإحالات (XP)
+    # بونص الإحالات (XP) - تحديث المستويات الجديدة
     xp_bonus_5_paid = db.Column(db.Boolean, default=False)
     xp_bonus_10_paid = db.Column(db.Boolean, default=False)
     xp_bonus_30_paid = db.Column(db.Boolean, default=False)
-    xp_bonus_50_paid = db.Column(db.Boolean, default=False)
+    xp_bonus_35_paid = db.Column(db.Boolean, default=False) # الهدف الجديد 35-1050
     
     is_active = db.Column(db.Boolean, default=True)
 
-# تأكد من إنشاء قاعدة البيانات في كل مرة يبدأ فيها السيرفر على Vercel
 with app.app_context():
     db.create_all()
 
@@ -86,6 +85,8 @@ def register_action():
         if referrer:
             new_user.referred_by_id = referrer.id
             referrer.total_referrals += 1
+            
+            # بونص الدولار (السابق)
             if referrer.total_referrals >= 5 and not referrer.bonus_5_paid:
                 referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 0.30
                 referrer.bonus_5_paid = True
@@ -96,6 +97,7 @@ def register_action():
                 referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 1.50
                 referrer.bonus_30_paid = True
 
+            # بونص الـ XP (المستويات الجديدة والمحدثة)
             if referrer.total_referrals >= 5 and not referrer.xp_bonus_5_paid:
                 referrer.xp = (referrer.xp or 0) + 250
                 referrer.xp_bonus_5_paid = True
@@ -105,9 +107,9 @@ def register_action():
             if referrer.total_referrals >= 30 and not referrer.xp_bonus_30_paid:
                 referrer.xp = (referrer.xp or 0) + 800
                 referrer.xp_bonus_30_paid = True
-            if referrer.total_referrals >= 50 and not referrer.xp_bonus_50_paid:
-                referrer.xp = (referrer.xp or 0) + 10000
-                referrer.xp_bonus_50_paid = True
+            if referrer.total_referrals >= 35 and not referrer.xp_bonus_35_paid:
+                referrer.xp = (referrer.xp or 0) + 1050
+                referrer.xp_bonus_35_paid = True
 
     db.session.add(new_user)
     db.session.commit()
@@ -139,11 +141,8 @@ def node_control():
         user.referral_code = str(uuid.uuid4())[:8].upper()
         needs_commit = True
     if user.balance_usdt is None: user.balance_usdt = 0.0
-    if user.xp is None: user.xp = 0
-    if user.xp_bonus_50_paid is None:
-        user.xp_bonus_5_paid = user.xp_bonus_10_paid = user.xp_bonus_30_paid = user.xp_bonus_50_paid = False
-        needs_commit = True
-        
+    if (user.xp or 0) > 10000: user.rank = "Miner Legend"
+    elif (user.xp or 0) > 5000: user.rank = "Miner Pro"
     if needs_commit: db.session.commit()
         
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
@@ -225,10 +224,8 @@ def pulse_sync():
     
     reported_xp = int(request.json.get("units", 0))
     user.xp = (user.xp or 0) + reported_xp
-    if (user.xp or 0) > 10000: user.rank = "Miner Legend"
-    elif (user.xp or 0) > 5000: user.rank = "Miner Pro"
     db.session.commit()
-    return jsonify({"status": "success", "xp": user.xp, "rank": user.rank})
+    return jsonify({"status": "success", "xp": user.xp})
 
 @app.route("/logout")
 def logout():

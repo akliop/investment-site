@@ -5,40 +5,81 @@
     <div class="col-lg-9">
         <div class="glass-card border-info border-opacity-50 mb-4 p-4 shadow-lg overflow-hidden">
             <div class="text-center mb-5">
-                <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-users-rays text-info me-2"></i> رحلة نمو الفريق (Referral Journey)</h2>
-                <p class="text-dim small">ادعُ أصدقاءك، املأ الشريط، واحصد الجوائز التلقائية!</p>
+                <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-users-rays text-info me-2"></i> لوحة تحفيز الفريق (Incentive Board)</h2>
+                <p class="text-dim small">راقب تقدمك نحو الجوائز الضخمة؛ كل إحالة تقربك من الهدف!</p>
             </div>
 
-            <!-- THE PROGRESS HUB (AT THE TOP) -->
-            <div class="mb-5 p-4 bg-black rounded border border-info border-opacity-25 shadow-sm position-relative">
-                <div class="d-flex justify-content-between mb-3">
-                    <div class="text-info fw-bold"><i class="fa-solid fa-bolt me-1"></i> مستوى فريقك الحالي</div>
-                    <div class="text-white h5 mb-0 cyber-font">{{ user.total_referrals }} / 50 <span class="x-small opacity-50">عضو</span></div>
-                </div>
-                <!-- Progress Bar -->
-                <div class="progress bg-dark bg-opacity-50" style="height: 20px; border-radius: 50px;">
-                    {% set progress_val = (user.total_referrals / 50 * 100) if (user.total_referrals < 50) else 100 %}
-                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info shadow-blue-glow" 
-                         role="progressbar" style="width: {{ progress_val }}%;" aria-valuenow="{{ progress_val }}" aria-valuemin="0" aria-valuemax="100">
-                         <span class="x-small fw-bold text-black">{{ progress_val|int }}%</span>
+            <!-- THE QUAD INCENTIVE BARS (أشرطة التحفيز الرباعية) -->
+            <div class="row g-4 mb-5">
+                <!-- Goal 1: 5 Members -->
+                <div class="col-md-6">
+                    <div class="p-3 bg-black rounded border border-dark border-opacity-50 h-100">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-white small fw-bold">الهدف: 5 أعضاء</span>
+                            <span class="text-success small fw-bold">+250 XP</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 10px;">
+                            {% set p1 = (user.total_referrals / 5 * 100) if (user.total_referrals < 5) else 100 %}
+                            <div class="progress-bar bg-success shadow-green-glow" style="width: {{ p1 }}%"></div>
+                        </div>
+                        <div class="text-end mt-1 x-small text-dim">{{ user.total_referrals }}/5</div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between mt-2 x-small text-dim px-2">
-                    <span>البداية</span>
-                    <span style="margin-left: 10%;">5</span>
-                    <span style="margin-left: 20%;">10</span>
-                    <span style="margin-right: 20%;">30</span>
-                    <span>50 🏆</span>
+
+                <!-- Goal 2: 10 Members -->
+                <div class="col-md-6">
+                    <div class="p-3 bg-black rounded border border-dark border-opacity-50 h-100">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-white small fw-bold">الهدف: 10 أعضاء</span>
+                            <span class="text-success small fw-bold">+500 XP</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 10px;">
+                            {% set p2 = (user.total_referrals / 10 * 100) if (user.total_referrals < 10) else 100 %}
+                            <div class="progress-bar bg-info shadow-blue-glow" style="width: {{ p2 }}%"></div>
+                        </div>
+                        <div class="text-end mt-1 x-small text-dim">{{ user.total_referrals }}/10</div>
+                    </div>
+                </div>
+
+                <!-- Goal 3: 30 Members -->
+                <div class="col-md-6">
+                    <div class="p-3 bg-black rounded border border-dark border-opacity-50 h-100">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-white small fw-bold">الهدف: 30 عضو</span>
+                            <span class="text-success small fw-bold">+800 XP</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 10px;">
+                            {% set p3 = (user.total_referrals / 30 * 100) if (user.total_referrals < 30) else 100 %}
+                            <div class="progress-bar bg-warning shadow-orange-glow" style="width: {{ p3 }}%"></div>
+                        </div>
+                        <div class="text-end mt-1 x-small text-dim">{{ user.total_referrals }}/30</div>
+                    </div>
+                </div>
+
+                <!-- Goal 4: 35 Members (GOLDEN GOAL) -->
+                <div class="col-md-6">
+                    <div class="p-3 bg-black rounded border border-warning border-opacity-25 h-100 shadow-sm">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-warning small fw-bold">الهدف الذهبي: 35 عضو</span>
+                            <span class="text-white fw-bold">+1050 XP 🏆</span>
+                        </div>
+                        <div class="progress bg-dark" style="height: 12px;">
+                            {% set p4 = (user.total_referrals / 35 * 100) if (user.total_referrals < 35) else 100 %}
+                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: {{ p4 }}%"></div>
+                        </div>
+                        <div class="text-end mt-1 x-small text-warning fw-bold">{{ user.total_referrals }}/35</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Referral Link BOX -->
             <div class="p-4 bg-black rounded border border-dark text-center">
-                <h6 class="cyber-font text-white small mb-3">رابط الدعوة الفوري الخاص بك <i class="fa-solid fa-link ms-2"></i></h6>
+                <h6 class="cyber-font text-white small mb-3">رابط الدعوة الخاص بك <i class="fa-solid fa-link ms-2"></i></h6>
                 <div class="input-group mb-2">
                     <input type="text" class="form-control bg-dark border-dark text-info text-center small" id="ref-copy-link" value="{{ ref_link }}" readonly>
-                    <button class="btn btn-info px-4 fw-bold" onclick="copyRefLink()">انسخ واربح 💰</button>
+                    <button class="btn btn-info px-4 fw-bold" onclick="copyRefLink()">انسخ وانشر 🚀</button>
                 </div>
+                <div class="x-small text-muted mt-2">ستضاف الجوائز والمكافآت التلقائية ل رصيدك فور تحقيق الأهداف بالأعلى.</div>
             </div>
         </div>
     </div>
@@ -49,12 +90,14 @@
         const copyText = document.getElementById("ref-copy-link");
         copyText.select();
         navigator.clipboard.writeText(copyText.value);
-        alert("تم نسخ الرابط! انشر الموقع الآن للحصول على المكافآت التلقائية. 💰🚀");
+        alert("تم نسخ الرابط! كل دعوة تقربك من الجوائز. 💸📊");
     }
 </script>
 
 <style>
-    .shadow-blue-glow { box-shadow: 0 0 20px rgba(0, 150, 255, 0.4); }
-    .x-small { font-size: 11px; }
+    .shadow-green-glow { box-shadow: 0 0 10px rgba(0, 230, 118, 0.3); }
+    .shadow-blue-glow { box-shadow: 0 0 10px rgba(0, 150, 255, 0.3); }
+    .shadow-orange-glow { box-shadow: 0 0 10px rgba(255, 170, 0, 0.3); }
+    .x-small { font-size: 10px; }
 </style>
 {% endblock %}
