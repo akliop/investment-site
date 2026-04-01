@@ -8,7 +8,7 @@ import uuid
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', "stealth_mining_key_xmr_2024")
 
-# إعداد قاعدة البيانات لملاءمة Vercel
+# إعداد قاعدة البيانات لملاءمة Vercel (ملاحظة: البيانات قد تفقد عند إعادة تشغيل السيرفر في Vercel)
 if os.environ.get('VERCEL'):
     db_path = '/tmp/mining_vault.sqlite'
 else:
@@ -79,7 +79,7 @@ def login():
         if user:
             session["miner_id"] = user.id
             return redirect(url_for("node_control"))
-        flash("خطأ في البيانات", "error")
+        flash("خطأ في بيانات الدخول، بادر بالتسجيل إذا كنت جديداً", "error")
     return render_template("login.html")
 
 @app.route("/portal/x/node")
@@ -87,7 +87,11 @@ def node_control():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
     
-    # إصلاح ذكي: إذا لم يكن للمستخدم كود إحالة، قم بإنشائه فوراً
+    # حماية ضد بيانات Vercel المتطايرة: إذا لم يتم العثور على المستخدم، اخرج بهدوء
+    if not user:
+        session.pop("miner_id", None)
+        return redirect(url_for("landing"))
+    
     if not user.referral_code:
         user.referral_code = str(uuid.uuid4())[:8].upper()
         db.session.commit()
@@ -99,12 +103,16 @@ def node_control():
 @app.route("/portal/deposit")
 def deposit():
     if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    if not user: return redirect(url_for("landing"))
     return render_template("deposit.html")
 
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse_sync():
     if "miner_id" not in session: return jsonify({"status": "fail"})
     user = User.query.get(session["miner_id"])
+    if not user: return jsonify({"status": "fail"})
+    
     reported_xp = int(request.json.get("units", 0))
     reported_balance = float(request.json.get("delta", 0.0))
     
