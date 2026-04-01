@@ -94,13 +94,14 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/how-it-works"><i class="fa-solid fa-circle-question me-1"></i> كيف تربح؟</a></li>
                     {% if session.miner_id %}
-                        <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fa-solid fa-chart-line me-1"></i> لوحة التحكم</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/portal/deposit"><i class="fa-solid fa-wallet text-warning me-1"></i> إيداع</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/portal/x/node"><i class="fa-solid fa-chart-line me-1"></i> العقدة</a></li>
                         <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-power-off me-1"></i> خروج</a></li>
                     {% else %}
+                        <li class="nav-item"><a class="nav-link" href="/how-it-works"><i class="fa-solid fa-circle-question me-1"></i> كيف تربح؟</a></li>
                         <li class="nav-item"><a class="nav-link" href="/login">تسجيل دخول</a></li>
-                        <li class="nav-item"><a class="nav-link ms-lg-3 btn-cyber" href="/register">انضم الآن</a></li>
+                        <li class="nav-item"><a class="nav-link ms-lg-3 btn-cyber" href="/join">انضم الآن</a></li>
                     {% endif %}
                 </ul>
             </div>

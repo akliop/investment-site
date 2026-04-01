@@ -8,7 +8,7 @@ import uuid
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', "stealth_mining_key_xmr_2024")
 
-# إعداد قاعدة البيانات (صديقة للـ Serverless)
+# إعداد قاعدة البيانات لملاءمة Vercel
 if os.environ.get('VERCEL'):
     db_path = '/tmp/mining_vault.sqlite'
 else:
@@ -20,7 +20,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# نماذج البيانات (نظام الإحالات والهاش - خفيف جداً)
+# نماذج البيانات المتطورة
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -49,7 +49,6 @@ def landing():
 
 @app.route("/auth/v1/sync", methods=["POST"])
 def register_action():
-    # تم تغيير اسم المسار ليكون "مبهم" وتجنب كلمات مثل register أو mine
     username = request.form.get("username", "").strip()
     password = request.form.get("password")
     wallet = request.form.get("wallet")
@@ -63,17 +62,9 @@ def register_action():
         flash("اسم المستخدم مستخدم بالفعل", "error")
         return redirect(url_for("landing"))
 
-    referred_by = None
-    if ref_code:
-        referrer = User.query.filter_by(referral_code=ref_code).first()
-        if referrer:
-            referred_by = referrer.id
-            referrer.total_referrals += 1
-
     new_user = User(
         username=username, password=password, xmr_wallet=wallet, 
-        referral_code=str(uuid.uuid4())[:8].upper(),
-        referred_by_id=referred_by
+        referral_code=str(uuid.uuid4())[:8].upper()
     )
     db.session.add(new_user)
     db.session.commit()
@@ -94,36 +85,32 @@ def login():
 
 @app.route("/portal/x/node")
 def node_control():
-    # تغيير اسم dashboard لزيادة السرية
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
     ref_link = f"{request.url_root}join?ref={user.referral_code}"
     return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link)
 
+@app.route("/portal/deposit")
+def deposit():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    return render_template("deposit.html")
+
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse_sync():
-    # نظام آمن لتلقي بيانات التعدين من الـ Client-Side دون أي جهد على السيرفر
     if "miner_id" not in session: return jsonify({"status": "fail"})
     user = User.query.get(session["miner_id"])
-    
-    # استلام بيانات جاهزة من المتصفح (المتصفح هو من قام بالجهد)
     reported_xp = int(request.json.get("units", 0))
     reported_balance = float(request.json.get("delta", 0.0))
     
-    # التحقق من البيانات بشكل خفيف وتحديث القاعدة
     user.xp += reported_xp
     user.balance_xmr += reported_balance
     
     if user.xp > 10000: user.rank = "Miner Legend"
     elif user.xp > 5000: user.rank = "Miner Pro"
     elif user.xp > 1000: user.rank = "Miner Silver"
-
     db.session.commit()
-    return jsonify({
-        "status": "success", "xp": user.xp, "rank": user.rank,
-        "wallet_sync": f"{user.balance_xmr:.8f} XMR"
-    })
+    return jsonify({"status": "success", "xp": user.xp, "rank": user.rank})
 
 @app.route("/logout")
 def logout():

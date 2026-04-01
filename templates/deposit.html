@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row pt-4 justify-content-center">
+    <div class="col-lg-6 mb-4">
+        <div class="glass-card border-warning border-opacity-50">
+            <div class="text-center mb-4">
+                <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-wallet text-warning me-2"></i> إيداع عملات مشفرة</h2>
+                <p class="small text-dim">اختر الشبكة وقم بمسح الكود لدعم العقدة</p>
+            </div>
+
+            <!-- Network Selector Tabs -->
+            <ul class="nav nav-pills justify-content-center mb-4 bg-black p-2 rounded-pill border border-dark" id="depositTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-pill x-small px-3 py-2" id="btc-tab" data-bs-toggle="pill" data-bs-target="#btc" type="button">BTC</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill x-small px-3 py-2" id="usdt-trc-tab" data-bs-toggle="pill" data-bs-target="#usdt-trc" type="button">USDT (TRC20)</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill x-small px-3 py-2" id="evm-tab" data-bs-toggle="pill" data-bs-target="#evm" type="button">USDT/BNB (BEP20/POL)</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="depositTabsContent">
+                <!-- BTC Deposit -->
+                <div class="tab-pane fade show active text-center" id="btc" role="tabpanel">
+                    <div class="qr-container mb-4 p-3 bg-white d-inline-block rounded shadow-lg">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" alt="BTC QR" style="width: 180px;">
+                    </div>
+                    <div class="text-start p-3 bg-dark bg-opacity-50 rounded border border-dark mb-4">
+                        <label class="small text-muted mb-1">عنوان إيداع BTC (شبكة Bitcoin)</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control text-warning small" id="btc-addr" value="1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" readonly>
+                            <button class="btn btn-outline-warning" onclick="copyText('btc-addr')"><i class="fa-solid fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- USDT TRC20 Deposit -->
+                <div class="tab-pane fade text-center" id="usdt-trc" role="tabpanel">
+                    <div class="qr-container mb-4 p-3 bg-white d-inline-block rounded shadow-lg">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TRvoqf1GcB7UagrJj5prTURRDTDSwfY6oy" alt="TRC20 QR" style="width: 180px;">
+                    </div>
+                    <div class="text-start p-3 bg-dark bg-opacity-50 rounded border border-dark mb-4">
+                        <label class="small text-muted mb-1">عنوان إيداع USDT (شبكة TRC20)</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control text-success small" id="trc-addr" value="TRvoqf1GcB7UagrJj5prTURRDTDSwfY6oy" readonly>
+                            <button class="btn btn-outline-success" onclick="copyText('trc-addr')"><i class="fa-solid fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EVM Deposit (USDT/BNB/POL) -->
+                <div class="tab-pane fade text-center" id="evm" role="tabpanel">
+                    <div class="qr-container mb-4 p-3 bg-white d-inline-block rounded shadow-lg">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x31cfee15eddf8169da734ec658c5b383a1e09973" alt="EVM QR" style="width: 180px;">
+                    </div>
+                    <div class="text-start p-3 bg-dark bg-opacity-50 rounded border border-dark mb-4">
+                        <label class="small text-muted mb-1">إيداع USDT/BNB/POL (شبكات BEP20, OPBNB, Poly)</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control text-info small" id="evm-addr" value="0x31cfee15eddf8169da734ec658c5b383a1e09973" readonly>
+                            <button class="btn btn-outline-info" onclick="copyText('evm-addr')"><i class="fa-solid fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-dark bg-black text-dim x-small border-dark text-start">
+                <i class="fa-solid fa-circle-info text-warning me-2"></i> تنبيه: يرجى التأكد من اختيار الشبكة الصحيحة عند الإرسال. قد يستغرق وصول الإيداع من 5 إلى 30 دقيقة حسب تأكيدات الشبكة.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyText(id) {
+        const copyText = document.getElementById(id);
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        alert("تم نسخ العنوان بنجاح!");
+    }
+</script>
+
+<style>
+    .nav-pills .nav-link { color: #888; }
+    .nav-pills .nav-link.active { background-color: var(--accent-green) !important; color: #000 !important; font-weight: bold;}
+    .qr-container { background: #fff !important; transform: rotate(-1deg); transition: 0.3s;}
+    .qr-container:hover { transform: rotate(0deg) scale(1.05); }
+    .x-small { font-size: 11px; }
+</style>
+{% endblock %}
