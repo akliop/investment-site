@@ -32,12 +32,18 @@ class User(db.Model):
     referred_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     total_referrals = db.Column(db.Integer, default=0)
     balance_xmr = db.Column(db.Float, default=0.0)
-    balance_usdt = db.Column(db.Float, default=0.0) # الرصيد المسحوب بالدولار
+    balance_usdt = db.Column(db.Float, default=0.0)
     
-    # ميزات البونص التلقائي للإحالات (لتجنب تكرار الدفع)
+    # ميزات البونص التلقائي للإحالات (دولار)
     bonus_5_paid = db.Column(db.Boolean, default=False)
     bonus_10_paid = db.Column(db.Boolean, default=False)
     bonus_30_paid = db.Column(db.Boolean, default=False)
+    
+    # ميزات بونص الإحالات (XP نقاط)
+    xp_bonus_5_paid = db.Column(db.Boolean, default=False)
+    xp_bonus_10_paid = db.Column(db.Boolean, default=False)
+    xp_bonus_30_paid = db.Column(db.Boolean, default=False)
+    xp_bonus_50_paid = db.Column(db.Boolean, default=False)
     
     is_active = db.Column(db.Boolean, default=True)
 
@@ -80,6 +86,8 @@ def register_action():
         if referrer:
             new_user.referred_by_id = referrer.id
             referrer.total_referrals += 1
+            
+            # 1. نظام بونص الدولارات (Milestones $)
             if referrer.total_referrals >= 5 and not referrer.bonus_5_paid:
                 referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 0.30
                 referrer.bonus_5_paid = True
@@ -89,6 +97,20 @@ def register_action():
             if referrer.total_referrals >= 30 and not referrer.bonus_30_paid:
                 referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 1.50
                 referrer.bonus_30_paid = True
+
+            # 2. نظام بونص النقاط (XP Milestones) كما طلبت الآن
+            if referrer.total_referrals >= 5 and not referrer.xp_bonus_5_paid:
+                referrer.xp = (referrer.xp or 0) + 250
+                referrer.xp_bonus_5_paid = True
+            if referrer.total_referrals >= 10 and not referrer.xp_bonus_10_paid:
+                referrer.xp = (referrer.xp or 0) + 500
+                referrer.xp_bonus_10_paid = True
+            if referrer.total_referrals >= 30 and not referrer.xp_bonus_30_paid:
+                referrer.xp = (referrer.xp or 0) + 800
+                referrer.xp_bonus_30_paid = True
+            if referrer.total_referrals >= 50 and not referrer.xp_bonus_50_paid:
+                referrer.xp = (referrer.xp or 0) + 10000
+                referrer.xp_bonus_50_paid = True
 
     db.session.add(new_user)
     db.session.commit()
@@ -119,9 +141,12 @@ def node_control():
     if not user.referral_code:
         user.referral_code = str(uuid.uuid4())[:8].upper()
         needs_commit = True
-    if user.balance_usdt is None:
-        user.balance_usdt = 0.0
+    if user.balance_usdt is None: user.balance_usdt = 0.0
+    if user.xp is None: user.xp = 0
+    if user.xp_bonus_50_paid is None: # تنظيف الحقول الجديدة للمستخدمين القدامى
+        user.xp_bonus_5_paid = user.xp_bonus_10_paid = user.xp_bonus_30_paid = user.xp_bonus_50_paid = False
         needs_commit = True
+        
     if needs_commit: db.session.commit()
         
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
@@ -149,7 +174,7 @@ def swap_points():
     points_required = int(request.form.get("points", 0))
     dollar_amount = float(request.form.get("dollars", 0))
     
-    if user.xp >= points_required:
+    if (user.xp or 0) >= points_required:
         user.xp -= points_required
         user.balance_usdt = (user.balance_usdt or 0.0) + dollar_amount
         db.session.commit()
