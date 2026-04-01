@@ -1,89 +1,109 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row pt-4">
+<div class="row pt-4 ms-2 me-2">
     <div class="col-lg-12">
         <div class="glass-card border-danger border-opacity-50 p-4 shadow-lg overflow-hidden">
-            <h2 class="cyber-font text-white mb-5"><i class="fa-solid fa-user-shield text-danger me-2"></i> مركز تحكم المالك (Admin Panel)</h2>
+            <h2 class="cyber-font text-white mb-5"><i class="fa-solid fa-user-shield text-danger me-2"></i> مركز السيطرة (Master Admin Console)</h2>
             
-            <!-- Stats -->
-            <div class="row g-3 mb-5">
-                <div class="col-md-3">
-                    <div class="p-3 bg-dark bg-opacity-50 rounded border border-secondary text-center">
-                        <div class="small text-dim">إجمالي المستخدمين</div>
-                        <div class="h3 text-white fw-bold">{{ all_users|length }}</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="p-3 bg-dark bg-opacity-50 rounded border border-warning text-center">
-                        <div class="small text-dim">طلبات معلقة</div>
-                        <div class="h3 text-warning fw-bold">{{ orders|length }}</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="p-3 bg-dark bg-opacity-50 rounded border border-success text-center">
-                        <div class="small text-dim">إجمالي نقاط المنصة</div>
-                        <div class="h4 text-success fw-bold">{{ "%.0f"|format(total_xp) }} XP</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Orders Table -->
+            <!-- SECTION 1: STORE PURCHASES -->
             <div class="mb-5">
-                <h4 class="text-warning mb-4"><i class="fa-solid fa-list-check me-2"></i> الطلبات المعلقة (Pending Orders)</h4>
+                <h4 class="text-warning mb-4 pb-2 border-bottom border-warning border-opacity-25"><i class="fa-solid fa-cart-shopping me-2"></i> 1. مشتريات الناس من المتجر (Store Orders)</h4>
                 <div class="table-responsive bg-black bg-opacity-50 rounded border border-dark p-2">
-                    <table class="table table-dark table-hover mb-0 small">
+                    <table class="table table-dark table-hover mb-0 x-small">
                         <thead>
                             <tr class="text-dim">
-                                <th>المستخدم</th>
+                                <th>رقم الطلب</th>
                                 <th>النوع</th>
                                 <th>التفاصيل</th>
                                 <th>التكلفة ($)</th>
+                                <th>الحالة</th>
                                 <th>الإجراء</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for o in orders %}
+                            {% for o in store_orders %}
                             <tr>
-                                <td>{{ o.id }}</td>
+                                <td>#{{ o.id }}</td>
                                 <td><span class="badge bg-secondary">{{ o.order_type }}</span></td>
                                 <td>{{ o.details }}</td>
-                                <td><span class="text-success">${{ o.cost_usdt }}</span></td>
+                                <td class="text-success">${{ "%.2f"|format(o.cost_usdt or 0.0) }}</td>
+                                <td><span class="badge bg-{{ 'success' if o.status == 'DONE' else 'warning text-black' }}">{{ o.status }}</span></td>
                                 <td>
-                                    <a href="/admin/x/order/complete/{{ o.id }}" class="btn btn-success btn-sm py-0 px-2 fw-bold small">تم ✅</a>
+                                    {% if o.status == 'PENDING' %}
+                                    <a href="/admin/x/order/complete/{{ o.id }}" class="btn btn-success btn-sm py-0 px-2 fw-bold x-small">تم ✅</a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
-                            {% if not orders %}<tr><td colspan="5" class="text-center text-dim py-4">لا توجد طلبات حالياً</td></tr>{% endif %}
+                            {% if not store_orders %}<tr><td colspan="6" class="text-center text-dim py-4">لا توجد مشتريات حالياً</td></tr>{% endif %}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Users List & Edit -->
-            <div>
-                <h4 class="text-info mb-4"><i class="fa-solid fa-users-gear me-2"></i> إدارة المعدنين (User Management)</h4>
+            <!-- SECTION 2: FINANCIAL REQUESTS -->
+            <div class="mb-5">
+                <h4 class="text-info mb-4 pb-2 border-bottom border-info border-opacity-25"><i class="fa-solid fa-money-bill-transfer me-2"></i> 2. طلبات السحب والإيداع (Financial Control)</h4>
                 <div class="table-responsive bg-black bg-opacity-50 rounded border border-dark p-2">
-                    <table class="table table-dark table-hover mb-0 small">
+                    <table class="table table-dark table-hover mb-0 x-small">
                         <thead>
                             <tr class="text-dim">
-                                <th>الاسم</th>
+                                <th>رقم العملية</th>
+                                <th>النوع</th>
+                                <th>البيانات (TXID/Address)</th>
+                                <th>المبلغ ($)</th>
+                                <th>الحالة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in money_orders %}
+                            <tr>
+                                <td>#{{ m.id }}</td>
+                                <td><span class="badge bg-{{ 'danger' if m.order_type == 'WITHDRAW' else 'primary' }}">{{ m.order_type }}</span></td>
+                                <td>{{ m.details }}</td>
+                                <td class="fw-bold">${{ "%.2f"|format(m.cost_usdt or 0.0) }}</td>
+                                <td><span class="badge bg-{{ 'success' if m.status == 'DONE' else 'warning text-black' }}">{{ m.status }}</span></td>
+                                <td>
+                                    {% if m.status == 'PENDING' %}
+                                    <a href="/admin/x/order/complete/{{ m.id }}" class="btn btn-success btn-sm py-0 px-2 fw-bold x-small">تأكيد العملية ✅</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% if not money_orders %}<tr><td colspan="6" class="text-center text-dim py-4">لا توجد طلبات مالية حالياً</td></tr>{% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECTION 3: ALL USER ACCOUNTS -->
+            <div>
+                <h4 class="text-success mb-4 pb-2 border-bottom border-success border-opacity-25"><i class="fa-solid fa-users me-2"></i> 3. معلومات كل الحسابات (User Database)</h4>
+                <div class="table-responsive bg-black bg-opacity-50 rounded border border-dark p-2">
+                    <table class="table table-dark table-hover mb-0 x-small">
+                        <thead>
+                            <tr class="text-dim">
+                                <th>اسم المستخدم</th>
                                 <th>النقاط (XP)</th>
                                 <th>الرصيد ($)</th>
-                                <th>تعديل سريع</th>
+                                <th>محفظة Monero</th>
+                                <th>تحديث الرصيد</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for u in all_users %}
                             <tr>
-                                <td>{{ u.username }} {% if u.is_admin %}<span class="badge bg-danger small">Admin</span>{% endif %}</td>
-                                <td>{{ "%.1f"|format(u.xp or 0.0) }}</td>
-                                <td>${{ "%.2f"|format(u.balance_usdt or 0.0) }}</td>
+                                <td>{{ u.username }} {% if u.is_admin %}<span class="badge bg-danger">Admin</span>{% endif %}</td>
+                                <td><span class="text-warning">{{ "%.1f"|format(u.xp or 0.0) }}</span></td>
+                                <td class="text-success">${{ "%.2f"|format(u.balance_usdt or 0.0) }}</td>
+                                <td><span class="opacity-50" style="font-size: 9px;">{{ u.xmr_wallet or 'N/A' }}</span></td>
                                 <td>
                                     <form action="/admin/x/user/edit" method="POST" class="d-flex gap-1">
                                         <input type="hidden" name="user_id" value="{{ u.id }}">
-                                        <input type="number" step="0.1" name="xp" class="form-control form-control-sm bg-dark border-dark text-white x-small" placeholder="XP" style="width: 70px;">
-                                        <input type="number" step="0.1" name="balance" class="form-control form-control-sm bg-dark border-dark text-white x-small" placeholder="USDT" style="width: 70px;">
+                                        <input type="number" step="0.1" name="xp" class="form-control form-control-sm bg-dark border-dark text-white x-small-input" placeholder="XP">
+                                        <input type="number" step="0.1" name="balance" class="form-control form-control-sm bg-dark border-dark text-white x-small-input" placeholder="USDT">
                                         <button type="submit" class="btn btn-info btn-sm py-0 x-small fw-bold">حفظ</button>
                                     </form>
                                 </td>
@@ -93,12 +113,14 @@
                     </table>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
 <style>
+    .x-small { font-size: 11px; }
+    .x-small-input { font-size: 10px; width: 60px; height: 22px; padding: 2px 4px; }
     .table-dark { --bs-table-bg: transparent; }
-    .x-small { font-size: 10px; }
 </style>
 {% endblock %}

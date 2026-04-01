@@ -43,7 +43,7 @@ class User(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    order_type = db.Column(db.String(50)) # RECHARGE, CARD, GAME
+    order_type = db.Column(db.String(50)) # RECHARGE, CARD, GAME, WITHDRAW, DEPOSIT
     details = db.Column(db.String(200))
     cost_usdt = db.Column(db.Float)
     status = db.Column(db.String(20), default="PENDING") # PENDING, DONE, CANCELLED
@@ -51,7 +51,6 @@ class Order(db.Model):
 
 with app.app_context():
     db.create_all()
-    # إنشاء أدمن افتراضي إذا لم يكن موجوداً
     if not User.query.filter_by(username="AKLI").first():
         admin = User(username="AKLI", password="AKLI_MASTER_LOGIN", is_admin=True, referral_code="MASTER")
         db.session.add(admin)
@@ -64,51 +63,64 @@ def get_user_safe(uid):
     if user:
         user.xp = float(user.xp or 10.0)
         user.balance_usdt = float(user.balance_usdt or 0.0)
-        user.total_referrals = int(user.total_referrals or 0)
     return user
 
-# --- المسارات (Routes) ---
+# --- المسارات المالية المعدلة لتسجيل الطلبات ---
 
-@app.route("/")
-@app.route("/join")
-def landing():
-    if "miner_id" in session: return redirect(url_for("node_control"))
-    return render_template("landing.html", ref_code=request.args.get('ref'))
+@app.route("/portal/x/withdraw/request", methods=["POST"])
+def process_withdraw():
+    user = get_user_safe(session.get("miner_id"))
+    if not user: return redirect(url_for("login"))
+    amount = float(request.form.get("amount", 0))
+    address = request.form.get("address")
+    if user.balance_usdt >= amount and amount >= 1.0:
+        user.balance_usdt -= amount
+        new_order = Order(user_id=user.id, order_type="WITHDRAW", details=f"Address: {address}", cost_usdt=amount)
+        db.session.add(new_order)
+        db.session.commit()
+        flash("تم تقديم طلب السحب! سيتم التحقق من محفظتك.", "success")
+    else: flash("رصيد غير كافٍ أو مبلغ غير صالح", "error")
+    return redirect(url_for("withdraw"))
 
-@app.route("/auth/v1/sync", methods=["POST"])
-def register_action():
-    username = request.form.get("username", "").strip()
-    password = request.form.get("password")
-    ref_code_from_form = request.form.get("ref_code")
-    if User.query.filter_by(username=username).first():
-        flash("الاسم مستخدم", "error")
-        return redirect(url_for("landing"))
-
-    new_user = User(
-        username=username, password=password, 
-        referral_code=str(uuid.uuid4())[:8].upper(),
-        balance_usdt=0.0, xp=10.0, total_referrals=0
-    )
-    if ref_code_from_form:
-        referrer = User.query.filter_by(referral_code=ref_code_from_form).first()
-        if referrer:
-            new_user.referred_by_id = referrer.id
-            referrer.total_referrals = (referrer.total_referrals or 0) + 1
-    db.session.add(new_user)
+@app.route("/portal/x/deposit/notify", methods=["POST"])
+def process_deposit():
+    user = get_user_safe(session.get("miner_id"))
+    if not user: return redirect(url_for("login"))
+    txid = request.form.get("txid")
+    amount = float(request.form.get("amount", 0))
+    new_order = Order(user_id=user.id, order_type="DEPOSIT", details=f"TXID: {txid}", cost_usdt=amount)
+    db.session.add(new_order)
     db.session.commit()
-    session["miner_id"] = new_user.id
-    return redirect(url_for("node_control"))
+    flash("تم إرسال إشعار الإيداع! سيتم إضافة المبلغ بعد التأكيد.", "success")
+    return redirect(url_for("deposit"))
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        user = User.query.filter_by(username=request.form.get("username", "").strip(), password=request.form.get("password")).first()
-        if user:
-            session["miner_id"] = user.id
-            return redirect(url_for("node_control"))
-        flash("خطأ دخول", "error")
-    return render_template("login.html")
+# --- مركز الأدمن المنظم (Admin Panel V2) ---
 
+@app.route("/admin/p/dashboard")
+def admin_dash():
+    u = get_user_safe(session.get("miner_id"))
+    if not u or not u.is_admin: return redirect(url_for("node_control"))
+    all_users = User.query.all()
+    # تقسيم الطلبات لمجموعتين
+    store_orders = Order.query.filter(Order.order_type.in_(["RECHARGE", "CARD", "GAME"])).all()
+    money_orders = Order.query.filter(Order.order_type.in_(["WITHDRAW", "DEPOSIT"])).all()
+    total_xp = db.session.query(db.func.sum(User.xp)).scalar() or 0
+    return render_template("admin_dashboard.html", user=u, all_users=all_users, store_orders=store_orders, money_orders=money_orders, total_xp=total_xp)
+
+@app.route("/admin/x/order/complete/<int:oid>")
+def admin_complete_order(oid):
+    u = get_user_safe(session.get("miner_id"))
+    if not u or not u.is_admin: return redirect(url_for("node_control"))
+    order = Order.query.get(oid)
+    if order:
+        if order.order_type == "DEPOSIT" and order.status == "PENDING":
+             target = User.query.get(order.user_id)
+             if target: target.balance_usdt = (target.balance_usdt or 0.0) + order.cost_usdt
+        order.status = "DONE"
+        db.session.commit()
+    return redirect(url_for("admin_dash"))
+
+# (باقي كود السيرفر يتبع نفس المنطق لضمان استقرار المسارات)
 @app.route("/portal/x/node")
 def node_control():
     user = get_user_safe(session.get("miner_id"))
@@ -123,78 +135,6 @@ def store():
     if not user: return redirect(url_for("login"))
     return render_template("store.html", user=user)
 
-# --- نظام الطلبات والمشتريات المعدل ---
-
-@app.route("/portal/x/store/recharge/process", methods=["POST"])
-def process_recharge():
-    user = get_user_safe(session.get("miner_id"))
-    if not user: return redirect(url_for("login"))
-    operator = request.form.get("operator")
-    phone = request.form.get("phone")
-    amount_dzd = request.form.get("amount")
-    price_map = {"100": 1.0, "200": 1.7, "300": 2.45}
-    cost = price_map.get(amount_dzd, 999)
-    if user.balance_usdt >= cost:
-        user.balance_usdt -= cost
-        new_order = Order(user_id=user.id, order_type="RECHARGE", details=f"{operator} | {phone} | {amount_dzd}DZD", cost_usdt=cost)
-        db.session.add(new_order)
-        db.session.commit()
-        flash("تم تقديم طلب الشحن!", "success")
-    else: flash("رصيد ناقص", "error")
-    return redirect(url_for("store"))
-
-@app.route("/portal/x/store/game/purchase", methods=["POST"])
-def purchase_game():
-    user = get_user_safe(session.get("miner_id"))
-    if not user: return redirect(url_for("login"))
-    game = request.form.get("game")
-    item = request.form.get("item")
-    price = float(request.form.get("price", 999))
-    if user.balance_usdt >= price:
-        user.balance_usdt -= price
-        new_order = Order(user_id=user.id, order_type="GAME", details=f"{game} | {item}", cost_usdt=price)
-        db.session.add(new_order)
-        db.session.commit()
-        flash("تم شراء العروض!", "success")
-    else: flash("رصيد ناقص", "error")
-    return redirect(url_for("store"))
-
-# --- مركز الأدمن (Admin Panel) ---
-
-@app.route("/admin/p/dashboard")
-def admin_dash():
-    user = get_user_safe(session.get("miner_id"))
-    if not user or not user.is_admin: return redirect(url_for("node_control"))
-    all_users = User.query.all()
-    pending_orders = Order.query.filter_by(status="PENDING").all()
-    total_xp = db.session.query(db.func.sum(User.xp)).scalar() or 0
-    return render_template("admin_dashboard.html", user=user, all_users=all_users, orders=pending_orders, total_xp=total_xp)
-
-@app.route("/admin/x/order/complete/<int:oid>")
-def admin_complete_order(oid):
-    user = get_user_safe(session.get("miner_id"))
-    if not user or not user.is_admin: return redirect(url_for("node_control"))
-    order = Order.query.get(oid)
-    if order:
-        order.status = "DONE"
-        db.session.commit()
-        flash(f"تم إكمال الطلب {oid} بنجاح!", "success")
-    return redirect(url_for("admin_dash"))
-
-@app.route("/admin/x/user/edit", methods=["POST"])
-def admin_edit_user():
-    user = get_user_safe(session.get("miner_id"))
-    if not user or not user.is_admin: return redirect(url_for("node_control"))
-    target_id = request.form.get("user_id")
-    target_user = User.query.get(target_id)
-    if target_user:
-        target_user.xp = float(request.form.get("xp", target_user.xp))
-        target_user.balance_usdt = float(request.form.get("balance", target_user.balance_usdt))
-        db.session.commit()
-        flash(f"تم تعديل بيانات {target_user.username}", "success")
-    return redirect(url_for("admin_dash"))
-
-# (باقي الروابط تتبع نفس النمط لضمان الـ Null Safety)
 @app.route("/portal/store/recharge")
 def recharge_algeria():
     user = get_user_safe(session.get("miner_id"))
@@ -251,6 +191,40 @@ def pulse_sync():
 def logout():
     session.pop("miner_id", None)
     return redirect(url_for("landing"))
+
+@app.route("/auth/v1/sync", methods=["POST"])
+def register_v_alt():
+    u = request.form.get("username", "").strip()
+    p = request.form.get("password")
+    if User.query.filter_by(username=u).first(): return redirect(url_for("landing"))
+    new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper())
+    db.session.add(new_u); db.session.commit()
+    session["miner_id"] = new_u.id
+    return redirect(url_for("node_control"))
+
+@app.route("/admin/x/user/edit", methods=["POST"])
+def admin_edit_user():
+    u = get_user_safe(session.get("miner_id"))
+    if not u or not u.is_admin: return redirect(url_for("node_control"))
+    target = User.query.get(request.form.get("user_id"))
+    if target:
+        target.xp = float(request.form.get("xp", target.xp))
+        target.balance_usdt = float(request.form.get("balance", target.balance_usdt))
+        db.session.commit()
+    return redirect(url_for("admin_dash"))
+
+@app.route("/portal/x/store/card/purchase", methods=["POST"])
+def purchase_card_v2():
+    user = get_user_safe(session.get("miner_id"))
+    if not user: return redirect(url_for("login"))
+    ctype = request.form.get("card_type")
+    price = float(request.form.get("price", 999))
+    if user.balance_usdt >= price:
+        user.balance_usdt -= price
+        new_order = Order(user_id=user.id, order_type="CARD", details=f"{ctype}", cost_usdt=price)
+        db.session.add(new_order); db.session.commit()
+        flash("تم طلب البطاقة!", "success")
+    return redirect(url_for("store_cards"))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
