@@ -75,12 +75,12 @@
         }
         .glow-pulse { animation: pulse 2s infinite; }
 
-        .form-control, .form-range {
+        .form-control, .form-range, .form-select {
             background: #111 !important;
             border: 1px solid #222 !important;
             color: var(--accent-green) !important;
         }
-        .form-control:focus { border-color: var(--accent-green) !important; box-shadow: 0 0 10px var(--glow-green) !important; }
+        .form-control:focus, .form-select:focus { border-color: var(--accent-green) !important; box-shadow: 0 0 10px var(--glow-green) !important; }
     </style>
 </head>
 <body>
@@ -93,11 +93,12 @@
                 <i class="fa-solid fa-bars text-white"></i>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     {% if session.miner_id %}
                         <li class="nav-item"><a class="nav-link" href="/portal/deposit"><i class="fa-solid fa-wallet text-warning me-1"></i> إيداع</a></li>
+                        <li class="nav-item mx-2"><a class="nav-link btn btn-outline-danger btn-sm px-3" href="/portal/withdraw"><i class="fa-solid fa-hand-holding-dollar me-1"></i> سحب</a></li>
                         <li class="nav-item"><a class="nav-link" href="/portal/x/node"><i class="fa-solid fa-chart-line me-1"></i> العقدة</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-power-off me-1"></i> خروج</a></li>
+                        <li class="nav-item"><a class="nav-link text-danger-emphasis !important" href="/logout"><i class="fa-solid fa-power-off me-1"></i> خروج</a></li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="/how-it-works"><i class="fa-solid fa-circle-question me-1"></i> كيف تربح؟</a></li>
                         <li class="nav-item"><a class="nav-link" href="/login">تسجيل دخول</a></li>
@@ -112,7 +113,7 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
-              <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} bg-dark text-{{ category }} border-{{ category }} small">
+              <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} bg-dark text-{{ 'danger' if category == 'error' else 'success' }} border-{{ 'danger' if category == 'error' else 'success' }} small">
                 {{ message }}
               </div>
             {% endfor %}

