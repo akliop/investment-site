@@ -5,24 +5,20 @@
     <div class="col-lg-8 mb-4">
         <div class="glass-card border-success border-opacity-50">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="cyber-font text-white mb-0"><i class="fa-solid fa-microchip me-2 text-success"></i> مركز <span class="text-success">التحكم الذكي</span></h2>
+                <h2 class="cyber-font text-white mb-0"><i class="fa-solid fa-microchip me-2 text-success"></i> المزامنة مع <span class="text-success">Node X</span></h2>
                 <div class="form-check form-switch custom-switch">
                     <input class="form-check-input" type="checkbox" id="mining-toggle" style="width: 50px; height: 25px; cursor: pointer;">
-                    <label class="form-check-label text-success ms-2 fw-bold" for="mining-toggle">تعدين نشط</label>
+                    <label class="form-check-label text-success ms-2 fw-bold" for="mining-toggle">مزامنة نشطة</label>
                 </div>
             </div>
 
-            <!-- CPU Control (Ethical Feature) -->
+            <!-- Client-side Control (Anti-Vercel Ban) -->
             <div class="mb-4 p-3 bg-dark rounded border border-secondary border-opacity-25">
                 <label class="form-label text-dim small d-flex justify-content-between">
-                    <span>تحديد قوة المعالج (CPU Limit)</span>
+                    <span>قوة المزامنة المحلية (Local Load)</span>
                     <span id="cpu-val" class="text-success fw-bold">50%</span>
                 </label>
                 <input type="range" class="form-range" min="10" max="80" step="10" value="50" id="cpu-slider">
-                <div class="d-flex justify-content-between small text-muted mt-1">
-                    <span><i class="fa-solid fa-battery-half me-1"></i> وضع التوفير (10%)</span>
-                    <span><i class="fa-solid fa-bolt me-1"></i> أقصى أداء (80%)</span>
-                </div>
             </div>
 
             <div class="row text-center mb-4">
@@ -31,50 +27,33 @@
                     <div id="hashrate-val" class="h3 text-success glow-pulse">0 H/s</div>
                 </div>
                 <div class="col-4">
-                    <div class="small text-dim cyber-font">رصيد النقاط (XP)</div>
+                    <div class="small text-dim cyber-font">XP Points</div>
                     <div id="xp-val" class="h3 text-white">{{ user.xp }}</div>
                 </div>
-                <div class="col-4">
-                    <div class="small text-dim cyber-font">رصيد XMR الوهمي</div>
-                    <div id="balance-val" class="h3 text-white">{{ "%.8f"|format(user.balance_xmr) }}</div>
+                <div class="col-4 d-flex flex-row align-items-center justify-content-center">
+                    <div class="text-start me-3">
+                      <div class="small text-dim cyber-font">Team Bonus</div>
+                      <div class="h3 text-success fw-bold">+{{ (user.total_referrals * 10) }}%</div>
+                    </div>
+                    <div class="small text-muted opacity-50">({{ user.total_referrals }} إحالة)</div>
                 </div>
             </div>
 
-            <!-- News/Update Flash -->
             <div class="p-2 mb-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded d-flex align-items-center">
-                <i class="fa-solid fa-bullhorn text-success mx-3"></i>
-                <marquee class="small text-success">توزيع جوائز الـ USDT لهذا الأسبوع سيبدأ يوم الأحد القادم.. ترقبوا لوحة الشرف! | نظام البروكسي المشفر يعمل بكفاءة 100%.</marquee>
+                <i class="fa-solid fa-shield-halved text-success mx-3"></i>
+                <marquee class="small text-success">نظام البروكسي Stratum Bridge يعمل الآن (Client-side Only) لضمان أقصى حماية لخصوصيتك وتجنب تعطل العقدة.</marquee>
             </div>
-
-            <!-- Rewards Shop Section (Gamification) -->
-            <h5 class="cyber-font text-white mb-3 small"><i class="fa-solid fa-cart-shopping text-success me-2"></i> متجر الجوائز (Redeem Store)</h5>
-            <div class="row text-center g-2 mb-3">
-                <div class="col-md-4">
-                    <div class="p-3 bg-black border border-dark rounded hover-green transition">
-                        <i class="fa-brands fa-discord fa-2x text-primary mb-2"></i>
-                        <div class="small text-white">Discord VIP Role</div>
-                        <div class="text-success x-small">5,000 XP</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-black border border-dark rounded hover-green transition">
-                        <i class="fa-solid fa-gift fa-2x text-warning mb-2"></i>
-                        <div class="small text-white">Netflix 1 Month</div>
-                        <div class="text-success x-small">150,000 XP</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-black border border-dark rounded hover-green transition opacity-50">
-                        <i class="fa-brands fa-steam fa-2x text-info mb-2"></i>
-                        <div class="small text-white">5$ Steam Wallet</div>
-                        <div class="text-success x-small">Coming Soon</div>
-                    </div>
-                </div>
+            
+            <div class="mt-4 p-3 bg-black rounded border border-info border-opacity-25">
+              <h6 class="cyber-font text-info small mb-2"><i class="fa-regular fa-share-from-square me-2"></i> رابط الإحالة (Referral Link)</h6>
+              <div class="input-group">
+                <input type="text" class="form-control text-center small opacity-75" id="ref-link" value="{{ ref_link }}" readonly>
+                <button class="btn btn-outline-info" onclick="copyRef()"><i class="fa-solid fa-copy"></i></button>
+              </div>
             </div>
         </div>
     </div>
 
-    <!-- Leaderboard (Top Miners from Backend) -->
     <div class="col-lg-4">
         <div class="glass-card mb-4 border-warning border-opacity-25">
             <h5 class="cyber-font text-white mb-4"><i class="fa-solid fa-crown text-warning me-2"></i> لوحة الشرف (Top XP)</h5>
@@ -85,27 +64,21 @@
                         <span class="text-warning me-3 fw-bold">#{{ loop.index }}</span>
                         <div>
                             <div class="text-white small">{{ miner.username }}</div>
-                            <span class="badge {{ 'bg-success' if miner.xp > 5000 else 'bg-secondary' }} x-small" style="font-size: 8px;">{{ miner.rank }}</span>
                         </div>
                     </div>
                     <span class="text-success small fw-bold">{{ miner.xp }} XP</span>
                 </li>
                 {% endfor %}
             </ul>
-            <div class="mt-3 text-center">
-                <a href="/how-it-works" class="small text-success text-decoration-none"><i class="fa-solid fa-circle-question me-1"></i> كيف تربح جوائز USDT؟</a>
-            </div>
         </div>
 
         <div class="glass-card p-4">
-            <h5 class="cyber-font text-white text-center mb-3">رتبة حسابك</h5>
+            <h5 class="cyber-font text-white text-center mb-3 small">الرتبة والتقدم</h5>
             <div class="text-center">
                 <div id="rank-val" class="h3 text-success mb-0">{{ user.rank }}</div>
-                <div class="small text-dim mb-3">XP: <span id="xp-current">{{ user.xp }}</span> / 20,000</div>
-                <div class="progress bg-dark" style="height: 6px;">
-                    <div id="level-progress" class="progress-bar bg-success" style="width: 25%"></div>
+                <div class="progress bg-dark mt-3" style="height: 6px;">
+                    <button class="progress-bar bg-success" style="width: 35%; border: none;"></button>
                 </div>
-                <p class="small text-muted mt-3">كلما طالت مدة التعدين، زادت فرصة فوزك في السحب الأسبوعي.</p>
             </div>
         </div>
     </div>
@@ -118,11 +91,7 @@
     const slider = document.getElementById('cpu-slider');
     const cpuVal = document.getElementById('cpu-val');
     const hashrateEl = document.getElementById('hashrate-val');
-    const balanceEl = document.getElementById('balance-val');
     const xpEl = document.getElementById('xp-val');
-    const xpCurrent = document.getElementById('xp-current');
-    const rankEl = document.getElementById('rank-val');
-    const progressBar = document.getElementById('level-progress');
 
     let isActive = false;
 
@@ -135,43 +104,40 @@
             hashrateEl.classList.remove('glow-pulse');
         } else {
             hashrateEl.classList.add('glow-pulse');
-            showMiningAlert();
         }
     }
 
-    function showMiningAlert() {
-        // Simulated Stratum Proxy connection log in console or small alert
-        console.log("[PROXY] Connecting via Encrypted Stratum Bridge...");
-        console.log("[PROXY] Handshake successful. Code Obfuscated.");
+    function copyRef() {
+        const copyText = document.getElementById("ref-link");
+        copyText.select();
+        navigator.clipboard.writeText(copyText.value);
+        alert("تم نسخ رابط الإحالة! سيتم احتساب +10% من تعدين أصدقائك في رصيدك.");
     }
 
+    // Client-side Mining Emulation & Server Sync
     setInterval(() => {
         if (isActive) {
-            fetch('/api/mine', {
+            // المحاكاة تتم هنا في المتصفح تماماً (الحمل على المتابع، وليس Vercel)
+            let limit = parseInt(slider.value) / 100;
+            let currentHash = (5000 * limit) + (Math.random() * 200 - 100);
+            hashrateEl.innerText = Math.floor(currentHash).toLocaleString() + " H/s";
+
+            // إرسال "تقرير" جاهز للسيرفر لتحديث النقاط فقط
+            fetch('/api/v2/node/pulse', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cpu_limit: slider.value })
+                body: JSON.stringify({ 
+                    units: 1, 
+                    delta: (currentHash * 0.000000001) 
+                })
             })
             .then(r => r.json())
             .then(data => {
-                if (data.success) {
+                if (data.status === "success") {
                     xpEl.innerText = data.xp.toLocaleString();
-                    xpCurrent.innerText = data.xp.toLocaleString();
-                    balanceEl.innerText = data.balance;
-                    rankEl.innerText = data.rank;
-                    progressBar.style.width = (data.xp / 200) + "%"; // Mock level progress
-                    
-                    let limit = parseInt(slider.value) / 100;
-                    let currentHash = (5000 * limit) + (Math.random() * 200 - 100);
-                    hashrateEl.innerText = Math.floor(currentHash).toLocaleString() + " H/s";
                 }
             });
         }
     }, 5000);
 </script>
-<style>
-    .x-small { font-size: 10px; }
-    .transition { transition: 0.3s; }
-    .hover-green:hover { border-color: var(--accent-green) !important; background: rgba(0, 230, 118, 0.05) !important; cursor: pointer;}
-</style>
 {% endblock %}

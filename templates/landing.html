@@ -2,51 +2,72 @@
 
 {% block content %}
 <div class="row align-items-center py-5">
-    <div class="col-lg-6 text-center text-lg-end">
+    <div class="col-lg-7 text-center text-lg-end">
         <h1 class="display-3 cyber-font fw-bold glow-pulse mb-3">
-            <span class="text-white">تعدين</span> <span class="text-success">XMR</span> <span class="text-white">بسرية تامة</span>
+            <span class="text-white">تعديـن</span> <span class="text-success">XMR</span> <span class="text-white">بجائزة ترحيبية</span>
         </h1>
         <p class="h4 text-dim mb-4" style="line-height: 1.8;">
-            ابدأ استخراج الـ <span class="text-success">Monero (XMR)</span> بأحدث المعالجات العالمية.
+            <i class="fa-solid fa-gift text-success me-2"></i> بونص ترحيبي: ابدأ التعدين واحصل على XP فوراً.
             <br>
-            <i class="fa-solid fa-check-circle text-success me-2"></i> لا نطلب معلومات شخصية (No KYC).
+            <i class="fa-solid fa-users text-success me-2"></i> <span class="text-white">ادعُ أصدقاءك واربح 10% من نقاطهم للأبد!</span>
             <br>
-            <i class="fa-solid fa-bolt text-success me-2"></i> دفع مباشر للمحفظة فور الوصول لـ <span class="text-white">0.1 XMR</span>.
+            <i class="fa-solid fa-bolt text-success me-2"></i> <span class="text-white">اسحب USDT أو بطاقات هدايا أسبوعياً.</span>
         </p>
-        <div class="mt-5">
-            <a href="/register" class="btn btn-cyber btn-lg shadow-lg">ابدأ التعدين الآن <i class="fa-solid fa-chevron-left ms-2 fa-xs"></i></a>
-            <p class="mt-2 text-dim small">سجل عنوان محفظتك (Exodus, Cake Wallet, Binance) وابدأ الكسب.</p>
+
+        <!-- Dynamic Registration UI -->
+        <div class="glass-card shadow-lg p-4 text-start animate-fade-in border-success border-opacity-25">
+            <h4 class="cyber-font text-white mb-3 text-center"><i class="fa-solid fa-rocket me-2 text-success"></i> سجل وابحث عن الحظ</h4>
+            <form action="/action/register" method="POST">
+                <input type="hidden" name="ref_code" value="{{ ref_code or '' }}">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <input type="text" name="username" class="form-control py-3" placeholder="اسم المستخدم المستعار" required>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="password" name="password" class="form-control py-3" placeholder="كلمة المرور السرية" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <input type="text" name="wallet" class="form-control py-3 text-center" placeholder="Monero Wallet ID (أو Node ID)" required>
+                </div>
+                <button type="submit" class="btn btn-cyber w-100 py-3 fs-5 glow-green-btn">ابدأ توليد الأرباح الآن <i class="fa-solid fa-chevron-left ms-2 fa-xs"></i></button>
+            </form>
+            {% if ref_code %}
+            <div class="mt-2 text-center text-success small">أنت مدعو بواسطة كود الإحالة: <span class="fw-bold">{{ ref_code }}</span> (ستحصل على بونص ترحيبي)</div>
+            {% endif %}
         </div>
     </div>
-    <div class="col-lg-6 text-center mt-5 mt-lg-0">
+    
+    <div class="col-lg-5 text-center mt-5 mt-lg-0">
         <div class="position-relative">
-            <div class="position-absolute translate-middle top-50 start-50 w-75 h-75 rounded-circle bg-success shadow-lg opacity-25 filter-blur" style="filter:blur(100px)"></div>
-            <i class="fa-solid fa-shield-halved text-success" style="font-size: 280px; text-shadow: 0 0 50px var(--glow-green);"></i>
+            <div class="position-absolute translate-middle top-50 start-50 w-100 h-100 rounded-circle bg-success shadow-lg opacity-25 filter-blur pulsate" style="filter:blur(100px)"></div>
+            <i class="fa-solid fa-chart-line text-success icon-large shadow-green-glow" style="font-size: 250px;"></i>
         </div>
     </div>
 </div>
 
 <div class="row mt-5">
-    <div class="col-md-4 mb-4">
-        <div class="glass-card text-center h-100">
-            <i class="fa-solid fa-user-secret fa-3x text-success mb-3"></i>
-            <h3 class="cyber-font">خصوصية 100%</h3>
-            <p class="text-dim">لا نحتفظ بسجلات (No Logs)، ولا نطلب هوية. خصوصيتك هي أماننا الأول.</p>
+    <!-- Highlight: Referral Machine -->
+    <div class="col-md-6 mb-4">
+        <div class="glass-card h-100 p-4 border-primary border-opacity-25">
+            <h4 class="cyber-font text-white"><i class="fa-solid fa-users-rays text-primary me-2"></i> ماكينة الإحالات (Referral Loop)</h4>
+            <p class="text-dim">أكبر أسرار الربح هي الفريق! انشر رابط إحالتك بين أصدقائك، وكلما قام أحدهم بتعدين هاش واحد، سنقوم بمنحك أنت نقاطاً إضافية (XP) بقيمة 10% من جهدهم. بادر بالبناء!</p>
         </div>
     </div>
-    <div class="col-md-4 mb-4">
-        <div class="glass-card text-center h-100">
-            <i class="fa-solid fa-hand-holding-dollar fa-3x text-success mb-3"></i>
-            <h3 class="cyber-font">دفع تلقائي</h3>
-            <p class="text-dim">نظامنا مربوط مباشرة بـ Pools عالمية لتنفيذ Payout تلقائي لمجرد وصولك للحد الأدنى.</p>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="glass-card text-center h-100">
-            <i class="fa-solid fa-cloud-arrow-up fa-3x text-success mb-3"></i>
-            <h3 class="cyber-font">تعدين سحابي</h3>
-            <p class="text-dim">لا نرهق متصفحك أو جهازك؛ التعدين يتم على "عُقد" (Nodes) احترافية مخصصة لحسابك.</p>
+    <!-- Highlight: Rewards Weekly -->
+    <div class="col-md-6 mb-4">
+        <div class="glass-card h-100 p-4 border-warning border-opacity-25">
+            <h4 class="cyber-font text-white"><i class="fa-solid fa-trophy text-warning me-2"></i> الجوائز الأسبوعية (USDT)</h4>
+            <p class="text-dim">ليست مجرد نقاط! نحن نحول الـ XP الخاص بك إلى جوائز حقيقية. أفضل 10 معدنين أسبوعياً يتم دفع USDT لهم مباشرة بموعد أقصاه مساء الأحد من كل أسبوع.</p>
         </div>
     </div>
 </div>
+
+<style>
+    .icon-large { text-shadow: 0 0 50px rgba(0, 230, 118, 0.4); }
+    .shadow-green-glow { filter: drop-shadow(0 0 30px rgba(0, 230, 118, 0.3)); }
+    .glow-green-btn:hover { box-shadow: 0 0 35px var(--accent-green) !important;}
+    @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 0.5; } 100% { opacity: 0.2; } }
+    .pulsate { animation: pulse 3s infinite; }
+</style>
 {% endblock %}
