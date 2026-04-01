@@ -4,7 +4,11 @@
 <div class="row pt-4 justify-content-center">
     <div class="col-lg-11">
         <div class="glass-card border-info border-opacity-50 p-4 shadow-lg text-center overflow-hidden">
-            <h2 class="cyber-font text-white mb-5"><i class="fa-solid fa-credit-card text-info me-2"></i> البطاقات الافتراضية (Virtual Cards)</h2>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+               <a href="/portal/store" class="btn btn-outline-secondary btn-sm px-3"><i class="fa-solid fa-arrow-right me-1"></i> للمتجر</a>
+               <h3 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-credit-card text-info me-2"></i> البطاقات الافتراضية</h3>
+               <div style="width: 80px;"></div>
+            </div>
             
             <div class="row g-4 justify-content-center">
                 <!-- VISA SECTION -->
@@ -17,16 +21,12 @@
                             <form action="/portal/x/store/card/purchase" method="POST">
                                 <input type="hidden" name="card_type" value="VISA VIRTUAL">
                                 <input type="hidden" name="price" value="0.4">
-                                <button type="submit" class="btn btn-outline-info w-100 py-2 fw-bold small">
-                                    وهمية (Virtual) - <span class="text-white">$0.40</span>
-                                </button>
+                                <button type="submit" class="btn btn-outline-info w-100 py-2 fw-bold small">وهمية - $0.40</button>
                             </form>
                             <form action="/portal/x/store/card/purchase" method="POST">
                                 <input type="hidden" name="card_type" value="VISA REAL">
                                 <input type="hidden" name="price" value="1.5">
-                                <button type="submit" class="btn btn-info w-100 py-2 fw-bold small text-black shadow-lg">
-                                    حقيقية (Real) - <span class="text-dark">$1.50</span>
-                                </button>
+                                <button type="submit" class="btn btn-info w-100 py-2 fw-bold small text-black shadow-lg">حقيقية - $1.50</button>
                             </form>
                         </div>
                     </div>
@@ -42,34 +42,18 @@
                             <form action="/portal/x/store/card/purchase" method="POST">
                                 <input type="hidden" name="card_type" value="MASTERCARD VIRTUAL">
                                 <input type="hidden" name="price" value="0.4">
-                                <button type="submit" class="btn btn-outline-danger w-100 py-2 fw-bold small">
-                                    وهمية (Virtual) - <span class="text-white">$0.40</span>
-                                </button>
+                                <button type="submit" class="btn btn-outline-danger w-100 py-2 fw-bold small">وهمية - $0.40</button>
                             </form>
                             <form action="/portal/x/store/card/purchase" method="POST">
                                 <input type="hidden" name="card_type" value="MASTERCARD REAL">
                                 <input type="hidden" name="price" value="1.5">
-                                <button type="submit" class="btn btn-danger w-100 py-2 fw-bold small shadow-lg">
-                                    حقيقية (Real) - <span class="text-white">$1.50</span>
-                                </button>
+                                <button type="submit" class="btn btn-danger w-100 py-2 fw-bold small shadow-lg">حقيقية - $1.50</button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="mt-5 p-3 bg-dark bg-opacity-25 rounded border border-dark x-small text-dim text-center">
-                <i class="fa-solid fa-clock-rotate-left me-2"></i> يتم تسليم معلومات البطاقة (الرقم، التاريخ، CVC) إلى حسابك فور مراجعة الطلب (خلال 30 دقيقة).
-            </div>
         </div>
     </div>
 </div>
-
-<style>
-    .hover-glow:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2) !important; }
-    .shadow-blue:hover { box-shadow: 0 0 20px rgba(0, 150, 255, 0.2); }
-    .shadow-orange:hover { box-shadow: 0 0 20px rgba(255, 87, 34, 0.2); }
-    .transition-fast { transition: 0.3s; }
-    .x-small { font-size: 11px; }
-</style>
 {% endblock %}
