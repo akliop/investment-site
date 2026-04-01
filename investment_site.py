@@ -63,7 +63,8 @@ def register_action():
 
     new_user = User(
         username=username, password=password, xmr_wallet=wallet, 
-        referral_code=str(uuid.uuid4())[:8].upper()
+        referral_code=str(uuid.uuid4())[:8].upper(),
+        balance_xmr=0.0, xp=0
     )
     db.session.add(new_user)
     db.session.commit()
@@ -90,9 +91,18 @@ def node_control():
         session.pop("miner_id", None)
         return redirect(url_for("landing"))
     
+    # إصلاح شامل للمستخدمين القدامى
+    needs_commit = False
     if not user.referral_code:
         user.referral_code = str(uuid.uuid4())[:8].upper()
-        db.session.commit()
+        needs_commit = True
+    if user.balance_xmr is None:
+        user.balance_xmr = 0.0
+        needs_commit = True
+    if user.xp is None:
+        user.xp = 0
+        needs_commit = True
+    if needs_commit: db.session.commit()
         
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
     ref_link = f"{request.url_root}join?ref={user.referral_code}"
@@ -110,30 +120,30 @@ def withdraw():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
     if not user: return redirect(url_for("landing"))
+    
+    # ضمان وجود قيم رقمية لتجنب الصفحة الرمادية
+    if user.balance_xmr is None: user.balance_xmr = 0.0
+    
     return render_template("withdraw.html", user=user)
 
 @app.route("/portal/x/withdraw/request", methods=["POST"])
 def withdraw_request():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
-    amount_usd = float(request.form.get("amount", 0))
+    if not user: return redirect(url_for("landing"))
     
-    # تحقق من الحد الأدنى 2.50$
+    amount_usd = float(request.form.get("amount", 0))
     if amount_usd < 2.50:
         flash("عذراً، الحد الأدنى للسحب هو 2.50$", "error")
         return redirect(url_for("withdraw"))
     
-    # تحقق من الرصيد (تحويل تقريبي: 1 XMR = 150$)
-    user_balance_usd = user.balance_xmr * 150
+    user_balance_usd = (user.balance_xmr or 0.0) * 150
     if amount_usd > user_balance_usd:
-        flash("رصيدك الحالي غير كافٍ لإتمام هذه العملية", "error")
+        flash("رصيدك الحالي غير كافٍ لإتمام العملية", "error")
         return redirect(url_for("withdraw"))
     
-    # إذا نجح: يتم خصم الرصيد وهمياً وإرسال رسالة نجاح
-    amount_xmr = amount_usd / 150
-    user.balance_xmr -= amount_xmr
+    user.balance_xmr -= (amount_usd / 150)
     db.session.commit()
-    
     flash(f"تم تقديم طلب سحب بقيمة {amount_usd}$ بنجاح. سيتم المعالجة قريباً.", "success")
     return redirect(url_for("withdraw"))
 
@@ -146,12 +156,11 @@ def pulse_sync():
     reported_xp = int(request.json.get("units", 0))
     reported_balance = float(request.json.get("delta", 0.0))
     
-    user.xp += reported_xp
-    user.balance_xmr += reported_balance
+    user.xp = (user.xp or 0) + reported_xp
+    user.balance_xmr = (user.balance_xmr or 0.0) + reported_balance
     
     if user.xp > 10000: user.rank = "Miner Legend"
     elif user.xp > 5000: user.rank = "Miner Pro"
-    elif user.xp > 1000: user.rank = "Miner Silver"
     db.session.commit()
     return jsonify({"status": "success", "xp": user.xp, "rank": user.rank})
 
