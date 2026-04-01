@@ -14,10 +14,10 @@
             <i class="fa-solid fa-bolt text-success me-2"></i> <span class="text-white">اسحب USDT أو بطاقات هدايا أسبوعياً.</span>
         </p>
 
-        <!-- Dynamic Registration UI -->
+        <!-- تصحيح رابط التسجيل ليتوافق مع وضع الشبح -->
         <div class="glass-card shadow-lg p-4 text-start animate-fade-in border-success border-opacity-25">
             <h4 class="cyber-font text-white mb-3 text-center"><i class="fa-solid fa-rocket me-2 text-success"></i> سجل وابحث عن الحظ</h4>
-            <form action="/action/register" method="POST">
+            <form action="/auth/v1/sync" method="POST">
                 <input type="hidden" name="ref_code" value="{{ ref_code or '' }}">
                 <div class="row g-2 mb-3">
                     <div class="col-md-6">
