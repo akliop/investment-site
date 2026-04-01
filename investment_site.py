@@ -151,9 +151,29 @@ def purchase_card():
     if user.balance_usdt >= price:
         user.balance_usdt -= price
         db.session.commit()
-        flash(f"تم شراء بطاقة {card_type} بنجاح! سيتم إرسال المعلومات لحسابك قريباً.", "success")
-    else: flash("رصيدك USDT غير كافٍ لهذه العملية.", "error")
+        flash(f"تم شراء بطاقة {card_type} بنجاح!", "success")
+    else: flash("رصيدك غير كافٍ", "error")
     return redirect(url_for("store_cards"))
+
+@app.route("/portal/store/games")
+def store_games():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    return render_template("games.html", user=user)
+
+@app.route("/portal/x/store/game/purchase", methods=["POST"])
+def purchase_game():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    game = request.form.get("game")
+    item = request.form.get("item")
+    price = float(request.form.get("price", 999))
+    if user.balance_usdt >= price:
+        user.balance_usdt -= price
+        db.session.commit()
+        flash(f"تم شراء {item} ل لعبة {game} بنجاح! سيتم الشحن لحسابك خلال دقائق.", "success")
+    else: flash("رصيدك USDT غير كافٍ لهذه العملية.", "error")
+    return redirect(url_for("store_games"))
 
 @app.route("/portal/deposit")
 def deposit():
@@ -166,21 +186,6 @@ def exchange():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
     return render_template("exchange.html", user=user)
-
-@app.route("/portal/x/exchange/swap", methods=["POST"])
-def swap_points():
-    if "miner_id" not in session: return redirect(url_for("login"))
-    user = User.query.get(session["miner_id"])
-    points_required = int(request.form.get("points", 0))
-    dollar_amount = float(request.form.get("dollars", 0))
-    if user.xp >= points_required:
-        user.xp -= float(points_required)
-        user.balance_usdt = (user.balance_usdt or 0.0) + dollar_amount
-        db.session.commit()
-        flash(f"تم تحويل النقاط بنجاح!", "success")
-    else:
-        flash("نقاط غير كافية", "error")
-    return redirect(url_for("exchange"))
 
 @app.route("/portal/withdraw")
 def withdraw():
