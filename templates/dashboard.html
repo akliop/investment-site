@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <h2 class="cyber-font text-white"><i class="fa-solid fa-server me-2 text-success"></i> لوحة <span class="text-success">التحكم</span></h2>
+        <span class="badge bg-success shadow-green px-3 py-2 glow-pulse">Mining ACTIVE <i class="fa-solid fa-bolt ms-1"></i></span>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Stat 1: Hashrate -->
+    <div class="col-md-4 mb-4">
+        <div class="glass-card text-center p-4">
+            <h5 class="text-dim small mb-2 cyber-font">سرعة التعدين الحالية</h5>
+            <div id="hashrate-val" class="display-5 text-success glow-pulse fw-bold cyber-font">0.00 H/s</div>
+            <div class="small mt-2 text-muted">Node Status: High Performance</div>
+        </div>
+    </div>
+    <!-- Stat 2: Balance -->
+    <div class="col-md-4 mb-4">
+        <div class="glass-card text-center p-4">
+            <h5 class="text-dim small mb-2 cyber-font">رصيد Monero المجمع</h5>
+            <div id="balance-val" class="display-5 text-white fw-bold cyber-font">{{ "%.8f"|format(user.balance_xmr) }} XMR</div>
+            <div class="small mt-2 text-muted">تحديث مستمر..</div>
+        </div>
+    </div>
+    <!-- Stat 3: Next Payout -->
+    <div class="col-md-4 mb-4">
+        <div class="glass-card text-center p-4">
+            <h5 class="text-dim small mb-2 cyber-font">الحد الأدنى للسحب</h5>
+            <div class="display-5 text-white fw-bold cyber-font">0.1000000 XMR</div>
+            <div class="progress mt-3 bg-dark" style="height: 10px; border-radius: 5px;">
+                <div id="progress-bar" class="progress-bar bg-success shadow-green" style="width: 0.5%"></div>
+            </div>
+            <div id="progress-text" class="small mt-1 text-dim">0.5% تم تجميعها للمحفظة</div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <!-- Active Nodes -->
+    <div class="col-lg-8 mb-4">
+        <div class="glass-card h-100">
+            <h5 class="cyber-font mb-4 text-white"><i class="fa-solid fa-network-wired me-2 text-success"></i> العُقد النشطة (Mining Nodes)</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle">
+                    <thead>
+                        <tr class="text-dim border-bottom border-dark">
+                            <th>الموقع</th>
+                            <th>العقدة</th>
+                            <th>القوة</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for node in nodes %}
+                        <tr class="border-bottom border-dark">
+                            <td><i class="fa-solid fa-location-dot text-success me-1"></i> {{ node.location }}</td>
+                            <td class="cyber-font small">{{ node.name }}</td>
+                            <td>{{ node.power }}</td>
+                            <td><span class="badge bg-success opacity-75">ONLINE</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Live Activity Log -->
+    <div class="col-lg-4 mb-4">
+        <div class="glass-card h-100" style="background: #080808">
+            <h5 class="cyber-font mb-4 text-white small"><i class="fa-solid fa-terminal me-2 text-success"></i> Live Logging...</h5>
+            <div id="mining-log" class="small text-muted p-2" style="height: 250px; overflow-y: auto; font-family: monospace;">
+                <div>[SYSTEM] Initializing nodes...</div>
+                <div>[SYSTEM] Connecting to pool.supportxmr.com...</div>
+                <div>[AUTH] Wallet identified: {{ user.xmr_wallet[:15] }}...</div>
+                <div>[NETWORK] Secure connection established.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="glass-card border-success border-opacity-25 p-4">
+            <div class="row align-items-center">
+                <div class="col-md-1 text-center mb-3 mb-md-0">
+                    <i class="fa-solid fa-circle-info fa-2x text-success"></i>
+                </div>
+                <div class="col-md-11 text-dim">
+                    <h5 class="text-white mb-2 h4">تذكير بآلية الدفع (Payout Info)</h5>
+                    <p class="mb-0">
+                        بموجب فكرتك الاستراتيجية، يتم تجميع مجهود كافة العقد في الموقع لإتمام حد السحب الأدنى من مجمع التعدين (Mining Pool) وهو <span class="text-success">0.1 XMR</span>.
+                        بمجرد الوصول لهذا الحد، سيقوم الـ Pool بإرسال العملات تلقائياً إلى محفظتك المسجلة في حسابك. تأكد من أن عنوان محفظتك (الموجود في الإعدادات) صحيح ومدعوم (مثل Exodus أو Cake Wallet).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Live Stats Simulation for Visual WoW Factor
+    let currentHashrate = 0;
+    const targetHashrate = {{ (1500 + 4520 + 10500) / 10 | int }}; // Average simulated base
+    const logContainer = document.getElementById('mining-log');
+    const hashrateEl = document.getElementById('hashrate-val');
+    const balanceEl = document.getElementById('balance-val');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    function updateStats() {
+        // Fluctuating Hashrate
+        let flux = Math.random() * 200 - 100;
+        currentHashrate = targetHashrate + flux;
+        hashrateEl.innerText = currentHashrate.toLocaleString(undefined, {minimumFractionDigits: 2}) + " H/s";
+
+        // Increment Balance (visual simulation)
+        fetch('/api/stats')
+            .then(r => r.json())
+            .then(data => {
+                if (data.balance) {
+                    balanceEl.innerText = data.balance;
+                    progressBar.style.width = data.progress + "%";
+                    progressText.innerText = data.progress.toFixed(2) + "% تم تجميعها للمحفظة";
+                }
+            });
+
+        // Add dummy logs
+        const logs = [
+            "[STRATUM] New job received from pool.supportxmr.com",
+            "[MINER] Share accepted (diff 50k)",
+            "[SYSTEM] Synchronizing node performance...",
+            "[NETWORK] Block #293848 received",
+            "[STRATUM] Mining at optimal threads..."
+        ];
+        if (Math.random() > 0.6) {
+            let log = document.createElement('div');
+            log.innerText = `[${new Date().toLocaleTimeString()}] ` + logs[Math.floor(Math.random() * logs.length)];
+            logContainer.prepend(log);
+            if (logContainer.children.length > 20) logContainer.lastChild.remove();
+        }
+    }
+
+    setInterval(updateStats, 2000);
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center mt-5 pt-lg-5">
+    <div class="col-md-4">
+        <div class="glass-card shadow-lg p-5">
+            <h2 class="cyber-font text-center mb-5"><i class="fa-solid fa-lock me-2 text-success"></i> <span class="text-white">دخول</span> <span class="text-success">Node</span></h2>
+            <form method="POST">
+                <div class="mb-4">
+                    <label class="form-label text-dim small">اسم المستخدم</label>
+                    <input type="text" name="username" class="form-control" required placeholder="Miner_01">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-dim small">كلمة المرور</label>
+                    <input type="password" name="password" class="form-control" required placeholder="********">
+                </div>
+                <button type="submit" class="btn btn-cyber w-100 py-3">تنشيط الوصول <span class="ms-1">>>></span></button>
+            </form>
+            <div class="mt-4 text-center">
+                <a href="/register" class="text-dim small text-decoration-none hover-white">ليس لديك حساب؟ سجل الآن</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

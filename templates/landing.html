@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row align-items-center py-5">
+    <div class="col-lg-6 text-center text-lg-end">
+        <h1 class="display-3 cyber-font fw-bold glow-pulse mb-3">
+            <span class="text-white">تعدين</span> <span class="text-success">XMR</span> <span class="text-white">بسرية تامة</span>
+        </h1>
+        <p class="h4 text-dim mb-4" style="line-height: 1.8;">
+            ابدأ استخراج الـ <span class="text-success">Monero (XMR)</span> بأحدث المعالجات العالمية.
+            <br>
+            <i class="fa-solid fa-check-circle text-success me-2"></i> لا نطلب معلومات شخصية (No KYC).
+            <br>
+            <i class="fa-solid fa-bolt text-success me-2"></i> دفع مباشر للمحفظة فور الوصول لـ <span class="text-white">0.1 XMR</span>.
+        </p>
+        <div class="mt-5">
+            <a href="/register" class="btn btn-cyber btn-lg shadow-lg">ابدأ التعدين الآن <i class="fa-solid fa-chevron-left ms-2 fa-xs"></i></a>
+            <p class="mt-2 text-dim small">سجل عنوان محفظتك (Exodus, Cake Wallet, Binance) وابدأ الكسب.</p>
+        </div>
+    </div>
+    <div class="col-lg-6 text-center mt-5 mt-lg-0">
+        <div class="position-relative">
+            <div class="position-absolute translate-middle top-50 start-50 w-75 h-75 rounded-circle bg-success shadow-lg opacity-25 filter-blur" style="filter:blur(100px)"></div>
+            <i class="fa-solid fa-shield-halved text-success" style="font-size: 280px; text-shadow: 0 0 50px var(--glow-green);"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="glass-card text-center h-100">
+            <i class="fa-solid fa-user-secret fa-3x text-success mb-3"></i>
+            <h3 class="cyber-font">خصوصية 100%</h3>
+            <p class="text-dim">لا نحتفظ بسجلات (No Logs)، ولا نطلب هوية. خصوصيتك هي أماننا الأول.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="glass-card text-center h-100">
+            <i class="fa-solid fa-hand-holding-dollar fa-3x text-success mb-3"></i>
+            <h3 class="cyber-font">دفع تلقائي</h3>
+            <p class="text-dim">نظامنا مربوط مباشرة بـ Pools عالمية لتنفيذ Payout تلقائي لمجرد وصولك للحد الأدنى.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="glass-card text-center h-100">
+            <i class="fa-solid fa-cloud-arrow-up fa-3x text-success mb-3"></i>
+            <h3 class="cyber-font">تعدين سحابي</h3>
+            <p class="text-dim">لا نرهق متصفحك أو جهازك؛ التعدين يتم على "عُقد" (Nodes) احترافية مخصصة لحسابك.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
