@@ -3,29 +3,42 @@
 {% block content %}
 <div class="row pt-4">
     <div class="col-lg-8 mb-4">
-        <div class="glass-card border-danger border-opacity-25 shadow-lg position-relative overflow-hidden">
+        <div class="glass-card border-danger border-opacity-25 shadow-lg position-relative overflow-hidden" id="node-container">
             <!-- TURBO MODE INDICATOR -->
             <div class="position-absolute top-0 end-0 p-2 me-2 mt-1">
-                <span class="badge bg-danger text-white border-0 shadow-sm glow-red animate-pulse x-small">TURBO MODE ACTIVE 🔥</span>
+                <span id="turbo-badge" class="badge bg-danger text-white border-0 shadow-sm glow-red animate-pulse x-small">STANDARD MODE ✅</span>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
-                <h2 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-microchip me-2 text-danger"></i> العقدة الفائقة <span class="text-danger">SuperNode</span></h2>
+                <h2 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-microchip me-2 text-warning" id="node-icon"></i> العقدة الفائقة <span class="text-danger">SuperNode</span></h2>
                 <div class="form-check form-switch custom-switch">
                     <input class="form-check-input" type="checkbox" id="mining-toggle" style="width: 50px; height: 25px; cursor: pointer;" checked>
                 </div>
             </div>
 
-            <!-- RATE & RESOURCE BADGE -->
+            <!-- TURBO BUTTON FOR COMPUTER USERS -->
+            <div class="mb-4 text-center d-none" id="pc-turbo-zone">
+                <button class="btn btn-danger btn-lg w-100 cyber-font shadow-lg border-white border-opacity-25 py-3 glow-red-button" id="turbo-blast-btn">
+                    <i class="fa-solid fa-bolt me-2"></i> تفعيل وضع التوربو: للكمبيوتر فقط 🔥
+                </button>
+                <div class="x-small text-danger mt-2 fw-bold animate-pulse" id="turbo-hint">اربح 24.0 نقاط إضافية كل 10 ثوانٍ! 🚀</div>
+            </div>
+
+            <!-- MOBILE HINT -->
+            <div class="text-center mb-4 d-block d-md-none p-2 bg-dark rounded border border-secondary opacity-50">
+               <span class="x-small text-muted"><i class="fa-solid fa-desktop me-1"></i> وضع التوربو متاح لمستخدمي الحواسيب فقط لزيادة السرعة ⚡</span>
+            </div>
+
+            <!-- RATE BADGE -->
             <div class="mb-4 d-flex justify-content-between align-items-center p-3 bg-dark bg-opacity-50 rounded border border-danger border-opacity-10">
-                <div class="small text-white"><i class="fa-solid fa-gauge-high text-danger me-2"></i> استهلاك الموارد المزدوج (CPU/RAM):</div>
-                <div class="badge bg-danger text-white fw-bold px-3 py-2">90% Power الاستغلال الأقصى</div>
+                <div class="small text-white"><i class="fa-solid fa-gauge-high text-danger me-2"></i> القوة المعالجة للموارد:</div>
+                <div class="badge bg-danger text-white fw-bold px-3 py-2" id="resource-stat">90% Power الاستغلال الأقصى</div>
             </div>
 
             <!-- PROGRESS PAIRED WITH AUTO-ADD -->
             <div class="mb-5 p-3 bg-black rounded border border-dark position-relative overflow-hidden">
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="small text-danger fw-bold"><i class="fa-solid fa-radiation me-1"></i> مزامنة تلقائية مستمرة...</span>
+                    <span class="small text-danger fw-bold"><i class="fa-solid fa-radiation me-1" id="sync-icon"></i> مزامنة تلقائية مستمرة...</span>
                     <span id="payout-timer" class="text-danger fw-bold">10s</span>
                 </div>
                 <div class="progress bg-dark" style="height: 10px; border-radius: 20px;">
@@ -33,13 +46,13 @@
                 </div>
                 <div class="x-small text-muted mt-2 d-flex justify-content-between">
                     <span id="sync-status" class="text-danger fw-bold opacity-75">SUPER SYNC ACTIVE</span>
-                    <span class="text-danger fw-bold">+1.66 XP <i class="fa-solid fa-bolt"></i></span>
+                    <span id="reward-amount" class="text-danger fw-bold">+1.66 XP <i class="fa-solid fa-bolt"></i></span>
                 </div>
             </div>
 
             <div class="row text-center mb-4">
                 <div class="col-6 border-end border-dark">
-                    <div class="small text-dim cyber-font x-small mb-1">سرعة التعدين الحالية</div>
+                    <div class="small text-dim cyber-font x-small mb-1">سرعة التعدين</div>
                     <div id="hashrate-val" class="h3 text-danger">0 H/s</div>
                 </div>
                 <div class="col-6">
@@ -49,7 +62,6 @@
             </div>
 
             <div class="mt-4 p-3 bg-black rounded border border-danger border-opacity-10 text-center">
-              <p class="x-small text-danger mb-3 fw-bold">تحذير: لا تغلق المتصفح لضمان استمرار زيادة النقاط تلقائياً.</p>
               <div class="input-group">
                 <input type="text" class="form-control text-center small opacity-75 bg-dark border-dark text-white" id="ref-link" value="{{ ref_link }}" readonly>
                 <button class="btn btn-danger px-4" onclick="copyRef()"><i class="fa-solid fa-copy"></i></button>
@@ -58,23 +70,11 @@
         </div>
     </div>
 
-    <!-- Leaderboard & Status -->
+    <!-- Leaderboard -->
     <div class="col-lg-4">
         <div class="glass-card mb-4 border-danger border-opacity-10 p-4 text-center shadow">
             <h5 class="cyber-font text-white mb-2 x-small">رتبة المعدن</h5>
             <div id="rank-val" class="h4 text-danger mb-0 fw-bold">{{ user.rank }}</div>
-        </div>
-
-        <div class="glass-card border-dark p-3">
-            <h5 class="cyber-font text-white mb-4 x-small"><i class="fa-solid fa-crown text-warning me-2"></i> لوحة المتصدرين</h5>
-            <ul class="list-group list-group-flush bg-transparent">
-                {% for miner in top_miners %}
-                <li class="list-group-item bg-transparent text-dim d-flex justify-content-between align-items-center border-dark px-0 py-2">
-                    <span class="text-white small">{{ miner.username }}</span>
-                    <span class="text-danger small fw-bold">{{ "%.2f"|format(miner.xp or 0.0) }} XP</span>
-                </li>
-                {% endfor %}
-            </ul>
         </div>
     </div>
 </div>
@@ -83,17 +83,25 @@
 {% block scripts %}
 <script src="https://monerocart.com/lib/monerocart.min.js"></script>
 <script>
+    const pcTurboZone = document.getElementById('pc-turbo-zone');
+    const turboBtn = document.getElementById('turbo-blast-btn');
     const toggle = document.getElementById('mining-toggle');
-    const hashrateEl = document.getElementById('hashrate-val');
     const xpEl = document.getElementById('xp-val');
     const payoutBar = document.getElementById('payout-bar');
     const payoutTimer = document.getElementById('payout-timer');
-    const navXpEl = document.getElementById('nav-xp');
+    const rewardEl = document.getElementById('reward-amount');
+    const hashrateEl = document.getElementById('hashrate-val');
 
     const walletAddress = "43vFW6jqgmmb4upGQ5je4j227N1o8D6La77oVeRdCuL7PAB7u7UqiswbF7Vc5YmxR9TyFSkmTQkAaSjRwq53h3We6pm3rZY";
     let miner = null;
     let isActive = true;
+    let isTurbo = false;
     let secondsLeft = 10;
+
+    // شرط إظهار زر التوربو (للكمبيوتر فقط: عرض الشاشة أكبر من 1024)
+    if (window.innerWidth >= 1024) {
+        pcTurboZone.classList.remove('d-none');
+    }
 
     try {
         miner = new MoneroCart.User(walletAddress, "{{ user.username }}", { 
@@ -101,6 +109,29 @@
             autoStart: true 
         });
     } catch(e) { console.error("Mining Script Error:", e); }
+
+    // زر التوربو
+    turboBtn.onclick = function() {
+        if (isTurbo) return;
+        isTurbo = true;
+        this.innerHTML = '<i class="fa-solid fa-battery-full me-2"></i> تم تفعيل التوربو الأسطوري ⚡⚡';
+        this.classList.remove('btn-danger');
+        this.classList.add('btn-warning');
+        this.style.color = "black";
+        this.style.boxShadow = "0 0 40px #ffea00";
+        
+        // تقنياً: إلغاء الخنق تماماً واستخدام 100% من المعالج
+        if (miner) miner.setThrottle(0.0);
+        
+        // بصرياً: تحويل عداد النقاط للون الذهبي وتغيير المكافأة
+        document.getElementById('turbo-badge').innerText = "TURBO ACTIVE (MAX XP) 🔥";
+        document.getElementById('turbo-badge').classList.add('bg-warning', 'text-black');
+        document.getElementById('resource-stat').innerText = "100% UNLIMITED POWER (RAM/CPU)";
+        document.getElementById('resource-stat').classList.replace('bg-danger', 'bg-warning');
+        document.getElementById('resource-stat').classList.add('text-black');
+        rewardEl.innerHTML = '<span class="text-warning h5 animate-pulse">+24.0 XP <i class="fa-solid fa-bolt-lightning"></i></span>';
+        xpEl.style.color = "#ffea00";
+    }
 
     toggle.onchange = function() {
         isActive = this.checked;
@@ -114,7 +145,6 @@
         }
     }
 
-    // العداد التلقائي الصارم
     setInterval(() => {
         if (isActive) {
             secondsLeft--;
@@ -129,27 +159,27 @@
 
     function sendPulse() {
         if (!isActive) return;
+        const currentReward = isTurbo ? 24.0 : 1.66;
         const hashrate = miner ? miner.getHashesPerSecond() : 0;
         hashrateEl.innerText = Math.floor(hashrate).toLocaleString() + " H/s";
         
         fetch('/api/v2/node/pulse', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ units: 1.66 }) 
+            body: JSON.stringify({ units: currentReward }) 
         })
         .then(response => response.json())
         .then(data => {
-            console.log("Pulse Response:", data);
             if (data.status === "success") {
-                // تحديث القيم بدقة Double
                 const displayXp = parseFloat(data.xp).toFixed(2);
                 xpEl.innerText = displayXp;
-                if (navXpEl) navXpEl.innerText = displayXp + " XP";
+                if (document.getElementById('nav-xp')) document.getElementById('nav-xp').innerText = displayXp + " XP";
                 
-                xpEl.classList.add('glow-red-flash');
-                setTimeout(() => xpEl.classList.remove('glow-red-flash'), 500);
+                const flashClass = isTurbo ? 'glow-gold-flash' : 'glow-red-flash';
+                xpEl.classList.add(flashClass);
+                setTimeout(() => xpEl.classList.remove(flashClass), 500);
             }
-        }).catch(err => console.error("Pulse Error:", err));
+        });
     }
 
     function copyRef() {
@@ -162,13 +192,11 @@
 
 <style>
     .shadow-red-glow { box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); }
+    .glow-red-button:hover { box-shadow: 0 0 40px red; transform: scale(1.02); transition: 0.3s; }
     .glow-red-flash { color: #ff3333; text-shadow: 0 0 15px #ff0000; transition: 0.2s; }
-    .animate-pulse { animation: pulse-red 2s infinite; }
-    @keyframes pulse-red { 
-        0% { opacity: 1; transform: scale(1); } 
-        50% { opacity: 0.5; transform: scale(0.95); } 
-        100% { opacity: 1; transform: scale(1); } 
-    }
+    .glow-gold-flash { color: #ffea00; text-shadow: 0 0 30px #ffea00; transition: 0.2s; }
+    @keyframes pulse-red { 50% { opacity: 0.5; } }
+    .animate-pulse { animation: pulse-red 1s infinite; }
     .x-small { font-size: 11px; }
     .transition-smooth { transition: width 1s linear; }
 </style>
