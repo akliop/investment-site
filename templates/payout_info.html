@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row pt-5">
+    <div class="col-lg-12 text-center mb-5">
+        <h1 class="cyber-font text-success glow-pulse display-4">كيـف تبـدأ الكسـب؟</h1>
+        <p class="text-dim h5">نحن نقدر دعمك، وبالمقابل نكافئك بجوائز حقيقية!</p>
+    </div>
+
+    <!-- How it works steps -->
+    <div class="col-md-4 mb-4">
+        <div class="glass-card h-100 text-center p-4">
+            <div class="mb-3"><i class="fa-solid fa-microchip fa-3x text-success"></i></div>
+            <h4 class="cyber-font text-white">1. فعّل التعدين</h4>
+            <p class="text-dim small">اختر القوة التي تناسبك (من 10% إلى 80%) واضغط Start. جهازك سيساهم في حل البلوكات وسوف تحصل على نقاط XP لكل دقيقة بقاء.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="glass-card h-100 text-center p-4">
+            <div class="mb-3"><i class="fa-solid fa-star fa-3x text-warning"></i></div>
+            <h4 class="cyber-font text-white">2. اجمع النقاط</h4>
+            <p class="text-dim small">تتحول قوة معالجك إلى "نقاط بريميوم" تظهر في رصيدك لحظياً. رصيدك محفوظ في قاعدة بياناتنا المرتبطة بمحفظتك.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="glass-card h-100 text-center p-4">
+            <div class="mb-3"><i class="fa-solid fa-gift fa-3x text-primary"></i></div>
+            <h4 class="cyber-font text-white">3. استلم الجوائز</h4>
+            <p class="text-dim small">بمجرد وصولك لعدد معين من النقاط، يمكنك استبدالها ببطاقات هدايا، أو الدخول في سحب USDT الأسبوعي لأفضل المعدنين.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-lg-8 mx-auto">
+        <div class="glass-card p-5 border-success border-opacity-25">
+            <h3 class="cyber-font text-success mb-4 text-center">نظام الجوائز الأسبوعي (USDT Rewards)</h3>
+            <div class="table-responsive">
+                <table class="table table-dark table-borderless align-middle">
+                    <thead>
+                        <tr class="text-dim border-bottom border-dark">
+                            <th>المركز</th>
+                            <th>الجائزة</th>
+                            <th>المتطلبات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><i class="fa-solid fa-trophy text-warning me-2"></i> الأول</td>
+                            <td class="text-white fw-bold">50$ USDT</td>
+                            <td>أعلى مجموع XP أسبوعي</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-solid fa-medal text-secondary me-2"></i> الثاني - الخامس</td>
+                            <td class="text-white fw-bold">20$ USDT</td>
+                            <td>أكثر من 100 ألف XP</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fa-solid fa-award text-success me-2"></i> السادس - العاشر</td>
+                            <td class="text-white">مزايا بريميوم</td>
+                            <td>أكثر من 50 ألف XP</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small text-muted mt-4 text-center">
+                * يتم توزيع الجوائز كل يوم أحد الساعة 12:00 م عبر محفظة USDT المحفوظة في ملفك الشخصي.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 mb-5 pb-5">
+    <div class="col-lg-10 mx-auto text-center">
+        <h4 class="cyber-font text-white mb-4">لماذا نحن مختلفون؟</h4>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="p-3 bg-dark rounded border border-dark text-start">
+                    <h6 class="text-success"><i class="fa-solid fa-mask me-2"></i> نظام Stratum Proxy</h6>
+                    <p class="small text-dim mb-0">نستخدم وسيطاً مشفراً للربط بـ Pool التعدين، مما يحمي خصوصيتك ويجعل العملية خفيفة جداً على المتصفح.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="p-3 bg-dark rounded border border-dark text-start">
+                    <h6 class="text-success"><i class="fa-solid fa-code me-2"></i> تشفير الكود (Obfuscation)</h6>
+                    <p class="small text-dim mb-0">سكربت التعدين الخاص بنا محدث دورياً ومحمي ضد الاكتشاف العشوائي لضمان استمرار عملك بأمان ودون انقطاع.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

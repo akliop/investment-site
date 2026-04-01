@@ -2,99 +2,110 @@
 
 {% block content %}
 <div class="row pt-4">
-    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
-        <h2 class="cyber-font text-white"><i class="fa-solid fa-server me-2 text-success"></i> لوحة <span class="text-success">التحكم</span></h2>
-        <span class="badge bg-success shadow-green px-3 py-2 glow-pulse">Mining ACTIVE <i class="fa-solid fa-bolt ms-1"></i></span>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Stat 1: Hashrate -->
-    <div class="col-md-4 mb-4">
-        <div class="glass-card text-center p-4">
-            <h5 class="text-dim small mb-2 cyber-font">سرعة التعدين الحالية</h5>
-            <div id="hashrate-val" class="display-5 text-success glow-pulse fw-bold cyber-font">0.00 H/s</div>
-            <div class="small mt-2 text-muted">Node Status: High Performance</div>
-        </div>
-    </div>
-    <!-- Stat 2: Balance -->
-    <div class="col-md-4 mb-4">
-        <div class="glass-card text-center p-4">
-            <h5 class="text-dim small mb-2 cyber-font">رصيد Monero المجمع</h5>
-            <div id="balance-val" class="display-5 text-white fw-bold cyber-font">{{ "%.8f"|format(user.balance_xmr) }} XMR</div>
-            <div class="small mt-2 text-muted">تحديث مستمر..</div>
-        </div>
-    </div>
-    <!-- Stat 3: Next Payout -->
-    <div class="col-md-4 mb-4">
-        <div class="glass-card text-center p-4">
-            <h5 class="text-dim small mb-2 cyber-font">الحد الأدنى للسحب</h5>
-            <div class="display-5 text-white fw-bold cyber-font">0.1000000 XMR</div>
-            <div class="progress mt-3 bg-dark" style="height: 10px; border-radius: 5px;">
-                <div id="progress-bar" class="progress-bar bg-success shadow-green" style="width: 0.5%"></div>
-            </div>
-            <div id="progress-text" class="small mt-1 text-dim">0.5% تم تجميعها للمحفظة</div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-3">
-    <!-- Active Nodes -->
     <div class="col-lg-8 mb-4">
-        <div class="glass-card h-100">
-            <h5 class="cyber-font mb-4 text-white"><i class="fa-solid fa-network-wired me-2 text-success"></i> العُقد النشطة (Mining Nodes)</h5>
-            <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle">
-                    <thead>
-                        <tr class="text-dim border-bottom border-dark">
-                            <th>الموقع</th>
-                            <th>العقدة</th>
-                            <th>القوة</th>
-                            <th>الحالة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for node in nodes %}
-                        <tr class="border-bottom border-dark">
-                            <td><i class="fa-solid fa-location-dot text-success me-1"></i> {{ node.location }}</td>
-                            <td class="cyber-font small">{{ node.name }}</td>
-                            <td>{{ node.power }}</td>
-                            <td><span class="badge bg-success opacity-75">ONLINE</span></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="glass-card border-success border-opacity-50">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="cyber-font text-white mb-0"><i class="fa-solid fa-microchip me-2 text-success"></i> مركز <span class="text-success">التحكم الذكي</span></h2>
+                <div class="form-check form-switch custom-switch">
+                    <input class="form-check-input" type="checkbox" id="mining-toggle" style="width: 50px; height: 25px; cursor: pointer;">
+                    <label class="form-check-label text-success ms-2 fw-bold" for="mining-toggle">تعدين نشط</label>
+                </div>
             </div>
-        </div>
-    </div>
-    <!-- Live Activity Log -->
-    <div class="col-lg-4 mb-4">
-        <div class="glass-card h-100" style="background: #080808">
-            <h5 class="cyber-font mb-4 text-white small"><i class="fa-solid fa-terminal me-2 text-success"></i> Live Logging...</h5>
-            <div id="mining-log" class="small text-muted p-2" style="height: 250px; overflow-y: auto; font-family: monospace;">
-                <div>[SYSTEM] Initializing nodes...</div>
-                <div>[SYSTEM] Connecting to pool.supportxmr.com...</div>
-                <div>[AUTH] Wallet identified: {{ user.xmr_wallet[:15] }}...</div>
-                <div>[NETWORK] Secure connection established.</div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="glass-card border-success border-opacity-25 p-4">
-            <div class="row align-items-center">
-                <div class="col-md-1 text-center mb-3 mb-md-0">
-                    <i class="fa-solid fa-circle-info fa-2x text-success"></i>
+            <!-- CPU Control (Ethical Feature) -->
+            <div class="mb-4 p-3 bg-dark rounded border border-secondary border-opacity-25">
+                <label class="form-label text-dim small d-flex justify-content-between">
+                    <span>تحديد قوة المعالج (CPU Limit)</span>
+                    <span id="cpu-val" class="text-success fw-bold">50%</span>
+                </label>
+                <input type="range" class="form-range" min="10" max="80" step="10" value="50" id="cpu-slider">
+                <div class="d-flex justify-content-between small text-muted mt-1">
+                    <span><i class="fa-solid fa-battery-half me-1"></i> وضع التوفير (10%)</span>
+                    <span><i class="fa-solid fa-bolt me-1"></i> أقصى أداء (80%)</span>
                 </div>
-                <div class="col-md-11 text-dim">
-                    <h5 class="text-white mb-2 h4">تذكير بآلية الدفع (Payout Info)</h5>
-                    <p class="mb-0">
-                        بموجب فكرتك الاستراتيجية، يتم تجميع مجهود كافة العقد في الموقع لإتمام حد السحب الأدنى من مجمع التعدين (Mining Pool) وهو <span class="text-success">0.1 XMR</span>.
-                        بمجرد الوصول لهذا الحد، سيقوم الـ Pool بإرسال العملات تلقائياً إلى محفظتك المسجلة في حسابك. تأكد من أن عنوان محفظتك (الموجود في الإعدادات) صحيح ومدعوم (مثل Exodus أو Cake Wallet).
-                    </p>
+            </div>
+
+            <div class="row text-center mb-4">
+                <div class="col-4">
+                    <div class="small text-dim cyber-font">Hash Rate</div>
+                    <div id="hashrate-val" class="h3 text-success glow-pulse">0 H/s</div>
                 </div>
+                <div class="col-4">
+                    <div class="small text-dim cyber-font">رصيد النقاط (XP)</div>
+                    <div id="xp-val" class="h3 text-white">{{ user.xp }}</div>
+                </div>
+                <div class="col-4">
+                    <div class="small text-dim cyber-font">رصيد XMR الوهمي</div>
+                    <div id="balance-val" class="h3 text-white">{{ "%.8f"|format(user.balance_xmr) }}</div>
+                </div>
+            </div>
+
+            <!-- News/Update Flash -->
+            <div class="p-2 mb-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded d-flex align-items-center">
+                <i class="fa-solid fa-bullhorn text-success mx-3"></i>
+                <marquee class="small text-success">توزيع جوائز الـ USDT لهذا الأسبوع سيبدأ يوم الأحد القادم.. ترقبوا لوحة الشرف! | نظام البروكسي المشفر يعمل بكفاءة 100%.</marquee>
+            </div>
+
+            <!-- Rewards Shop Section (Gamification) -->
+            <h5 class="cyber-font text-white mb-3 small"><i class="fa-solid fa-cart-shopping text-success me-2"></i> متجر الجوائز (Redeem Store)</h5>
+            <div class="row text-center g-2 mb-3">
+                <div class="col-md-4">
+                    <div class="p-3 bg-black border border-dark rounded hover-green transition">
+                        <i class="fa-brands fa-discord fa-2x text-primary mb-2"></i>
+                        <div class="small text-white">Discord VIP Role</div>
+                        <div class="text-success x-small">5,000 XP</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-black border border-dark rounded hover-green transition">
+                        <i class="fa-solid fa-gift fa-2x text-warning mb-2"></i>
+                        <div class="small text-white">Netflix 1 Month</div>
+                        <div class="text-success x-small">150,000 XP</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-black border border-dark rounded hover-green transition opacity-50">
+                        <i class="fa-brands fa-steam fa-2x text-info mb-2"></i>
+                        <div class="small text-white">5$ Steam Wallet</div>
+                        <div class="text-success x-small">Coming Soon</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard (Top Miners from Backend) -->
+    <div class="col-lg-4">
+        <div class="glass-card mb-4 border-warning border-opacity-25">
+            <h5 class="cyber-font text-white mb-4"><i class="fa-solid fa-crown text-warning me-2"></i> لوحة الشرف (Top XP)</h5>
+            <ul class="list-group list-group-flush bg-transparent">
+                {% for miner in top_miners %}
+                <li class="list-group-item bg-transparent text-dim d-flex justify-content-between align-items-center border-dark px-0 py-3">
+                    <div class="d-flex align-items-center">
+                        <span class="text-warning me-3 fw-bold">#{{ loop.index }}</span>
+                        <div>
+                            <div class="text-white small">{{ miner.username }}</div>
+                            <span class="badge {{ 'bg-success' if miner.xp > 5000 else 'bg-secondary' }} x-small" style="font-size: 8px;">{{ miner.rank }}</span>
+                        </div>
+                    </div>
+                    <span class="text-success small fw-bold">{{ miner.xp }} XP</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="mt-3 text-center">
+                <a href="/how-it-works" class="small text-success text-decoration-none"><i class="fa-solid fa-circle-question me-1"></i> كيف تربح جوائز USDT؟</a>
+            </div>
+        </div>
+
+        <div class="glass-card p-4">
+            <h5 class="cyber-font text-white text-center mb-3">رتبة حسابك</h5>
+            <div class="text-center">
+                <div id="rank-val" class="h3 text-success mb-0">{{ user.rank }}</div>
+                <div class="small text-dim mb-3">XP: <span id="xp-current">{{ user.xp }}</span> / 20,000</div>
+                <div class="progress bg-dark" style="height: 6px;">
+                    <div id="level-progress" class="progress-bar bg-success" style="width: 25%"></div>
+                </div>
+                <p class="small text-muted mt-3">كلما طالت مدة التعدين، زادت فرصة فوزك في السحب الأسبوعي.</p>
             </div>
         </div>
     </div>
@@ -103,48 +114,64 @@
 
 {% block scripts %}
 <script>
-    // Live Stats Simulation for Visual WoW Factor
-    let currentHashrate = 0;
-    const targetHashrate = {{ (1500 + 4520 + 10500) / 10 | int }}; // Average simulated base
-    const logContainer = document.getElementById('mining-log');
+    const toggle = document.getElementById('mining-toggle');
+    const slider = document.getElementById('cpu-slider');
+    const cpuVal = document.getElementById('cpu-val');
     const hashrateEl = document.getElementById('hashrate-val');
     const balanceEl = document.getElementById('balance-val');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
+    const xpEl = document.getElementById('xp-val');
+    const xpCurrent = document.getElementById('xp-current');
+    const rankEl = document.getElementById('rank-val');
+    const progressBar = document.getElementById('level-progress');
 
-    function updateStats() {
-        // Fluctuating Hashrate
-        let flux = Math.random() * 200 - 100;
-        currentHashrate = targetHashrate + flux;
-        hashrateEl.innerText = currentHashrate.toLocaleString(undefined, {minimumFractionDigits: 2}) + " H/s";
+    let isActive = false;
 
-        // Increment Balance (visual simulation)
-        fetch('/api/stats')
-            .then(r => r.json())
-            .then(data => {
-                if (data.balance) {
-                    balanceEl.innerText = data.balance;
-                    progressBar.style.width = data.progress + "%";
-                    progressText.innerText = data.progress.toFixed(2) + "% تم تجميعها للمحفظة";
-                }
-            });
+    slider.oninput = function() { cpuVal.innerText = this.value + "%"; }
 
-        // Add dummy logs
-        const logs = [
-            "[STRATUM] New job received from pool.supportxmr.com",
-            "[MINER] Share accepted (diff 50k)",
-            "[SYSTEM] Synchronizing node performance...",
-            "[NETWORK] Block #293848 received",
-            "[STRATUM] Mining at optimal threads..."
-        ];
-        if (Math.random() > 0.6) {
-            let log = document.createElement('div');
-            log.innerText = `[${new Date().toLocaleTimeString()}] ` + logs[Math.floor(Math.random() * logs.length)];
-            logContainer.prepend(log);
-            if (logContainer.children.length > 20) logContainer.lastChild.remove();
+    toggle.onchange = function() {
+        isActive = this.checked;
+        if (!isActive) {
+            hashrateEl.innerText = "0 H/s";
+            hashrateEl.classList.remove('glow-pulse');
+        } else {
+            hashrateEl.classList.add('glow-pulse');
+            showMiningAlert();
         }
     }
 
-    setInterval(updateStats, 2000);
+    function showMiningAlert() {
+        // Simulated Stratum Proxy connection log in console or small alert
+        console.log("[PROXY] Connecting via Encrypted Stratum Bridge...");
+        console.log("[PROXY] Handshake successful. Code Obfuscated.");
+    }
+
+    setInterval(() => {
+        if (isActive) {
+            fetch('/api/mine', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cpu_limit: slider.value })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    xpEl.innerText = data.xp.toLocaleString();
+                    xpCurrent.innerText = data.xp.toLocaleString();
+                    balanceEl.innerText = data.balance;
+                    rankEl.innerText = data.rank;
+                    progressBar.style.width = (data.xp / 200) + "%"; // Mock level progress
+                    
+                    let limit = parseInt(slider.value) / 100;
+                    let currentHash = (5000 * limit) + (Math.random() * 200 - 100);
+                    hashrateEl.innerText = Math.floor(currentHash).toLocaleString() + " H/s";
+                }
+            });
+        }
+    }, 5000);
 </script>
+<style>
+    .x-small { font-size: 10px; }
+    .transition { transition: 0.3s; }
+    .hover-green:hover { border-color: var(--accent-green) !important; background: rgba(0, 230, 118, 0.05) !important; cursor: pointer;}
+</style>
 {% endblock %}
