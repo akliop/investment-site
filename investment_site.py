@@ -32,6 +32,7 @@ class User(db.Model):
     referred_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     total_referrals = db.Column(db.Integer, default=0)
     balance_xmr = db.Column(db.Float, default=0.0)
+    balance_usdt = db.Column(db.Float, default=0.0) # الرصيد المسحوب بالدولار
     
     # ميزات البونص التلقائي للإحالات (لتجنب تكرار الدفع)
     bonus_5_paid = db.Column(db.Boolean, default=False)
@@ -71,29 +72,22 @@ def register_action():
     new_user = User(
         username=username, password=password, xmr_wallet=wallet, 
         referral_code=str(uuid.uuid4())[:8].upper(),
-        balance_xmr=0.0, xp=10 # بونص ترحيبي 10 XP
+        balance_xmr=0.0, balance_usdt=0.0, xp=10
     )
     
-    # معالجة الإحالة
     if ref_code_from_form:
         referrer = User.query.filter_by(referral_code=ref_code_from_form).first()
         if referrer:
             new_user.referred_by_id = referrer.id
             referrer.total_referrals += 1
-            
-            # بونص تلقائي للداعي (Referrer Milestone Bonus)
-            def add_bonus(user_obj, usd_amount):
-                # تحويل الدولار إلى XMR (بمعدل 150)
-                user_obj.balance_xmr += (usd_amount / 150)
-            
             if referrer.total_referrals >= 5 and not referrer.bonus_5_paid:
-                add_bonus(referrer, 0.30)
+                referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 0.30
                 referrer.bonus_5_paid = True
             if referrer.total_referrals >= 10 and not referrer.bonus_10_paid:
-                add_bonus(referrer, 0.90)
+                referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 0.90
                 referrer.bonus_10_paid = True
             if referrer.total_referrals >= 30 and not referrer.bonus_30_paid:
-                add_bonus(referrer, 1.50)
+                referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 1.50
                 referrer.bonus_30_paid = True
 
     db.session.add(new_user)
@@ -121,9 +115,14 @@ def node_control():
         session.pop("miner_id", None)
         return redirect(url_for("landing"))
     
+    needs_commit = False
     if not user.referral_code:
         user.referral_code = str(uuid.uuid4())[:8].upper()
-        db.session.commit()
+        needs_commit = True
+    if user.balance_usdt is None:
+        user.balance_usdt = 0.0
+        needs_commit = True
+    if needs_commit: db.session.commit()
         
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
     ref_link = f"{request.url_root}join?ref={user.referral_code}"
@@ -136,12 +135,54 @@ def deposit():
     if not user: return redirect(url_for("landing"))
     return render_template("deposit.html", user=user)
 
+@app.route("/portal/exchange")
+def exchange():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    if not user: return redirect(url_for("landing"))
+    return render_template("exchange.html", user=user)
+
+@app.route("/portal/x/exchange/swap", methods=["POST"])
+def swap_points():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    points_required = int(request.form.get("points", 0))
+    dollar_amount = float(request.form.get("dollars", 0))
+    
+    if user.xp >= points_required:
+        user.xp -= points_required
+        user.balance_usdt = (user.balance_usdt or 0.0) + dollar_amount
+        db.session.commit()
+        flash(f"تم تحويل {points_required} XP إلى {dollar_amount}$ بنجاح!", "success")
+    else:
+        flash("عذراً، لا تمتلك نقاط كافية لإتمام هذا التحويل", "error")
+    return redirect(url_for("exchange"))
+
 @app.route("/portal/withdraw")
 def withdraw():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
     if not user: return redirect(url_for("landing"))
     return render_template("withdraw.html", user=user)
+
+@app.route("/portal/x/withdraw/request", methods=["POST"])
+def withdraw_request():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    amount_usd = float(request.form.get("amount", 0))
+    
+    if amount_usd < 2.50:
+        flash("عذراً، الحد الأدنى للسحب هو 2.50$", "error")
+        return redirect(url_for("withdraw"))
+    
+    if amount_usd > (user.balance_usdt or 0.0):
+        flash("رصيدك الحالي غير كافٍ لإتمام العملية", "error")
+        return redirect(url_for("withdraw"))
+    
+    user.balance_usdt -= amount_usd
+    db.session.commit()
+    flash(f"تم تقديم طلب سحب بقيمة {amount_usd}$ بنجاح. سيتم المعالجة قريباً.", "success")
+    return redirect(url_for("withdraw"))
 
 @app.route("/portal/referrals")
 def referrals():
@@ -151,27 +192,6 @@ def referrals():
     ref_link = f"{request.url_root}join?ref={user.referral_code}"
     return render_template("referrals.html", user=user, ref_link=ref_link)
 
-@app.route("/portal/x/withdraw/request", methods=["POST"])
-def withdraw_request():
-    if "miner_id" not in session: return redirect(url_for("login"))
-    user = User.query.get(session["miner_id"])
-    if not user: return redirect(url_for("landing"))
-    
-    amount_usd = float(request.form.get("amount", 0))
-    if amount_usd < 2.50:
-        flash("عذراً، الحد الأدنى للسحب هو 2.50$", "error")
-        return redirect(url_for("withdraw"))
-    
-    user_balance_usd = (user.balance_xmr or 0.0) * 150
-    if amount_usd > user_balance_usd:
-        flash("رصيدك الحالي غير كافٍ لإتمام العملية", "error")
-        return redirect(url_for("withdraw"))
-    
-    user.balance_xmr -= (amount_usd / 150)
-    db.session.commit()
-    flash(f"تم تقديم طلب سحب بقيمة {amount_usd}$ بنجاح. سيتم المعالجة قريباً.", "success")
-    return redirect(url_for("withdraw"))
-
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse_sync():
     if "miner_id" not in session: return jsonify({"status": "fail"})
@@ -179,11 +199,7 @@ def pulse_sync():
     if not user: return jsonify({"status": "fail"})
     
     reported_xp = int(request.json.get("units", 0))
-    reported_balance = float(request.json.get("delta", 0.0))
-    
     user.xp = (user.xp or 0) + reported_xp
-    user.balance_xmr = (user.balance_xmr or 0.0) + reported_balance
-    
     if user.xp > 10000: user.rank = "Miner Legend"
     elif user.xp > 5000: user.rank = "Miner Pro"
     db.session.commit()
@@ -195,4 +211,6 @@ def logout():
     return redirect(url_for("landing"))
 
 if __name__ == "__main__":
+    app.app_context().push()
+    db.create_all()
     app.run(host='0.0.0.0', port=5000)
