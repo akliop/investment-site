@@ -96,9 +96,10 @@
                 <ul class="navbar-nav ms-auto align-items-center">
                     {% if session.miner_id %}
                         <li class="nav-item"><a class="nav-link" href="/portal/deposit"><i class="fa-solid fa-wallet text-warning me-1"></i> إيداع</a></li>
-                        <li class="nav-item mx-2"><a class="nav-link btn btn-outline-danger btn-sm px-3" href="/portal/withdraw"><i class="fa-solid fa-hand-holding-dollar me-1"></i> سحب</a></li>
+                        <li class="nav-item mx-1"><a class="nav-link" href="/portal/withdraw"><i class="fa-solid fa-hand-holding-dollar ms-1 text-danger"></i> سحب</a></li>
+                        <li class="nav-item mx-1"><a class="nav-link" href="/portal/referrals"><i class="fa-solid fa-users-rays me-1 text-info"></i> الإحالات</a></li>
                         <li class="nav-item"><a class="nav-link" href="/portal/x/node"><i class="fa-solid fa-chart-line me-1"></i> العقدة</a></li>
-                        <li class="nav-item"><a class="nav-link text-danger-emphasis !important" href="/logout"><i class="fa-solid fa-power-off me-1"></i> خروج</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-power-off me-1"></i> خروج</a></li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="/how-it-works"><i class="fa-solid fa-circle-question me-1"></i> كيف تربح؟</a></li>
                         <li class="nav-item"><a class="nav-link" href="/login">تسجيل دخول</a></li>
