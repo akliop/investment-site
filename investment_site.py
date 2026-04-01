@@ -127,18 +127,33 @@ def process_recharge():
     operator = request.form.get("operator")
     phone = request.form.get("phone")
     amount_dzd = request.form.get("amount")
-    
     price_map = {"100": 1.00, "200": 1.70, "300": 2.45}
     cost = price_map.get(amount_dzd, 999)
-    
     if user.balance_usdt >= cost:
         user.balance_usdt -= cost
         db.session.commit()
-        flash(f"تم تقديم طلب تعبئة {amount_dzd} دج ل رقم {phone} (شريحة {operator}). سيصلك الرصيد قريباً!", "success")
-    else:
-        flash("عذراً، رصيدك USDT غير كافٍ لإتمام هذه التعبئة.", "error")
-    
+        flash(f"تم تقديم طلب تعبئة {amount_dzd} دج. سيصلك الرصيد قريباً!", "success")
+    else: flash("رصيدك غير كافٍ", "error")
     return redirect(url_for("recharge_algeria"))
+
+@app.route("/portal/store/cards")
+def store_cards():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    return render_template("cards.html", user=user)
+
+@app.route("/portal/x/store/card/purchase", methods=["POST"])
+def purchase_card():
+    if "miner_id" not in session: return redirect(url_for("login"))
+    user = User.query.get(session["miner_id"])
+    card_type = request.form.get("card_type")
+    price = float(request.form.get("price", 999))
+    if user.balance_usdt >= price:
+        user.balance_usdt -= price
+        db.session.commit()
+        flash(f"تم شراء بطاقة {card_type} بنجاح! سيتم إرسال المعلومات لحسابك قريباً.", "success")
+    else: flash("رصيدك USDT غير كافٍ لهذه العملية.", "error")
+    return redirect(url_for("store_cards"))
 
 @app.route("/portal/deposit")
 def deposit():
