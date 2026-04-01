@@ -4,29 +4,29 @@
 <div class="row pt-4 justify-content-center">
     <div class="col-lg-11">
         <div class="glass-card border-info border-opacity-50 p-4 shadow-lg text-center overflow-hidden">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-               <a href="/portal/store" class="btn btn-outline-secondary btn-sm px-3"><i class="fa-solid fa-arrow-right me-1"></i> للمتجر</a>
-               <h3 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-credit-card text-info me-2"></i> البطاقات الافتراضية</h3>
+            <div class="d-flex justify-content-between align-items-center mb-5">
+               <a href="/portal/store" class="btn btn-outline-secondary btn-sm px-3 shadow-sm border-opacity-25 mt-1"><i class="fa-solid fa-arrow-right me-1"></i> للمتجر</a>
+               <h3 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-credit-card text-info me-2"></i> البطاقات الافتراضية العالمية</h3>
                <div style="width: 80px;"></div>
             </div>
             
             <div class="row g-4 justify-content-center">
                 <!-- VISA SECTION -->
                 <div class="col-md-5">
-                    <div class="p-4 bg-black rounded border border-info border-opacity-25 shadow-sm h-100 transition-fast hover-glow shadow-blue">
-                        <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775074437292.png" class="img-fluid rounded border border-dark mb-4 p-2 bg-white" style="max-height: 80px;" alt="VISA">
-                        <h4 class="text-white cyber-font small mb-4">VISA Card</h4>
+                    <div class="p-4 bg-white rounded-4 border border-info border-opacity-50 shadow-blue hover-up h-100 transition-fast">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" class="img-fluid mb-4" style="height: 60px; object-fit: contain;" alt="VISA">
+                        <h4 class="text-dark fw-bold small mb-4">VISA Global Card</h4>
                         
                         <div class="d-grid gap-3">
                             <form action="/portal/x/store/card/purchase" method="POST">
                                 <input type="hidden" name="card_type" value="VISA VIRTUAL">
                                 <input type="hidden" name="price" value="0.4">
-                                <button type="submit" class="btn btn-outline-info w-100 py-2 fw-bold small">وهمية - $0.40</button>
+                                <button type="submit" class="btn btn-outline-dark w-100 py-2 fw-bold small">وهمية (Virtual) - $0.40</button>
                             </form>
                             <form action="/portal/x/store/card/purchase" method="POST">
                                 <input type="hidden" name="card_type" value="VISA REAL">
                                 <input type="hidden" name="price" value="1.5">
-                                <button type="submit" class="btn btn-info w-100 py-2 fw-bold small text-black shadow-lg">حقيقية - $1.50</button>
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold small shadow-sm">حقيقية (Real) - $1.50</button>
                             </form>
                         </div>
                     </div>
@@ -34,20 +34,20 @@
 
                 <!-- MASTERCARD SECTION -->
                 <div class="col-md-5">
-                    <div class="p-4 bg-black rounded border border-danger border-opacity-25 shadow-sm h-100 transition-fast hover-glow shadow-orange">
-                        <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775074515007.png" class="img-fluid rounded border border-dark mb-4 p-2 bg-white" style="max-height: 80px;" alt="MasterCard">
-                        <h4 class="text-white cyber-font small mb-4">MasterCard</h4>
+                    <div class="p-4 bg-white rounded-4 border border-danger border-opacity-50 shadow-orange hover-up h-100 transition-fast">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" class="img-fluid mb-4" style="height: 60px; object-fit: contain;" alt="MasterCard">
+                        <h4 class="text-dark fw-bold small mb-4">MasterCard Global</h4>
                         
                         <div class="d-grid gap-3">
                             <form action="/portal/x/store/card/purchase" method="POST">
                                 <input type="hidden" name="card_type" value="MASTERCARD VIRTUAL">
                                 <input type="hidden" name="price" value="0.4">
-                                <button type="submit" class="btn btn-outline-danger w-100 py-2 fw-bold small">وهمية - $0.40</button>
+                                <button type="submit" class="btn btn-outline-dark w-100 py-2 fw-bold small">وهمية (Virtual) - $0.40</button>
                             </form>
                             <form action="/portal/x/store/card/purchase" method="POST">
                                 <input type="hidden" name="card_type" value="MASTERCARD REAL">
                                 <input type="hidden" name="price" value="1.5">
-                                <button type="submit" class="btn btn-danger w-100 py-2 fw-bold small shadow-lg">حقيقية - $1.50</button>
+                                <button type="submit" class="btn btn-danger w-100 py-2 fw-bold small shadow-sm">حقيقية (Real) - $1.50</button>
                             </form>
                         </div>
                     </div>
@@ -56,4 +56,11 @@
         </div>
     </div>
 </div>
+
+<style>
+    .hover-up:hover { transform: translateY(-10px); filter: brightness(1.1); }
+    .shadow-blue { box-shadow: 0 10px 40px rgba(0, 150, 255, 0.3); }
+    .shadow-orange { box-shadow: 0 10px 40px rgba(255, 87, 34, 0.3); }
+    .transition-fast { transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+</style>
 {% endblock %}

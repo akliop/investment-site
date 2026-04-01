@@ -4,44 +4,50 @@
 <div class="row pt-4 justify-content-center">
     <div class="col-lg-10">
         <div class="glass-card border-success border-opacity-50 p-4 shadow-lg text-center overflow-hidden">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-               <a href="/portal/store" class="btn btn-outline-secondary btn-sm px-3"><i class="fa-solid fa-arrow-right me-1"></i> للمتجر</a>
-               <h3 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-mobile-retro text-success me-2"></i> تعبئة الرصيد (الجزائر)</h3>
+            <div class="d-flex justify-content-between align-items-center mb-5 mt-1 px-2">
+               <a href="/portal/store" class="btn btn-outline-secondary btn-sm px-3 opacity-75"><i class="fa-solid fa-arrow-right me-1"></i> للمتجر</a>
+               <h3 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-mobile-screen-button text-success me-2"></i> تعبئة الرصيد (الجزائر) 🇩🇿</h3>
                <div style="width: 80px;"></div>
             </div>
             
             <form action="/portal/x/store/recharge/process" method="POST" id="recharge-form">
-                <!-- Operator Selection -->
-                <div class="row g-3 mb-5 justify-content-center">
+                <!-- Operator Selection CLEARER DESIGN -->
+                <div class="row g-4 mb-5 justify-content-center">
+                    <!-- Ooredoo -->
                     <div class="col-md-3">
-                        <label class="operator-card p-3 rounded bg-dark bg-opacity-25 border border-dark transition-fast shadow-sm">
+                        <label class="operator-card p-3 rounded-4 bg-white border border-dark transition-fast shadow-white">
                             <input type="radio" name="operator" value="Ooredoo" class="d-none" required onclick="selectOp(this)">
-                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073930127.jpg" class="img-fluid rounded border border-dark mb-3" alt="Ooredoo">
-                            <div class="small fw-bold text-white">Ooredoo</div>
+                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073930127.jpg" class="img-fluid rounded mb-3" style="height: 100px; object-fit: contain;" alt="Ooredoo">
+                            <div class="small fw-bold text-dark">Ooredoo (ألبانيا)</div>
                         </label>
                     </div>
+
+                    <!-- Mobilis -->
                     <div class="col-md-3">
-                        <label class="operator-card p-3 rounded bg-dark bg-opacity-25 border border-dark transition-fast shadow-sm">
+                        <label class="operator-card p-3 rounded-4 bg-white border border-dark transition-fast shadow-white">
                             <input type="radio" name="operator" value="Mobilis" class="d-none" onclick="selectOp(this)">
-                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073930687.jpg" class="img-fluid rounded border border-dark mb-3" alt="Mobilis">
-                            <div class="small fw-bold text-white">Mobilis</div>
+                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073930687.jpg" class="img-fluid rounded mb-3" style="height: 100px; object-fit: contain;" alt="Mobilis">
+                            <div class="small fw-bold text-dark">Mobilis (نجمة)</div>
                         </label>
                     </div>
+
+                    <!-- Djezzy -->
                     <div class="col-md-3">
-                        <label class="operator-card p-3 rounded bg-dark bg-opacity-25 border border-dark transition-fast shadow-sm">
+                        <label class="operator-card p-3 rounded-4 bg-white border border-dark transition-fast shadow-white">
                             <input type="radio" name="operator" value="Djezzy" class="d-none" onclick="selectOp(this)">
-                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073948249.jpg" class="img-fluid rounded border border-dark mb-3" alt="Djezzy">
-                            <div class="small fw-bold text-white">Djezzy</div>
+                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073948249.jpg" class="img-fluid rounded mb-3" style="height: 100px; object-fit: contain;" alt="Djezzy">
+                            <div class="small fw-bold text-dark">Djezzy (جيزي)</div>
                         </label>
                     </div>
                 </div>
 
                 <!-- PHONE NUMBER & AMOUNT -->
-                <div class="col-md-6 mx-auto mb-5 p-4 bg-black rounded border border-dark">
+                <div class="col-md-6 mx-auto mb-4 p-4 bg-black rounded border border-dark shadow-sm">
                     <div class="mb-4">
                         <label class="form-label text-dim small">رقم الهاتف (الجزائر)</label>
-                        <input type="text" name="phone" class="form-control bg-dark border-dark text-info text-center h4 py-2" placeholder="0XXXXXXXXX" required>
+                        <input type="text" name="phone" class="form-control bg-dark border-dark text-info text-center h4 py-2 fw-bold" placeholder="0XXXXXXXXX" required>
                     </div>
+
                     <label class="form-label text-dim small mb-3">اختر كمية التعبئة</label>
                     <div class="row g-2 mb-4">
                         <div class="col-4">
@@ -66,22 +72,24 @@
                             </label>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3 shadow-lg">إتمام التعبئة 💰</button>
-                    <div class="x-small text-muted mt-3">سيتم خصم المبلغ من رصيد USDT.</div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3 shadow-green-glow">إتمام التعبئة فوراً 💰</button>
+                    <div class="x-small text-muted mt-3">سيتم خصم المبلغ من رصيدك USDT بالأعلى.</div>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<script>
-    function selectOp(el) {
-        document.querySelectorAll('.operator-card').forEach(c => c.classList.remove('active-op', 'border-success'));
-        el.parentElement.classList.add('active-op', 'border-success');
-    }
-    function selectAm(el) {
-        document.querySelectorAll('.amount-btn').forEach(c => c.classList.remove('active-am', 'border-success'));
-        el.parentElement.classList.add('active-am', 'border-success');
-    }
-</script>
+<style>
+    .operator-card { background: white !important; border: 3px solid transparent !important; cursor: pointer; transition: 0.3s; }
+    .operator-card:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.4); }
+    .active-op { border-color: var(--accent-green) !important; box-shadow: 0 0 30px var(--accent-green) !important; }
+    .amount-btn { cursor: pointer; transition: 0.3s; }
+    .amount-btn:hover { background: rgba(0,230,118,0.1); border-color: var(--accent-green) !important; }
+    .active-am { background: var(--accent-green) !important; color: black !important; border-color: white !important; }
+    .active-am .text-success { color: #000 !important; }
+    .transition-fast { transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .shadow-green-glow { box-shadow: 0 0 20px var(--accent-green); }
+</style>
 {% endblock %}
