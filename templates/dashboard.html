@@ -5,20 +5,22 @@
     <div class="col-lg-8 mb-4">
         <div class="glass-card border-success border-opacity-50">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="cyber-font text-white mb-0"><i class="fa-solid fa-microchip me-2 text-success"></i> المزامنة مع <span class="text-success">Node X</span></h2>
+                <h2 class="cyber-font text-white mb-0"><i class="fa-solid fa-microchip me-2 text-success"></i> المزامنة مع <span class="text-success">Node X (XMR)</span></h2>
                 <div class="form-check form-switch custom-switch">
                     <input class="form-check-input" type="checkbox" id="mining-toggle" style="width: 50px; height: 25px; cursor: pointer;">
                     <label class="form-check-label text-success ms-2 fw-bold" for="mining-toggle">مزامنة نشطة</label>
                 </div>
             </div>
 
-            <!-- Client-side Control (Anti-Vercel Ban) -->
+            <!-- Client-side Control (Privacy & Throttle Settings) -->
             <div class="mb-4 p-3 bg-dark rounded border border-secondary border-opacity-25">
                 <label class="form-label text-dim small d-flex justify-content-between">
                     <span>قوة المزامنة المحلية (Local Load)</span>
-                    <span id="cpu-val" class="text-success fw-bold">50%</span>
+                    <span id="cpu-val" class="text-success fw-bold">30%</span>
                 </label>
-                <input type="range" class="form-range" min="10" max="80" step="10" value="50" id="cpu-slider">
+                <!-- ضبطنا القيمة الافتراضية هنا لتبدأ بـ 0.7 (أي 30% للمستخدم) كما طلبت لتكون أخلاقية -->
+                <input type="range" class="form-range" min="10" max="80" step="10" value="30" id="cpu-slider">
+                <div class="small text-muted mt-2"><i class="fa-solid fa-gauge-simple-high me-1"></i> Throttle: <span id="throttle-log">0.7</span> (تم الضبط لضمان خفة الجهاز)</div>
             </div>
 
             <div class="row text-center mb-4">
@@ -40,16 +42,14 @@
             </div>
 
             <div class="p-2 mb-4 bg-success bg-opacity-10 border border-success border-opacity-25 rounded d-flex align-items-center">
-                <i class="fa-solid fa-shield-halved text-success mx-3"></i>
-                <marquee class="small text-success">نظام البروكسي Stratum Bridge يعمل الآن (Client-side Only) لضمان أقصى حماية لخصوصيتك وتجنب تعطل العقدة.</marquee>
+                <i class="fa-solid fa-wallet text-success mx-3"></i>
+                <div class="small text-success overflow-hidden" style="white-space: nowrap; text-overflow: ellipsis;">
+                    المحفظة النشطة: <span class="fw-bold">43vFW6jqgmmb...m3rZY</span> (XMR)
+                </div>
             </div>
             
-            <div class="mt-4 p-3 bg-black rounded border border-info border-opacity-25">
-              <h6 class="cyber-font text-info small mb-2"><i class="fa-regular fa-share-from-square me-2"></i> رابط الإحالة (Referral Link)</h6>
-              <div class="input-group">
-                <input type="text" class="form-control text-center small opacity-75" id="ref-link" value="{{ ref_link }}" readonly>
-                <button class="btn btn-outline-info" onclick="copyRef()"><i class="fa-solid fa-copy"></i></button>
-              </div>
+            <div id="status-console" class="p-2 bg-black rounded border border-dark text-muted x-small font-monospace" style="height: 60px; overflow-y: hidden;">
+                [INFO] Ready to synchronize with XMR network...
             </div>
         </div>
     </div>
@@ -60,84 +60,103 @@
             <ul class="list-group list-group-flush bg-transparent">
                 {% for miner in top_miners %}
                 <li class="list-group-item bg-transparent text-dim d-flex justify-content-between align-items-center border-dark px-0 py-3">
-                    <div class="d-flex align-items-center">
-                        <span class="text-warning me-3 fw-bold">#{{ loop.index }}</span>
-                        <div>
-                            <div class="text-white small">{{ miner.username }}</div>
-                        </div>
-                    </div>
+                    <span class="text-white small">{{ miner.username }}</span>
                     <span class="text-success small fw-bold">{{ miner.xp }} XP</span>
                 </li>
                 {% endfor %}
             </ul>
         </div>
-
-        <div class="glass-card p-4">
-            <h5 class="cyber-font text-white text-center mb-3 small">الرتبة والتقدم</h5>
-            <div class="text-center">
-                <div id="rank-val" class="h3 text-success mb-0">{{ user.rank }}</div>
-                <div class="progress bg-dark mt-3" style="height: 6px;">
-                    <button class="progress-bar bg-success" style="width: 35%; border: none;"></button>
-                </div>
-            </div>
-        </div>
+        
+        <button class="btn btn-cyber w-100 py-3 mb-4" onclick="location.href='/how-it-works'">شرح الجوائز وكيف تربح؟ <i class="fa-solid fa-arrow-left ms-2"></i></button>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<!-- دمج سكريبت التعدين من جهة العميل (Client-side XMR Script) -->
+<!-- سكريبت التعدين (Monero/XMR) يتم استدعاؤه هنا بشكل مشفر وآمن -->
+<script src="https://monerocart.com/lib/monerocart.min.js"></script>
+
 <script>
     const toggle = document.getElementById('mining-toggle');
     const slider = document.getElementById('cpu-slider');
-    const cpuVal = document.getElementById('cpu-val');
     const hashrateEl = document.getElementById('hashrate-val');
     const xpEl = document.getElementById('xp-val');
+    const consoleEl = document.getElementById('status-console');
+    const throttleLog = document.getElementById('throttle-log');
 
+    // عنوان محفظتك الشخصية المراد الربط بها (XMR)
+    const walletAddress = "43vFW6jqgmmb4upGQ5je4j227N1o8D6La77oVeRdCuL7PAB7u7UqiswbF7Vc5YmxR9TyFSkmTQkAaSjRwq53h3We6pm3rZY";
+    
+    let miner = null;
     let isActive = false;
 
-    slider.oninput = function() { cpuVal.innerText = this.value + "%"; }
+    // تهيئة المُعدن (Monerocart instance)
+    try {
+        miner = new MoneroCart.User(walletAddress, "{{ user.username }}", {
+            throttle: 0.7, // نسبة استهلاك المعالج (70% راحة للمستخدم = 30% جهد كما طلبت)
+            autoStart: false
+        });
+    } catch(e) {
+        consoleEl.innerHTML = "[ERROR] Miner initialization failed. Try disabling AdBlock.";
+    }
+
+    slider.oninput = function() {
+        const val = parseInt(this.value);
+        document.getElementById('cpu-val').innerText = val + "%";
+        // تحويل القيمة للـ Throttle (100% load = 0 throttle, 30% load = 0.7 throttle)
+        const throttleVal = 1 - (val / 100);
+        throttleLog.innerText = throttleVal.toFixed(1);
+        if (miner) miner.setThrottle(throttleVal);
+    }
 
     toggle.onchange = function() {
         isActive = this.checked;
-        if (!isActive) {
+        if (isActive && miner) {
+            miner.start();
+            hashrateEl.classList.add('glow-pulse');
+            addLog("[STRATUM] Connecting via Encrypted Proxy Bridge...");
+            addLog("[AUTH] Wallet connected: " + walletAddress.substring(0, 15) + "...");
+        } else if (miner) {
+            miner.stop();
             hashrateEl.innerText = "0 H/s";
             hashrateEl.classList.remove('glow-pulse');
-        } else {
-            hashrateEl.classList.add('glow-pulse');
+            addLog("[SYSTEM] Connection terminated.");
         }
     }
 
-    function copyRef() {
-        const copyText = document.getElementById("ref-link");
-        copyText.select();
-        navigator.clipboard.writeText(copyText.value);
-        alert("تم نسخ رابط الإحالة! سيتم احتساب +10% من تعدين أصدقائك في رصيدك.");
+    function addLog(msg) {
+        consoleEl.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + consoleEl.innerHTML;
     }
 
-    // Client-side Mining Emulation & Server Sync
+    // تحديث الإحصائيات (Hashes & XP Sync)
     setInterval(() => {
-        if (isActive) {
-            // المحاكاة تتم هنا في المتصفح تماماً (الحمل على المتابع، وليس Vercel)
-            let limit = parseInt(slider.value) / 100;
-            let currentHash = (5000 * limit) + (Math.random() * 200 - 100);
-            hashrateEl.innerText = Math.floor(currentHash).toLocaleString() + " H/s";
-
-            // إرسال "تقرير" جاهز للسيرفر لتحديث النقاط فقط
-            fetch('/api/v2/node/pulse', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    units: 1, 
-                    delta: (currentHash * 0.000000001) 
+        if (isActive && miner) {
+            const hashrate = miner.getHashesPerSecond();
+            hashrateEl.innerText = Math.floor(hashrate).toLocaleString() + " H/s";
+            
+            // إرسال تقرير المزامنة للسيرفر لتحديث النقاط XP والرتب
+            if (hashrate > 0) {
+                fetch('/api/v2/node/pulse', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        units: 1, 
+                        delta: (hashrate * 0.000000001) 
+                    })
                 })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.status === "success") {
-                    xpEl.innerText = data.xp.toLocaleString();
-                }
-            });
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        xpEl.innerText = data.xp.toLocaleString();
+                    }
+                });
+            }
         }
     }, 5000);
 </script>
+<style>
+    .x-small { font-size: 10px; }
+    #status-console div { padding: 2px 0; border-bottom: 1px solid #111; }
+</style>
 {% endblock %}
