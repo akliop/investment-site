@@ -2,110 +2,93 @@
 
 {% block content %}
 <div class="row pt-4 justify-content-center">
-    <div class="col-lg-8">
-        <div class="glass-card border-info border-opacity-50 mb-4 p-4 shadow-lg">
-            <div class="text-center mb-4">
-                <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-users-viewfinder text-info me-2"></i> مركز تنمية الفريق (Referral Center)</h2>
-                <p class="text-dim small">كلما كبر فريقك، زادت مكافآتك التلقائية (USDT + XP)!</p>
+    <div class="col-lg-9">
+        <div class="glass-card border-info border-opacity-50 mb-4 p-4 shadow-lg overflow-hidden">
+            <div class="text-center mb-5">
+                <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-users-rays text-info me-2"></i> رحلة نمو الفريق (Referral Journey)</h2>
+                <p class="text-dim small">ادعُ أصدقاءك، املأ الشريط، واحصد الجوائز التلقائية!</p>
             </div>
 
-            <!-- Progress Bar (0 to 50) -->
-            <div class="mb-5 p-3 bg-dark bg-opacity-25 rounded border border-dark">
-                <div class="d-flex justify-content-between mb-2 small">
-                    <span class="text-info fw-bold">التقدم نحو هدف الـ 50 دعوة</span>
-                    <span class="text-white">{{ user.total_referrals }} / 50 شخص</span>
+            <!-- THE PROGRESS HUB (AT THE TOP) -->
+            <div class="mb-5 p-4 bg-black rounded border border-info border-opacity-25 shadow-sm position-relative">
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="text-info fw-bold"><i class="fa-solid fa-bolt me-1"></i> مستوى فريقك الحالي</div>
+                    <div class="text-white h5 mb-0 cyber-font">{{ user.total_referrals }} / 50 <span class="x-small opacity-50">عضو</span></div>
                 </div>
-                <div class="progress bg-black border border-secondary border-opacity-25" style="height: 12px;">
-                    <!-- حساب النسبة المئوية للسير (بحد أقصى 100%) -->
+                <!-- Progress Bar -->
+                <div class="progress bg-dark bg-opacity-50 border border-secondary border-opacity-25" style="height: 20px; border-radius: 50px;">
                     {% set progress_val = (user.total_referrals / 50 * 100) if (user.total_referrals < 50) else 100 %}
-                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success shadow-green-glow" 
-                         role="progressbar" style="width: {{ progress_val }}%;" aria-valuenow="{{ progress_val }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-info shadow-blue-glow" 
+                         role="progressbar" style="width: {{ progress_val }}%;" aria-valuenow="{{ progress_val }}" aria-valuemin="0" aria-valuemax="100">
+                         <span class="x-small fw-bold text-black">{{ progress_val|int }}%</span>
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between mt-2 x-small text-muted">
-                    <span>بداية الطريق</span>
-                    <span>المستوى الأخير 🏆</span>
+                <div class="absolute-milestones d-none d-md-flex justify-content-between mt-2 x-small text-dim px-2">
+                    <span>البداية</span>
+                    <span style="margin-left: 10%;">5</span>
+                    <span style="margin-left: 20%;">10</span>
+                    <span style="margin-right: 20%;">30</span>
+                    <span>50 🏆</span>
                 </div>
             </div>
 
-            <!-- Stats Bar -->
-            <div class="row text-center mb-5 g-2">
-                <div class="col-6">
-                    <div class="p-3 bg-dark bg-opacity-50 rounded border border-info border-opacity-25 shadow-sm">
-                        <div class="h3 text-info fw-bold mb-0">{{ user.total_referrals }}</div>
-                        <div class="small text-muted">إجمالي الفريق</div>
+            <!-- MILESTONE CARDS (HORIZONTAL SCROLL ON MOBILE) -->
+            <div class="row g-3 mb-5">
+                <!-- Rank 1: 5 Invites -->
+                <div class="col-md-3">
+                    <div class="p-3 h-100 bg-dark bg-opacity-25 rounded border {% if user.total_referrals >= 5 %}border-success{% else %}border-dark{% endif %} text-center">
+                        <div class="badge {% if user.total_referrals >= 5 %}bg-success{% else %}bg-secondary{% endif %} mb-3">5 دعوات</div>
+                        <div class="small text-white mb-2 fw-bold">+$0.30</div>
+                        <div class="x-small text-info">+250 XP</div>
+                        <div class="mt-3">
+                            {% if user.total_referrals >= 5 %} <i class="fa-solid fa-circle-check text-success h4 mb-0"></i> {% else %} <i class="fa-solid fa-lock text-dim small"></i> {% endif %}
+                        </div>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="p-3 bg-dark bg-opacity-50 rounded border border-success border-opacity-25 shadow-sm">
-                        <div class="h3 text-success fw-bold mb-0">${{ "%.2f"|format(user.balance_usdt or 0.0) }}</div>
-                        <div class="small text-muted">رصيد بونص الفريق</div>
+
+                <!-- Rank 2: 10 Invites -->
+                <div class="col-md-3">
+                    <div class="p-3 h-100 bg-dark bg-opacity-25 rounded border {% if user.total_referrals >= 10 %}border-success{% else %}border-dark{% endif %} text-center">
+                        <div class="badge {% if user.total_referrals >= 10 %}bg-success{% else %}bg-secondary{% endif %} mb-3">10 دعوات</div>
+                        <div class="small text-white mb-2 fw-bold">+$0.90</div>
+                        <div class="x-small text-info">+500 XP</div>
+                        <div class="mt-3">
+                            {% if user.total_referrals >= 10 %} <i class="fa-solid fa-circle-check text-success h4 mb-0"></i> {% else %} <i class="fa-solid fa-lock text-dim small"></i> {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rank 3: 30 Invites -->
+                <div class="col-md-3">
+                    <div class="p-3 h-100 bg-dark bg-opacity-25 rounded border {% if user.total_referrals >= 30 %}border-success{% else %}border-dark{% endif %} text-center">
+                        <div class="badge {% if user.total_referrals >= 30 %}bg-success{% else %}bg-secondary{% endif %} mb-3">30 دعوات</div>
+                        <div class="small text-white mb-2 fw-bold">+$1.50</div>
+                        <div class="x-small text-info">+800 XP</div>
+                        <div class="mt-3">
+                            {% if user.total_referrals >= 30 %} <i class="fa-solid fa-circle-check text-success h4 mb-0"></i> {% else %} <i class="fa-solid fa-lock text-dim small"></i> {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rank 4: 50 Invites (GRAND PRIZE) -->
+                <div class="col-md-3">
+                    <div class="p-3 h-100 bg-dark rounded border {% if user.total_referrals >= 50 %}border-warning{% else %}border-info border-opacity-25{% endif %} text-center shadow-lg">
+                        <div class="badge {% if user.total_referrals >= 50 %}bg-warning text-black{% else %}bg-dark border border-info text-info{% endif %} mb-3">50 دعوة 🏆</div>
+                        <div class="small text-warning fw-bold mb-2">الجائزة الكبرى</div>
+                        <div class="h5 text-white fw-bold glow-text">+10,000 XP</div>
+                        <div class="mt-2">
+                            {% if user.total_referrals >= 50 %} <i class="fa-solid fa-trophy text-warning h3"></i> {% else %} <i class="fa-solid fa-gem text-info opacity-25"></i> {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Referral Link Box -->
-            <div class="p-4 bg-black rounded border border-dark mb-5 text-center">
-                <h6 class="cyber-font text-white small mb-3">رابط الدعوة الخاص بك <i class="fa-solid fa-link ms-2"></i></h6>
+            <!-- Referral Link BOX -->
+            <div class="p-4 bg-black rounded border border-dark text-center">
+                <h6 class="cyber-font text-white small mb-3">رابط الدعوة الفوري الخاص بك <i class="fa-solid fa-link ms-2"></i></h6>
                 <div class="input-group mb-2">
                     <input type="text" class="form-control bg-dark border-dark text-info text-center small" id="ref-copy-link" value="{{ ref_link }}" readonly>
-                    <button class="btn btn-info px-4" onclick="copyRefLink()"><i class="fa-solid fa-copy"></i></button>
-                </div>
-                <p class="x-small text-dim">سيربح صديقك <span class="text-success fw-bold">10 XP</span> هدية فورية عند التسجيل عبرك!</p>
-            </div>
-
-            <!-- Rewards Table (Double Rewards: USD + XP) -->
-            <h5 class="cyber-font text-white mb-4 small"><i class="fa-solid fa-medal text-warning me-2"></i> خريطة المكافآت التلقائية المزدوجة</h5>
-            <div class="list-group list-group-flush bg-transparent">
-                <!-- 5 invites -->
-                <div class="list-group-item bg-transparent border-dark px-0 py-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-white small fw-bold">5 دعوة ريفيرال</div>
-                        <div class="x-small text-muted">ستحصل على <span class="text-success fw-bold">+$0.30</span> و <span class="text-info fw-bold">+250 XP</span></div>
-                    </div>
-                    {% if user.total_referrals >= 5 %}
-                    <span class="badge bg-success rounded-pill shadow-green-glow">تم التحصيل ✅</span>
-                    {% else %}
-                    <span class="badge bg-dark border border-secondary rounded-pill">باقي {{ 5 - user.total_referrals }}</span>
-                    {% endif %}
-                </div>
-                
-                <!-- 10 invites -->
-                <div class="list-group-item bg-transparent border-dark px-0 py-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-white small fw-bold">10 دعوة ريفيرال</div>
-                        <div class="x-small text-muted">ستحصل على <span class="text-success fw-bold">+$0.90</span> و <span class="text-info fw-bold">+500 XP</span></div>
-                    </div>
-                    {% if user.total_referrals >= 10 %}
-                    <span class="badge bg-success rounded-pill shadow-green-glow">تم التحصيل ✅</span>
-                    {% else %}
-                    <span class="badge bg-dark border border-secondary rounded-pill">باقي {{ 10 - user.total_referrals }}</span>
-                    {% endif %}
-                </div>
-
-                <!-- 30 invites -->
-                <div class="list-group-item bg-transparent border-dark px-0 py-3 d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="text-white small fw-bold">30 دعوة ريفيرال</div>
-                        <div class="x-small text-muted">ستحصل على <span class="text-success fw-bold">+$1.50</span> و <span class="text-info fw-bold">+800 XP</span></div>
-                    </div>
-                    {% if user.total_referrals >= 30 %}
-                    <span class="badge bg-success rounded-pill shadow-green-glow">تم التحصيل ✅</span>
-                    {% else %}
-                    <span class="badge bg-dark border border-secondary rounded-pill">باقي {{ 30 - user.total_referrals }}</span>
-                    {% endif %}
-                </div>
-
-                <!-- 50 invites FINAL -->
-                <div class="list-group-item bg-transparent border-dark px-0 py-3 d-flex justify-content-between align-items-center border-bottom-0">
-                    <div>
-                        <div class="text-warning fw-bold">المستوى الأسطوري: 50 دعوة</div>
-                        <div class="x-small text-muted">ستحصل على المكافأة الكبرى: <span class="text-info fw-bold">+10,000 XP</span> 💎</div>
-                    </div>
-                    {% if user.total_referrals >= 50 %}
-                    <span class="badge bg-warning text-black rounded-pill shadow-lg">تم الانجاز 🏆</span>
-                    {% else %}
-                    <span class="badge bg-dark border border-warning border-opacity-25 rounded-pill text-warning">باقي {{ 50 - user.total_referrals }}</span>
-                    {% endif %}
+                    <button class="btn btn-info px-4 fw-bold" onclick="copyRefLink()">انسخ واربح 💰</button>
                 </div>
             </div>
         </div>
@@ -117,12 +100,14 @@
         const copyText = document.getElementById("ref-copy-link");
         copyText.select();
         navigator.clipboard.writeText(copyText.value);
-        alert("تم نسخ رابط الدعوة بنجاح! 💰🚀");
+        alert("تم نسخ الرابط! انشر الموقع الآن للحصول على المكافآت التلقائية. 💰🚀");
     }
 </script>
 
 <style>
-    .shadow-green-glow { box-shadow: 0 0 15px rgba(0, 230, 118, 0.4); }
+    .shadow-blue-glow { box-shadow: 0 0 20px rgba(0, 150, 255, 0.4); }
+    .glow-text { text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
     .x-small { font-size: 11px; }
+    .hover-scale:hover { transform: scale(1.02); transition: 0.3s; }
 </style>
 {% endblock %}
