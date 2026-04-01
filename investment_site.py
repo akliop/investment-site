@@ -1,14 +1,13 @@
 import os
 from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
-import random
+from datetime import datetime
 import uuid
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', "stealth_mining_key_xmr_2024")
 
-# إعداد قاعدة البيانات لملاءمة Vercel
+# إعداد قاعدة البيانات لملاءمة Vercel (استخدام /tmp هو الطريق الوحيد)
 if os.environ.get('VERCEL'):
     db_path = '/tmp/mining_vault.sqlite'
 else:
@@ -34,12 +33,12 @@ class User(db.Model):
     balance_xmr = db.Column(db.Float, default=0.0)
     balance_usdt = db.Column(db.Float, default=0.0)
     
-    # ميزات البونص التلقائي للإحالات (دولار)
+    # بونص الإحالات (دولار)
     bonus_5_paid = db.Column(db.Boolean, default=False)
     bonus_10_paid = db.Column(db.Boolean, default=False)
     bonus_30_paid = db.Column(db.Boolean, default=False)
     
-    # ميزات بونص الإحالات (XP نقاط)
+    # بونص الإحالات (XP)
     xp_bonus_5_paid = db.Column(db.Boolean, default=False)
     xp_bonus_10_paid = db.Column(db.Boolean, default=False)
     xp_bonus_30_paid = db.Column(db.Boolean, default=False)
@@ -47,6 +46,7 @@ class User(db.Model):
     
     is_active = db.Column(db.Boolean, default=True)
 
+# تأكد من إنشاء قاعدة البيانات في كل مرة يبدأ فيها السيرفر على Vercel
 with app.app_context():
     db.create_all()
 
@@ -86,8 +86,6 @@ def register_action():
         if referrer:
             new_user.referred_by_id = referrer.id
             referrer.total_referrals += 1
-            
-            # 1. نظام بونص الدولارات (Milestones $)
             if referrer.total_referrals >= 5 and not referrer.bonus_5_paid:
                 referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 0.30
                 referrer.bonus_5_paid = True
@@ -98,7 +96,6 @@ def register_action():
                 referrer.balance_usdt = (referrer.balance_usdt or 0.0) + 1.50
                 referrer.bonus_30_paid = True
 
-            # 2. نظام بونص النقاط (XP Milestones) كما طلبت الآن
             if referrer.total_referrals >= 5 and not referrer.xp_bonus_5_paid:
                 referrer.xp = (referrer.xp or 0) + 250
                 referrer.xp_bonus_5_paid = True
@@ -143,7 +140,7 @@ def node_control():
         needs_commit = True
     if user.balance_usdt is None: user.balance_usdt = 0.0
     if user.xp is None: user.xp = 0
-    if user.xp_bonus_50_paid is None: # تنظيف الحقول الجديدة للمستخدمين القدامى
+    if user.xp_bonus_50_paid is None:
         user.xp_bonus_5_paid = user.xp_bonus_10_paid = user.xp_bonus_30_paid = user.xp_bonus_50_paid = False
         needs_commit = True
         
@@ -171,6 +168,8 @@ def exchange():
 def swap_points():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
+    if not user: return redirect(url_for("landing"))
+    
     points_required = int(request.form.get("points", 0))
     dollar_amount = float(request.form.get("dollars", 0))
     
@@ -194,8 +193,9 @@ def withdraw():
 def withdraw_request():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
-    amount_usd = float(request.form.get("amount", 0))
+    if not user: return redirect(url_for("landing"))
     
+    amount_usd = float(request.form.get("amount", 0))
     if amount_usd < 2.50:
         flash("عذراً، الحد الأدنى للسحب هو 2.50$", "error")
         return redirect(url_for("withdraw"))
@@ -225,8 +225,8 @@ def pulse_sync():
     
     reported_xp = int(request.json.get("units", 0))
     user.xp = (user.xp or 0) + reported_xp
-    if user.xp > 10000: user.rank = "Miner Legend"
-    elif user.xp > 5000: user.rank = "Miner Pro"
+    if (user.xp or 0) > 10000: user.rank = "Miner Legend"
+    elif (user.xp or 0) > 5000: user.rank = "Miner Pro"
     db.session.commit()
     return jsonify({"status": "success", "xp": user.xp, "rank": user.rank})
 
@@ -236,6 +236,4 @@ def logout():
     return redirect(url_for("landing"))
 
 if __name__ == "__main__":
-    app.app_context().push()
-    db.create_all()
     app.run(host='0.0.0.0', port=5000)
