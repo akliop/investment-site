@@ -34,8 +34,9 @@
 
         .navbar {
             background: rgba(13, 13, 13, 0.95);
-            border-bottom: 1px solid var(--accent-green);
+            border-bottom: 2px solid var(--accent-green);
             backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px var(--glow-green);
         }
 
         .nav-link { color: var(--text-main) !important; font-size: 0.85rem;}
@@ -89,7 +90,7 @@
             {% if session.miner_id and user %}
             <!-- عرض الرصيد المزدوج في الأعلى للجوال والكمبيوتر -->
             <div class="d-flex align-items-center ms-auto me-3 d-none d-md-flex">
-                <div class="wallet-stat"><i class="fa-solid fa-coins text-warning me-1"></i> <span class="stat-val" id="nav-xp">{{ user.xp }} XP</span></div>
+                <div class="wallet-stat"><i class="fa-solid fa-coins text-warning me-1"></i> <span class="stat-val" id="nav-xp">{{ "%.1f"|format(user.xp or 0.0) }} XP</span></div>
                 <div class="wallet-stat"><i class="fa-solid fa-dollar-sign text-success me-1"></i> <span class="stat-val text-white" id="nav-usd">{{ "%.2f"|format(user.balance_usdt or 0.0) }}</span></div>
             </div>
             {% endif %}
@@ -103,10 +104,11 @@
                     {% if session.miner_id %}
                         <!-- رصيد الجوال -->
                         <div class="d-flex d-md-none mb-3">
-                            <div class="wallet-stat small"><span class="stat-val">{{ user.xp }} XP</span></div>
+                            <div class="wallet-stat small"><span class="stat-val">{{ "%.1f"|format(user.xp or 0.0) }} XP</span></div>
                             <div class="wallet-stat small"><span class="stat-val text-white">${{ "%.2f"|format(user.balance_usdt or 0.0) }}</span></div>
                         </div>
                         
+                        <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/portal/store"><i class="fa-solid fa-shop me-1"></i> المتجر 🔥</a></li>
                         <li class="nav-item"><a class="nav-link" href="/portal/deposit"><i class="fa-solid fa-wallet text-warning me-1"></i> إيداع</a></li>
                         <li class="nav-item"><a class="nav-link text-info fw-bold" href="/portal/exchange"><i class="fa-solid fa-rotate me-1"></i> صرف النقاط</a></li>
                         <li class="nav-item"><a class="nav-link" href="/portal/withdraw"><i class="fa-solid fa-hand-holding-dollar me-1 text-danger"></i> سحب</a></li>

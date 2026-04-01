@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row pt-4 justify-content-center">
+    <div class="col-lg-10">
+        <div class="glass-card border-success border-opacity-50 p-4 shadow-lg text-center overflow-hidden">
+            <h2 class="cyber-font text-white mb-4"><i class="fa-solid fa-mobile-retro text-success me-2"></i> تعبئة الرصيد (الجزائر) 🇩🇿</h2>
+            
+            <form action="/portal/x/store/recharge/process" method="POST" id="recharge-form">
+                <!-- Operator Selection -->
+                <div class="row g-3 mb-5 justify-content-center">
+                    <!-- Ooredoo -->
+                    <div class="col-md-3">
+                        <label class="operator-card p-3 rounded bg-dark bg-opacity-25 border border-dark transition-fast shadow-sm">
+                            <input type="radio" name="operator" value="Ooredoo" class="d-none" required onclick="selectOp(this)">
+                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073930127.jpg" class="img-fluid rounded border border-dark mb-3" alt="Ooredoo">
+                            <div class="small fw-bold text-white">Ooredoo</div>
+                        </label>
+                    </div>
+
+                    <!-- Mobilis -->
+                    <div class="col-md-3">
+                        <label class="operator-card p-3 rounded bg-dark bg-opacity-25 border border-dark transition-fast shadow-sm">
+                            <input type="radio" name="operator" value="Mobilis" class="d-none" onclick="selectOp(this)">
+                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073930687.jpg" class="img-fluid rounded border border-dark mb-3" alt="Mobilis">
+                            <div class="small fw-bold text-white">Mobilis</div>
+                        </label>
+                    </div>
+
+                    <!-- Djezzy -->
+                    <div class="col-md-3">
+                        <label class="operator-card p-3 rounded bg-dark bg-opacity-25 border border-dark transition-fast shadow-sm">
+                            <input type="radio" name="operator" value="Djezzy" class="d-none" onclick="selectOp(this)">
+                            <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073948249.jpg" class="img-fluid rounded border border-dark mb-3" alt="Djezzy">
+                            <div class="small fw-bold text-white">Djezzy</div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- PHONE NUMBER & AMOUNT -->
+                <div class="col-md-6 mx-auto mb-5 p-4 bg-black rounded border border-dark">
+                    <div class="mb-4">
+                        <label class="form-label text-dim small">رقم الهاتف (الجزائر)</label>
+                        <input type="text" name="phone" class="form-control bg-dark border-dark text-info text-center h4 py-2" placeholder="05/06/07XXXXXXXX" required>
+                    </div>
+
+                    <label class="form-label text-dim small mb-3">اختر كمية التعبئة</label>
+                    <div class="row g-2 mb-4">
+                        <div class="col-4">
+                            <label class="amount-btn w-100 p-2 rounded border border-dark bg-dark bg-opacity-25 text-white">
+                                <input type="radio" name="amount" value="100" class="d-none" required onclick="selectAm(this)">
+                                <div class="fw-bold">100 دج</div>
+                                <div class="x-small text-success">$1.00</div>
+                            </label>
+                        </div>
+                        <div class="col-4">
+                            <label class="amount-btn w-100 p-2 rounded border border-dark bg-dark bg-opacity-25 text-white">
+                                <input type="radio" name="amount" value="200" class="d-none" onclick="selectAm(this)">
+                                <div class="fw-bold">200 دج</div>
+                                <div class="x-small text-success">$1.70</div>
+                            </label>
+                        </div>
+                        <div class="col-4">
+                            <label class="amount-btn w-100 p-2 rounded border border-dark bg-dark bg-opacity-25 text-white">
+                                <input type="radio" name="amount" value="300" class="d-none" onclick="selectAm(this)">
+                                <div class="fw-bold">300 دج</div>
+                                <div class="x-small text-success">$2.45</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3 shadow-lg">إتمام التعبئة فوراً 💰</button>
+                    <div class="x-small text-muted mt-3">سيتم خصم المبلغ من رصيدك USDT بالأعلى.</div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectOp(el) {
+        document.querySelectorAll('.operator-card').forEach(c => c.classList.remove('active-op', 'border-success'));
+        el.parentElement.classList.add('active-op', 'border-success');
+    }
+    function selectAm(el) {
+        document.querySelectorAll('.amount-btn').forEach(c => c.classList.remove('active-am', 'border-success'));
+        el.parentElement.classList.add('active-am', 'border-success');
+    }
+</script>
+
+<style>
+    .operator-card, .amount-btn { cursor: pointer; transition: 0.3s; }
+    .operator-card:hover, .amount-btn:hover { background: rgba(0, 230, 118, 0.05); border-color: var(--accent-green) !important; }
+    .active-op, .active-am { background: rgba(0, 230, 118, 0.1) !important; border-color: var(--accent-green) !important; transform: scale(1.03); }
+    .x-small { font-size: 10px; }
+</style>
+{% endblock %}

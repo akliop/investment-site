@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row pt-4 justify-content-center">
+    <div class="col-lg-10">
+        <div class="glass-card border-warning border-opacity-25 shadow-lg p-5 text-center">
+            <h2 class="cyber-font text-white mb-3"><i class="fa-solid fa-shop text-warning me-2"></i> متجر المنصة (Cyber Store)</h2>
+            <p class="text-dim mb-5">استخدم أرباحك من التعدين (USDT) لشراء أرصدة الهاتف وخدمات حقيقية!</p>
+
+            <div class="row g-4 justify-content-center">
+                <!-- Algeria Recharge Card -->
+                <div class="col-md-5">
+                    <a href="/portal/store/recharge" class="text-decoration-none">
+                        <div class="p-4 bg-dark bg-opacity-25 rounded border border-warning border-opacity-25 hover-scale transition-fast h-100">
+                           <i class="fa-solid fa-mobile-screen-button text-warning h1 mb-4 shadow-sm"></i>
+                           <h4 class="text-white cyber-font small">تعبئة الرصيد (الجزائر) 🇩🇿</h4>
+                           <p class="x-small text-dim mt-3">ادفع بالدولار واحصل على رصيد (Mobilis, Djezzy, Ooredoo) فوراً.</p>
+                           <div class="badge bg-warning text-black mt-2">متوفر الآن</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Future Cards (Placeholders) -->
+                <div class="col-md-5 opacity-50">
+                    <div class="p-4 bg-dark bg-opacity-25 rounded border border-secondary border-opacity-25 h-100">
+                       <i class="fa-solid fa-gift text-info h1 mb-4"></i>
+                       <h4 class="text-white cyber-font small">بطاقات الهدايا (قريباً)</h4>
+                       <p class="x-small text-dim mt-3">Free Fire, PUBG, Google Play, Netflix.</p>
+                       <div class="badge bg-secondary text-white mt-2">قريباً</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-scale:hover { transform: scale(1.05); border-color: var(--accent-green) !important; background: rgba(255, 193, 7, 0.05); }
+    .transition-fast { transition: 0.3s; }
+    .x-small { font-size: 11px; }
+</style>
+{% endblock %}
