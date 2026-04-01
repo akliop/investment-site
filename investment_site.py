@@ -52,7 +52,6 @@ def register_action():
     username = request.form.get("username", "").strip()
     password = request.form.get("password")
     wallet = request.form.get("wallet")
-    ref_code = request.form.get("ref_code")
     
     if not username or not password:
         flash("يرجى ملء كافة البيانات", "error")
@@ -87,6 +86,12 @@ def login():
 def node_control():
     if "miner_id" not in session: return redirect(url_for("login"))
     user = User.query.get(session["miner_id"])
+    
+    # إصلاح ذكي: إذا لم يكن للمستخدم كود إحالة، قم بإنشائه فوراً
+    if not user.referral_code:
+        user.referral_code = str(uuid.uuid4())[:8].upper()
+        db.session.commit()
+        
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
     ref_link = f"{request.url_root}join?ref={user.referral_code}"
     return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link)
