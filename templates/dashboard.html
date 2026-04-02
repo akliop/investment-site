@@ -93,12 +93,14 @@
     .core-box.active { background: #00e676; box-shadow: 0 0 10px rgba(0, 230, 118, 0.5); }
 </style>
 
-<script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nosleep/0.12.0/NoSleep.min.js"></script>
+    <script>
     let mining = false;
     let hashes = 0;
     let interval = null;
     let wakeLock = null;
     let nightMode = false;
+    const noSleep = new NoSleep(); // تفعيل الجندي المجهول NoSleep.js
 
     // تفعيل وضع التعدين الليلي ل توفير البطارية
     document.getElementById('nightModeBtn').onclick = () => {
@@ -131,6 +133,7 @@
 
     function startMining() {
         mining = true;
+        noSleep.enable(); // تفعيل الحفاظ على المتصفح من التجميد
         requestWakeLock();
         document.getElementById('minerControl').classList.add('mining');
         document.getElementById('statusLabel').innerText = "MINING...";
@@ -147,6 +150,7 @@
 
     function stopMining() {
         mining = false;
+        noSleep.disable(); // إيقاف لتوفير البطارية
         if(wakeLock) { wakeLock.release(); wakeLock = null; }
         document.getElementById('wakeStatus').classList.add('d-none');
         document.getElementById('minerControl').classList.remove('mining');
