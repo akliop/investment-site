@@ -1,0 +1,16 @@
+{
+  "name": "A.K.L.I Stealth Mining",
+  "short_name": "AKLI Node",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#00e676",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/isometric/512/processor.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
