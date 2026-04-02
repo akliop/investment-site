@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row pt-4 justify-content-center">
+    <div class="col-lg-10">
+        <div class="glass-card border-warning border-opacity-25 mb-4 p-4 shadow-lg overflow-hidden position-relative">
+            <div class="glow-bg-orders"></div>
+            <div class="text-center mb-5">
+                <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-box-open text-warning me-2 glow-pulse"></i> مشترياتي (My Purchases)</h2>
+                <p class="text-dim small">تابع حالة طلباتك واحصل على بيانات بطاقاتك فور تسليمها من المطور.</p>
+            </div>
+
+            {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle border-0">
+                        <thead class="bg-black text-warning">
+                            <tr>
+                                <th class="border-0">المنتج</th>
+                                <th class="border-0">السعر</th>
+                                <th class="border-0">الحالة</th>
+                                <th class="border-0">بيانات البطاقة</th>
+                                <th class="border-0">التاريخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr class="animate-fade-in" style="animation-delay: {{ loop.index0 * 100 }}ms;">
+                                <td class="border-0 fw-bold">{{ order.product_name }}</td>
+                                <td class="border-0 text-success fw-bold">${{ "%.2f"|format(order.price) }}</td>
+                                <td class="border-0">
+                                    <span class="badge {{ 'bg-success' if 'تم' in order.status else 'bg-dark border border-warning' }} px-3 py-2">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td class="border-0">
+                                    {% if order.delivery_data %}
+                                        <div class="p-2 bg-black rounded border border-info border-opacity-50 text-info x-small font-monospace">
+                                            {{ order.delivery_data }}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted small">بانتظار الإرسال...</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-dim small border-0">{{ order.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-cart-shopping fs-1 text-dim mb-3"></i>
+                    <h5 class="text-dim">لا توجد مشتريات حالياً.</h5>
+                    <a href="/portal/store" class="btn btn-outline-warning mt-3">اذهب للمتجر وتسوق الآن</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .glow-bg-orders { position: absolute; top: -20%; right: -20%; width: 50%; height: 50%; background: radial-gradient(circle, rgba(255,193,7,0.05) 0%, transparent 70%); pointer-events: none; }
+    .table-dark { --bs-table-bg: transparent; }
+    .x-small { font-size: 11px; }
+</style>
+{% endblock %}

@@ -33,6 +33,15 @@ class User(db.Model):
     has_mined = db.Column(db.Boolean, default=False) # هل بدأ التعدين فعلياً
     is_admin = db.Column(db.Boolean, default=False)
 
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    product_name = db.Column(db.String(100))
+    price = db.Column(db.Float)
+    status = db.Column(db.String(40), default="قيد المراجعة 🕒") # "قيد المراجعة" أو "تم التسليم ✅"
+    delivery_data = db.Column(db.Text) # بيانات الفيزا المرسلة من المطور
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 with app.app_context():
     db.create_all()
     # إصلاح تلقائي: إضافة الأعمدة إذا كانت مفقودة لتجنب خطأ 500
@@ -48,7 +57,10 @@ with app.app_context():
             conn.execute(text("ALTER TABLE user ADD COLUMN has_mined BOOLEAN DEFAULT 0"))
             conn.commit()
     except:
-        pass # الأعمدة موجودة بالفعل أو هناك خطأ آخر يتم تجاهله
+        pass
+    
+    # محاولة إنشاء جدول الطلبات إذا لم يوجد
+    db.create_all()
 
 def get_v_user():
     uid = session.get("v20_id")
@@ -196,6 +208,35 @@ def convert():
         "jewels": round(user.jewels, 2),
         "balance_usdt": round(user.balance_usdt, 2)
     })
+
+@app.route("/portal/orders") # "مشترياتي"
+def orders():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    # جلب طلبات المستخدم من الأحدث للأقدم
+    user_orders = Order.query.filter_by(user_id=user.id).order_by(Order.timestamp.desc()).all()
+    return render_template("orders.html", user=user, orders=user_orders)
+
+@app.route("/api/v2/node/buy", methods=["POST"])
+def buy_product():
+    user = get_v_user()
+    if not user: return jsonify({"status": "fail"})
+    
+    name = request.json.get("name")
+    price = float(request.json.get("price", 0.0))
+    
+    if user.balance_usdt < price:
+        return jsonify({"status": "fail", "message": "عذراً، رصيدك غير كافٍ لإتمام الشراء!"})
+    
+    # خصم الرصيد
+    user.balance_usdt -= price
+    
+    # إنشاء الطلب
+    new_order = Order(user_id=user.id, product_name=name, price=price)
+    db.session.add(new_order)
+    db.session.commit()
+    
+    return jsonify({"status": "success", "message": f"تم طلب {name} بنجاح! سيصلك الكود في 'مشترياتي' فوراً.", "balance_usdt": round(user.balance_usdt, 2)})
 
 @app.route("/sw.js")
 def serve_sw():

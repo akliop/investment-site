@@ -69,7 +69,7 @@
                     <div class="p-3 text-center">
                         <h6 class="text-white cyber-font">Visa Virtual (وهمية)</h6>
                         <p class="text-info cyber-font h4 mb-2">$0.3</p>
-                        <button class="btn btn-outline-info btn-sm w-100">طلب الآن</button>
+                        <button class="btn btn-outline-info btn-sm w-100" onclick="buyProduct('Visa Virtual', 0.3)">شراء الآن</button>
                     </div>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                     <div class="p-3 text-center">
                         <h6 class="text-white cyber-font">Visa Real (شغالة 100%)</h6>
                         <p class="text-info cyber-font h4 mb-2">$1.0</p>
-                        <button class="btn btn-info btn-sm w-100 fw-bold">طلب الآن</button>
+                        <button class="btn btn-info btn-sm w-100 fw-bold" onclick="buyProduct('Visa Real', 1.0)">شراء الآن</button>
                     </div>
                 </div>
             </div>
@@ -91,7 +91,7 @@
                     <div class="p-3 text-center">
                         <h6 class="text-white cyber-font">Mastercard (وهمية)</h6>
                         <p class="text-warning cyber-font h4 mb-2">$0.3</p>
-                        <button class="btn btn-outline-warning btn-sm w-100">طلب الآن</button>
+                        <button class="btn btn-outline-warning btn-sm w-100" onclick="buyProduct('Mastercard Virtual', 0.3)">شراء الآن</button>
                     </div>
                 </div>
             </div>
@@ -102,12 +102,35 @@
                     <div class="p-3 text-center">
                         <h6 class="text-white cyber-font">Mastercard (شغالة 100%)</h6>
                         <p class="text-warning cyber-font h4 mb-2">$1.0</p>
-                        <button class="btn btn-warning btn-sm w-100 fw-bold text-black">طلب الآن</button>
+                        <button class="btn btn-warning btn-sm w-100 fw-bold text-black" onclick="buyProduct('Mastercard Real', 1.0)">شراء الآن</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <script>
+    async function buyProduct(name, price) {
+        if(!confirm(`هل أنت متأكد من شراء ${name} مقابل $${price}؟`)) return;
+        
+        try {
+            const res = await fetch("/api/v2/node/buy", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({name: name, price: price})
+            });
+            const data = await res.json();
+            if(data.status === 'success') {
+                alert(data.message);
+                window.location.href = "/portal/orders";
+            } else {
+                alert(data.message);
+            }
+        } catch(e) {
+            alert("حدث خطأ أثناء عملية الشراء، يرجى المحاولة لاحقاً.");
+        }
+    }
+    </script>
 
     <!-- قسم الخدمات المالية (الإيداع والسحب) -->
     <div class="col-lg-6 mt-5">
