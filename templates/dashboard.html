@@ -54,7 +54,8 @@
                 <button id="toggleBtn" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-lg mb-3">تشغيل محرك WASM <i class="fa-solid fa-play ms-2"></i></button>
                 
                 <div class="d-flex justify-content-center gap-2 mt-2">
-                    <a href="/portal/store" class="btn btn-outline-primary btn-sm px-3"><i class="fa-solid fa-store me-1"></i> المتجر الأساسي</a>
+                    <button onclick="claimBonus()" class="btn btn-warning btn-sm px-3 fw-bold anim-glow"><i class="fa-solid fa-gift me-1"></i> احصل على +1.5 XP مكافأة</button>
+                    <a href="/portal/store" class="btn btn-outline-primary btn-sm px-3"><i class="fa-solid fa-store me-1"></i> المتجر</a>
                     <a href="/portal/store/games" class="btn btn-outline-info btn-sm px-3"><i class="fa-solid fa-gamepad me-1"></i> شحن ألعاب 🎮</a>
                 </div>
             </div>
@@ -163,12 +164,28 @@
         clearInterval(interval);
     }
 
-    async function syncXP() {
+    function copyRef() {
+        const copyText = document.getElementById("refLink");
+        copyText.select();
+        document.execCommand("copy");
+        alert("رابط الإحالة جاهز للنشر!");
+    }
+
+    function claimBonus() {
+        // فتح رابط Monetag المباشر في نافذة جديدة
+        window.open('https://omg10.com/4/10821760', '_blank');
+        
+        // منح المستخدم XP وهمي لـ تشجيعه
+        syncXP(1.5);
+        alert("تم إرسال طلب المكافأة! جاري التأكد من دعمك للمنصة...");
+    }
+
+    async function syncXP(extra = 0.35) {
         try {
             const res = await fetch('/api/v2/node/pulse', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({units: 0.35})
+                body: JSON.stringify({units: extra})
             });
             const data = await res.json();
             if(data.status === 'success') { document.getElementById('xpDisplay').innerText = data.xp; }
