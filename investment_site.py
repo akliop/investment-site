@@ -65,6 +65,38 @@ def get_user_safe(uid):
         user.balance_usdt = float(user.balance_usdt or 0.0)
     return user
 
+# --- مسارات الوصول والترحيب (Access Control) ---
+
+@app.route("/")
+@app.route("/landing")
+def landing():
+    ref_code = request.args.get("ref")
+    return render_template("landing.html", ref_code=ref_code)
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        u = request.form.get("username")
+        p = request.form.get("password")
+        user = User.query.filter_by(username=u, password=p).first()
+        if user:
+            session["miner_id"] = user.id
+            if user.is_admin:
+                return redirect(url_for("admin_dash"))
+            return redirect(url_for("node_control"))
+        else:
+            flash("خطأ في اسم المستخدم أو كلمة المرور", "error")
+    return render_template("login.html")
+
+@app.route("/register")
+def register():
+    return render_template("register.html")
+
+@app.route("/join")
+def join_redirect():
+    ref = request.args.get("ref")
+    return redirect(url_for("landing", ref=ref))
+
 # --- المسارات المالية المعدلة لتسجيل الطلبات ---
 
 @app.route("/portal/x/withdraw/request", methods=["POST"])
