@@ -4,17 +4,17 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime, timedelta
 
-# ضبط مسار القالب ليكون في المجلد الأب
+# المحرك v12 (نظام الصمود المطلق) - Vercel Standard API Build
 app = Flask(__name__, template_folder='../templates')
-app.secret_key = str(uuid.uuid4())
+app.secret_key = "v12_akli_stealth_mining_standard"
 app.permanent_session_lifetime = timedelta(days=7)
 
-# إعداد قاعدة البيانات v10
+# إعداد قاعدة البيانات v12 - مسار tmp حيوي لـ Vercel
 if os.environ.get('VERCEL'):
-    db_path = '/tmp/vault_v10.sqlite'
+    db_path = '/tmp/vault_v12.sqlite'
 else:
     basedir = os.path.abspath(os.path.dirname(__file__))
-    db_path = os.path.join(basedir, '../vault_v10.sqlite')
+    db_path = os.path.join(basedir, '../vault_v12.sqlite')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -34,18 +34,12 @@ with app.app_context():
     db.create_all()
 
 def get_v_user():
-    uid = session.get("v10_id")
+    uid = session.get("v12_id")
     if not uid: return None
     try:
         user = User.query.get(uid)
-        if not user: session.clear(); return None
         return user
     except: return None
-
-# الحسم في الروابط: أي رابط غير موجود يحول لـ index بدلاً من 404
-@app.errorhandler(404)
-def not_found(e):
-    return redirect(url_for('home'))
 
 @app.route("/")
 def home():
@@ -53,10 +47,10 @@ def home():
     if user: return redirect(url_for("dashboard"))
     return render_template("landing.html", ref_code=request.args.get('ref'))
 
-# نظام المزامنة الفوري v10 (يدعم كل الروابط)
+# نظام المزامنة والفتح المطلق v12 (يدعم كل الطرق لمنع 404)
 @app.route("/sync", methods=["GET", "POST"])
+@app.route("/join_node", methods=["GET", "POST"])
 @app.route("/auth/v1/sync", methods=["GET", "POST"])
-@app.route("/register", methods=["GET", "POST"])
 def auth_sync():
     if request.method == "GET": return redirect(url_for("home"))
     
@@ -71,7 +65,7 @@ def auth_sync():
     try:
         new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper())
         db.session.add(new_u); db.session.commit()
-        session["v10_id"] = new_u.id
+        session["v12_id"] = new_u.id
         return redirect(url_for("dashboard"))
     except: return redirect(url_for("home"))
 
@@ -82,7 +76,7 @@ def login():
         p = request.form.get("password")
         user = User.query.filter_by(username=u, password=p).first()
         if user:
-            session["v10_id"] = user.id
+            session["v12_id"] = user.id
             return redirect(url_for("dashboard"))
         flash("بيانات خاطئة", "error")
     return render_template("login.html")
@@ -99,11 +93,6 @@ def dashboard():
 def store():
     user = get_v_user(); if not user: return redirect(url_for("login"))
     return render_template("store.html", user=user)
-
-@app.route("/portal/store/games")
-def store_games():
-    user = get_v_user(); if not user: return redirect(url_for("login"))
-    return render_template("games.html", user=user)
 
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse():
