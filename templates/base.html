@@ -106,33 +106,10 @@
             </nav>
 
             <div class="d-flex gap-2 align-items-center">
-                <a href="/portal/home" class="btn btn-cyber btn-sm px-4 d-none d-sm-block">لوحة التحكم</a>
-                <button class="btn btn-dark btn-sm d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileNav"><i class="fa-solid fa-bars"></i></button>
+                <a href="/portal/home" class="btn btn-cyber btn-sm px-4">لوحة التحكم</a>
             </div>
         </div>
     </header>
-
-    <div class="offcanvas offcanvas-end bg-black text-white" id="mobileNav">
-        <div class="offcanvas-header border-bottom border-success border-opacity-25">
-            <h5 class="offcanvas-title cyber-font">القائمة</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-            <div class="d-grid gap-3">
-                <a href="/portal/recharge" class="nav-link-cyber fs-5 text-warning fw-bold"><i class="fa-solid fa-money-bill-wave me-2"></i> إيداع الشحن</a>
-                <a href="/portal/withdraw" class="nav-link-cyber fs-5 text-info fw-bold"><i class="fa-solid fa-sack-dollar me-2"></i> سحب الأرباح</a>
-                <a href="/portal/exchange" class="nav-link-cyber fs-5"><i class="fa-solid fa-arrows-rotate me-2"></i> صرف النقاط</a>
-                <a href="/portal/store" class="nav-link-cyber fs-5"><i class="fa-solid fa-store me-2"></i> المتجر الشامل</a>
-                <a href="/portal/orders" class="nav-link-cyber fs-5"><i class="fa-solid fa-box-open me-2"></i> مشترياتي</a>
-
-                <a href="/portal/referrals" class="nav-link-cyber fs-5"><i class="fa-solid fa-users me-2"></i> برنامج الإحالات</a>
-                <a href="/portal/home" class="nav-link-cyber fs-5"><i class="fa-solid fa-microchip me-2"></i> العقدة (التعدين)</a>
-
-                <hr>
-                <a href="/logout" class="btn btn-outline-danger w-100">خروج آمن</a>
-            </div>
-        </div>
-    </div>
 
     <div class="container pb-5">
         {% with messages = get_flashed_messages(with_categories=true) %}
