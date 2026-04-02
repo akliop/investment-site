@@ -51,6 +51,11 @@ class FinanceRequest(db.Model):
     status = db.Column(db.String(20), default="PENDING")
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+class GlobalNotification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 with app.app_context():
     db.create_all()
     # إصلاح تلقائي: إضافة الأعمدة إذا كانت مفقودة لتجنب خطأ 500
@@ -325,10 +330,35 @@ def update_finance():
         return jsonify({"status": "success"})
     return jsonify({"status": "error"})
 
+@app.route("/api/admin/notify", methods=["POST"])
+def send_notification():
+    user = get_v_user()
+    pin = request.args.get("pin")
+    if not (user and user.is_admin) and pin != "akli2025":
+        return jsonify({"status": "fail", "message": "Unauthorized"})
+    
+    msg = request.json.get("message")
+    if msg:
+        # مسح الإشعارات القديمة لإبقاء الموقع نظيفاً (آخر إشعار فقط)
+        GlobalNotification.query.delete()
+        new_note = GlobalNotification(message=msg)
+        db.session.add(new_note)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "تم إرسال الإشعار لجميع المستخدمين بنجاح!"})
+    return jsonify({"status": "error"})
+
 @app.route("/sw.js")
 def serve_sw():
     content = 'self.addEventListener("fetch", (event) => { });'
     return app.response_class(content, mimetype='application/javascript')
+
+@app.context_processor
+def inject_notice():
+    try:
+        latest = GlobalNotification.query.order_by(GlobalNotification.timestamp.desc()).first()
+        return dict(site_notice=latest.message if latest else None)
+    except:
+        return dict(site_notice=None)
 
 @app.route("/logout")
 def logout():

@@ -97,7 +97,13 @@
             </div>
         </div>
 
-        <div class="col-xl-4">
+            <!-- إرسال إشعارات -->
+            <div class="stat-card mb-4 border-warning border-opacity-25">
+                <h5 class="text-warning mb-3"><i class="fa-solid fa-bullhorn me-2"></i> إرسال إشعار عام للجميع</h5>
+                <textarea id="noticeMsg" class="form-control bg-black border-dark text-white mb-3" rows="3" placeholder="اكتب رسالتك لجميع المستخدمين هنا..."></textarea>
+                <button onclick="sendNotice()" class="btn btn-warning w-100 fw-bold text-black">بث الإشعار الآن 🚀</button>
+            </div>
+
             <h4 class="section-title"><i class="fa-solid fa-users me-2"></i> إحصائيات وقاعدة البيانات</h4>
             <div class="table-custom p-0 table-responsive border-danger border-opacity-25">
                 <div class="p-3 bg-danger bg-opacity-10 text-danger small fw-bold">بيانات المستخدمين (سرية - المطور فقط)</div>
@@ -144,6 +150,22 @@ async function updateFinance(fid, action) {
     });
     const result = await res.json();
     if(result.status === 'success') { alert("تم تحديث الحالة!"); location.reload(); }
+}
+
+async function sendNotice() {
+    const msg = document.getElementById('noticeMsg').value;
+    if(!msg) { alert("اكتب رسالة أولاً!"); return; }
+    
+    const res = await fetch("/api/admin/notify?pin=akli2025", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({message: msg})
+    });
+    const result = await res.json();
+    if(result.status === 'success') {
+        alert(result.message);
+        document.getElementById('noticeMsg').value = '';
+    }
 }
 </script>
 
