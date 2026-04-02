@@ -92,24 +92,15 @@ def store():
     if not user: return redirect(url_for("login"))
     return render_template("store.html", user=user)
 
+@app.route("/portal/withdraw")
+def withdraw():
+    return redirect(url_for("dashboard"))
+
 @app.route("/portal/store/games") # "شحن الألعاب"
 def games_store():
     user = get_v_user()
     if not user: return redirect(url_for("login"))
     return render_template("games.html", user=user)
-
-@app.route("/portal/withdraw") # "سحب" -> يفتح صفحة الإيداع
-def withdraw():
-    user = get_v_user()
-    if not user: return redirect(url_for("login"))
-    return render_template("recharge.html", user=user)
-
-@app.route("/portal/withdraw/submit", methods=["POST"])
-def withdraw_submit():
-    user = get_v_user()
-    if not user: return redirect(url_for("login"))
-    flash("تم استلام طلب السحب بنجاح! سيتم معالجته خلال 24 ساعة.", "success")
-    return redirect(url_for("withdraw"))
 
 @app.route("/portal/referrals") # "الإحالات"
 def referrals():
@@ -117,11 +108,9 @@ def referrals():
     if not user: return redirect(url_for("login"))
     return render_template("dashboard.html", user=user) # مدمج في لوحة التحكم
 
-@app.route("/portal/recharge") # "إيداع"
+@app.route("/portal/recharge")
 def recharge():
-    user = get_v_user()
-    if not user: return redirect(url_for("login"))
-    return render_template("store.html", user=user) # مدمج في المتجر
+    return redirect(url_for("dashboard"))
 
 # --- محرك التعدين ---
 @app.route("/api/v2/node/pulse", methods=["POST"])
