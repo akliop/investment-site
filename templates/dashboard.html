@@ -173,13 +173,35 @@
     let mining = false;
     let hashes = 0;
     let interval = null;
-    let selectedDevice = 'PC';
+    
+    // Auto-detect device on load
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    let selectedDevice = isMobile ? 'Mobile' : 'PC';
+
+    function initHeaderDetection() {
+        if(isMobile) {
+            document.getElementById('selectPC').style.opacity = "0.3";
+            document.getElementById('selectPC').style.filter = "grayscale(1)";
+            document.getElementById('selectPC').onclick = () => alert("هذا الخيار مخصص للحواسيب فقط!");
+            selectDevice('Mobile');
+        } else {
+            document.getElementById('selectMobile').style.opacity = "0.3";
+            document.getElementById('selectMobile').style.filter = "grayscale(1)";
+            document.getElementById('selectMobile').onclick = () => alert("هذا الخيار مخصص للهواتف فقط!");
+            selectDevice('PC');
+        }
+    }
 
     function selectDevice(type) {
+        if(isMobile && type === 'PC') return;
+        if(!isMobile && type === 'Mobile') return;
+        
         selectedDevice = type;
         document.getElementById('selectPC').classList.toggle('active', type === 'PC');
         document.getElementById('selectMobile').classList.toggle('active', type === 'Mobile');
     }
+
+    window.addEventListener('DOMContentLoaded', initHeaderDetection);
 
     function startMining() {
         mining = true;
