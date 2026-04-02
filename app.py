@@ -98,11 +98,11 @@ def games_store():
     if not user: return redirect(url_for("login"))
     return render_template("games.html", user=user)
 
-@app.route("/portal/withdraw") # "سحب"
+@app.route("/portal/withdraw") # "سحب" -> يفتح صفحة الإيداع
 def withdraw():
     user = get_v_user()
     if not user: return redirect(url_for("login"))
-    return render_template("withdraw.html", user=user)
+    return render_template("recharge.html", user=user)
 
 @app.route("/portal/withdraw/submit", methods=["POST"])
 def withdraw_submit():
