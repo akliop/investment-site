@@ -21,11 +21,11 @@
                         <h4 class="text-white cyber-font mb-0">باقة الـ <span class="text-success">1.00 $</span></h4>
                     </div>
                     <div class="progress mb-3 bg-black border border-secondary border-opacity-10" style="height: 12px;">
-                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: 10%;"></div>
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ [100, (user.xp / 10000 * 100)|round(1)]|min }}%;"></div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <button class="btn btn-dark btn-sm px-4 border-secondary border-opacity-25 text-dim" disabled>صرف</button>
-                        <span class="cyber-font text-dim">10/10k</span>
+                        <span class="cyber-font text-dim">{{ "%.0f"|format(user.xp) }}/10k</span>
                     </div>
                 </div>
             </div>
@@ -38,11 +38,11 @@
                         <h4 class="text-white cyber-font mb-0">باقة الـ <span class="text-success">2.00 $</span></h4>
                     </div>
                     <div class="progress mb-3 bg-black border border-secondary border-opacity-10" style="height: 12px;">
-                        <div class="progress-bar bg-success progress-bar-striped" role="progressbar" style="width: 5%;"></div>
+                        <div class="progress-bar bg-success progress-bar-striped" role="progressbar" style="width: {{ [100, (user.xp / 20000 * 100)|round(1)]|min }}%;"></div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <button class="btn btn-dark btn-sm px-4 border-secondary border-opacity-25 text-dim" disabled>صرف</button>
-                        <span class="cyber-font text-dim">10/20k</span>
+                        <span class="cyber-font text-dim">{{ "%.0f"|format(user.xp) }}/20k</span>
                     </div>
                 </div>
             </div>
@@ -57,11 +57,11 @@
                         <h1 class="text-white cyber-font mb-0 display-5 font-weight-bold">$5.00</h1>
                     </div>
                     <div class="progress mb-4 bg-black border border-warning border-opacity-10" style="height: 15px;">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: 2%;"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ [100, (user.xp / 40092 * 100)|round(1)]|min }}%;"></div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <button class="btn btn-warning fw-bold px-4 py-2 text-black shadow-glow-yellow">تحميل الدولارات</button>
-                        <span class="cyber-font text-dim">10/40k</span>
+                        <span class="cyber-font text-dim">{{ "%.0f"|format(user.xp) }}/40k</span>
                     </div>
                 </div>
             </div>
@@ -74,11 +74,11 @@
                         <h4 class="text-white cyber-font mb-0">باقة الـ <span class="text-info">3.00 $</span></h4>
                     </div>
                     <div class="progress mb-3 bg-black border border-info border-opacity-10" style="height: 12px;">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: 50%;"></div>
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ [100, (user.xp / 20092 * 100)|round(1)]|min }}%;"></div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <button class="btn btn-info fw-bold btn-sm px-4 text-black">صرف فوري</button>
-                        <span class="cyber-font text-dim">10/20,092</span>
+                        <span class="cyber-font text-dim">{{ "%.0f"|format(user.xp) }}/20,092</span>
                     </div>
                 </div>
             </div>

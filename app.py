@@ -24,12 +24,23 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     password = db.Column(db.String(120), nullable=False)
     jewels = db.Column(db.Float, default=0.0) # Jewels (💎)
+    xp = db.Column(db.Float, default=0.0) # XP (Leaderboard)
     balance_usdt = db.Column(db.Float, default=0.0) # USDT (💵)
     referral_code = db.Column(db.String(20), unique=True)
     is_admin = db.Column(db.Boolean, default=False)
 
 with app.app_context():
     db.create_all()
+    # إصلاح تلقائي: إضافة الأعمدة إذا كانت مفقودة لتجنب خطأ 500
+    try:
+        from sqlalchemy import text
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE user ADD COLUMN jewels FLOAT DEFAULT 0.0"))
+            conn.execute(text("ALTER TABLE user ADD COLUMN xp FLOAT DEFAULT 0.0"))
+            conn.execute(text("ALTER TABLE user ADD COLUMN balance_usdt FLOAT DEFAULT 0.0"))
+            conn.commit()
+    except:
+        pass # الأعمدة موجودة بالفعل أو هناك خطأ آخر يتم تجاهله
 
 def get_v_user():
     uid = session.get("v20_id")
@@ -115,7 +126,9 @@ def games_store():
 def referrals():
     user = get_v_user()
     if not user: return redirect(url_for("login"))
-    return render_template("dashboard.html", user=user) # مدمج في لوحة التحكم
+    top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
+    ref_link = f"{request.url_root}?ref={user.referral_code}"
+    return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link) # مدمج في لوحة التحكم
 
 @app.route("/portal/recharge") # "إيداع"
 def recharge():
@@ -128,10 +141,12 @@ def recharge():
 def pulse():
     user = get_v_user()
     if not user: return jsonify({"status": "fail"})
-    # محرك التعدين: إضافة 3 جواهر كل 10 ثوانٍ (يتم إرسال "3.0" من الفرونت إند)
-    user.jewels += float(request.json.get("units", 3.0))
+    # محرك التعدين: إضافة 3 جواهر/XP كل 10 ثوانٍ (يتم إرسال "3.0" من الفرونت إند)
+    units = float(request.json.get("units", 3.0))
+    user.jewels += units
+    user.xp += units
     db.session.commit()
-    return jsonify({"status": "success", "jewels": round(user.jewels, 2)})
+    return jsonify({"status": "success", "jewels": round(user.jewels, 2), "xp": round(user.xp, 2)})
 
 @app.route("/sw.js")
 def serve_sw():
