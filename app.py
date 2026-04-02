@@ -4,15 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime, timedelta
 
-# المحرك v14 (نظام الاستمرارية الموحد) - PWA & Root Support
+# المحرك v16 (نظام المتجر المتكامل والمسرع) - Restore All Features
 app = Flask(__name__)
-app.secret_key = "v14_akli_pwa_stealth_engine"
+app.secret_key = "v16_akli_full_store_engine"
 app.permanent_session_lifetime = timedelta(days=7)
 
 if os.environ.get('VERCEL'):
-    db_path = '/tmp/vault_v14.sqlite'
+    db_path = '/tmp/vault_v16.sqlite'
 else:
-    db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v14.sqlite')
+    db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v16.sqlite')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -32,16 +32,13 @@ with app.app_context():
     db.create_all()
 
 def get_v_user():
-    uid = session.get("v14_id")
-    if not uid:
-        return None
+    uid = session.get("v16_id")
+    if not uid: return None
     try:
         user = User.query.get(uid)
         return user
-    except:
-        return None
+    except: return None
 
-# خدمة سكريبت الـ PWA الصامت
 @app.route("/sw.js")
 def serve_sw():
     content = 'self.addEventListener("fetch", (event) => { });'
@@ -50,35 +47,27 @@ def serve_sw():
 @app.route("/")
 def home():
     user = get_v_user()
-    if user:
-        return redirect(url_for("dashboard"))
+    if user: return redirect(url_for("dashboard"))
     return render_template("landing.html", ref_code=request.args.get('ref'))
 
 @app.route("/sync", methods=["GET", "POST"])
 @app.route("/join_node", methods=["GET", "POST"])
 @app.route("/auth/v1/sync", methods=["GET", "POST"])
 def auth_sync():
-    if request.method == "GET":
-        return redirect(url_for("home"))
-    
+    if request.method == "GET": return redirect(url_for("home"))
     u = request.form.get("username", "").strip()
     p = request.form.get("password")
-    
-    if not u or not p:
-        return redirect(url_for("home"))
-        
+    if not u or not p: return redirect(url_for("home"))
     if User.query.filter_by(username=u).first():
         flash("المستخدم موجود", "error")
         return redirect(url_for("home"))
-
     try:
         new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper())
         db.session.add(new_u); db.session.commit()
-        session["v14_id"] = new_u.id
+        session["v16_id"] = new_u.id
         session.permanent = True
         return redirect(url_for("dashboard"))
-    except:
-        return redirect(url_for("home"))
+    except: return redirect(url_for("home"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -87,7 +76,7 @@ def login():
         p = request.form.get("password")
         user = User.query.filter_by(username=u, password=p).first()
         if user:
-            session["v14_id"] = user.id
+            session["v16_id"] = user.id
             session.permanent = True
             return redirect(url_for("dashboard"))
         flash("بيانات خاطئة", "error")
@@ -96,8 +85,7 @@ def login():
 @app.route("/portal/home")
 def dashboard():
     user = get_v_user()
-    if not user:
-        return redirect(url_for("login"))
+    if not user: return redirect(url_for("login"))
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
     ref_link = f"{request.url_root}?ref={user.referral_code}"
     return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link)
@@ -105,15 +93,19 @@ def dashboard():
 @app.route("/portal/store")
 def store():
     user = get_v_user()
-    if not user:
-        return redirect(url_for("login"))
+    if not user: return redirect(url_for("login"))
     return render_template("store.html", user=user)
+
+@app.route("/portal/store/games")
+def games_store():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    return render_template("games.html", user=user)
 
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse():
     user = get_v_user()
-    if not user:
-        return jsonify({"status": "fail"})
+    if not user: return jsonify({"status": "fail"})
     user.xp += float(request.json.get("units", 0.15))
     db.session.commit()
     return jsonify({"status": "success", "xp": round(user.xp, 2)})

@@ -1,61 +1,73 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row pt-4 justify-content-center">
-    <div class="col-lg-10">
-        <div class="glass-card border-warning border-opacity-25 shadow-lg p-5 text-center">
-            <h2 class="cyber-font text-white mb-3"><i class="fa-solid fa-shop text-warning me-2"></i> متجر المنصة المتكامل</h2>
-            <p class="text-dim mb-5">مكافآت حقيقية مقابل جهود التعدين - صرف النقاط و USDT فوراً!</p>
+<div class="row g-4">
+    <div class="col-lg-12">
+        <div class="glass-card shadow-lg p-4 border-primary border-opacity-25 mb-4 text-center">
+            <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-wallet text-primary me-2"></i> المحفظة والمتجر</h2>
+            <p class="text-dim">قم بـ إيداع رصيد لتطوير عقدتك أو اسحب أرباح التعدين فوراً.</p>
+        </div>
+    </div>
 
-            <div class="row g-4 justify-content-center">
-                
-                <!-- 1. GAMES HUB (مركز الألعاب) -->
-                <div class="col-md-4">
-                    <a href="/portal/store/games" class="text-decoration-none">
-                        <div class="p-4 bg-dark bg-opacity-25 rounded-4 border border-success border-opacity-50 hover-scale transition-fast h-100 shadow-sm">
-                           <i class="fa-solid fa-gamepad text-success h1 mb-4 glow-green"></i>
-                           <h4 class="text-white cyber-font small">شحن الألعاب (Gaming) 🎮</h4>
-                           <p class="x-small text-dim mt-3">Free Fire Diamonds & PUBG Mobile UC.</p>
-                           <div class="badge bg-success text-black mt-2">شحن فوري 🔥</div>
-                        </div>
-                    </a>
+    <!-- قسم الإيداع (Baridimob / CCP) -->
+    <div class="col-md-6">
+        <div class="glass-card shadow-lg p-4 h-100 border-info border-opacity-25">
+            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-building-columns text-info me-2"></i> إيداع رصيد (تعبئة 🇩🇿)</h4>
+            <div class="d-grid gap-3">
+                <div class="p-3 bg-black rounded border border-info border-opacity-10 position-relative overflow-hidden">
+                    <span class="badge bg-info text-black position-absolute top-0 end-0 m-2">Baridimob</span>
+                    <p class="small text-dim mb-1">الحساب البريدي الجاري (CCP)</p>
+                    <code class="text-white fs-5">0024567891 - Clé 44</code>
+                    <button class="btn btn-link btn-sm text-info p-0 ms-2" onclick="navigator.clipboard.writeText('002456789144')"><i class="fa-solid fa-copy"></i></button>
+                    <p class="mt-2 x-small text-dim">ارسل صورة الوصل للأدمن لتفعيل الرصيد.</p>
                 </div>
+                <button class="btn btn-info fw-bold py-3"><i class="fa-solid fa-upload me-2"></i> رفع وصل الإيداع</button>
+            </div>
+        </div>
+    </div>
 
-                <!-- 2. ALGERIA RECHARGE (تعبئة الرصيد) -->
+    <!-- قسم السحب (USDT / Payeer) -->
+    <div class="col-md-6">
+        <div class="glass-card shadow-lg p-4 h-100 border-success border-opacity-25">
+            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-money-bill-transfer text-success me-2"></i> سحب الأرباح (Withdraw)</h4>
+            <div class="mb-3">
+                <label class="form-label text-dim small">اختر وسيلة السحب</label>
+                <select class="form-select bg-black text-white border-success border-opacity-25 py-2">
+                    <option value="usdt">USDT (TRC20)</option>
+                    <option value="payeer">Payeer (USD)</option>
+                    <option value="flexy">Flexy (Mobilis/Djezzy)</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label text-dim small">المبلغ المطلوب (Min 5$)</label>
+                <input type="number" class="form-control bg-black text-white border-success border-opacity-25" placeholder="0.00">
+            </div>
+            <div class="mb-3">
+                <label class="form-label text-dim small">عنوان المحفظة / الرقم</label>
+                <input type="text" class="form-control bg-black text-white border-success border-opacity-25" placeholder="TXXXXXXX / 06XXXXXX">
+            </div>
+            <button class="btn btn-success w-100 fw-bold py-3"><i class="fa-solid fa-paper-plane me-2"></i> تأكيد طلب السحب</button>
+        </div>
+    </div>
+
+    <!-- كتالوج المنتجات السريعة -->
+    <div class="col-lg-12">
+        <div class="glass-card shadow-lg p-4 border-warning border-opacity-25 mt-2">
+            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-tags text-warning me-2"></i> عروض تطوير العقدة</h4>
+            <div class="row g-3">
                 <div class="col-md-4">
-                    <a href="/portal/store/recharge" class="text-decoration-none">
-                        <div class="p-4 bg-dark bg-opacity-25 rounded-4 border border-warning border-opacity-50 hover-scale transition-fast h-100 shadow-sm">
-                           <i class="fa-solid fa-mobile-screen-button text-warning h1 mb-4 glow-yellow"></i>
-                           <h4 class="text-white cyber-font small">تعبئة الرصيد (الجزائر) 🇩🇿</h4>
-                           <p class="x-small text-dim mt-3">Mobilis, Djezzy, Ooredoo (فليكسي).</p>
-                           <div class="badge bg-warning text-black mt-2">متوفر الآن</div>
-                        </div>
-                    </a>
+                    <div class="p-3 bg-black rounded text-center border border-warning border-opacity-10">
+                        <h5 class="text-white">باقة المبتدئ</h5>
+                        <p class="text-success cyber-font fs-4">1000 DZD</p>
+                        <p class="small text-dim">+50% سرعة تعدين</p>
+                        <button class="btn btn-warning w-100 btn-sm fw-bold">شراء الآن</button>
+                    </div>
                 </div>
-
-                <!-- 3. VIRTUAL CARDS (البطاقات العالمية) -->
-                <div class="col-md-4">
-                    <a href="/portal/store/cards" class="text-decoration-none">
-                        <div class="p-4 bg-dark bg-opacity-25 rounded-4 border border-info border-opacity-50 hover-scale transition-fast h-100 shadow-sm">
-                           <i class="fa-solid fa-credit-card text-info h1 mb-4 glow-blue"></i>
-                           <h4 class="text-white cyber-font small">البطاقات الافتراضية 💳</h4>
-                           <p class="x-small text-dim mt-3">VISA & MasterCard (Fake/Real).</p>
-                           <div class="badge bg-info text-black mt-2">عالمية ✅</div>
-                        </div>
-                    </a>
-                </div>
-
+                <!-- المزيد من المنتجات -->
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .hover-scale:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.1); }
-    .transition-fast { transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .glow-green { text-shadow: 0 0 15px var(--accent-green); }
-    .glow-yellow { text-shadow: 0 0 15px #ffc107; }
-    .glow-blue { text-shadow: 0 0 15px #0dcaf0; }
-    .x-small { font-size: 11px; }
-</style>
+<style> .x-small { font-size: 0.75rem; } </style>
 {% endblock %}

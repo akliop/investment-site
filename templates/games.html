@@ -1,86 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row pt-4 justify-content-center">
-    <div class="col-lg-11">
-        <div class="glass-card border-success border-opacity-50 p-4 shadow-lg text-center overflow-hidden">
-            <div class="d-flex justify-content-between align-items-center mb-5">
-               <a href="/portal/store" class="btn btn-outline-secondary btn-sm px-3 mt-1"><i class="fa-solid fa-arrow-right me-1"></i> للمتجر</a>
-               <h3 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-gamepad text-success me-2"></i> شحن الألعاب (Gaming Center)</h3>
-               <div style="width: 80px;"></div>
-            </div>
-            
-            <div class="row g-4 justify-content-center">
-                <!-- FREE FIRE SECTION -->
-                <div class="col-md-5">
-                    <div class="p-4 bg-black rounded border border-info border-opacity-25 shadow-blue h-100 transition-fast hover-glow">
-                        <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775075206936.png" class="img-fluid rounded mb-3" style="max-height: 100px; object-fit: contain;" alt="Free Fire">
-                        <h4 class="text-white cyber-font small mb-4">Free Fire Diamonds</h4>
-                        
-                        <div class="d-grid gap-3 p-2 bg-dark bg-opacity-25 rounded border border-dark">
-                            <form action="/portal/x/store/game/purchase" method="POST">
-                                <input type="hidden" name="game" value="FREE FIRE">
-                                <input type="hidden" name="item" value="110 Diamonds">
-                                <input type="hidden" name="price" value="1.3">
-                                <button type="submit" class="btn btn-outline-info w-100 py-2 fw-bold x-small">110 💎 <span class="ms-2 text-white">($1.30)</span></button>
-                            </form>
-                            <form action="/portal/x/store/game/purchase" method="POST">
-                                <input type="hidden" name="game" value="FREE FIRE">
-                                <input type="hidden" name="item" value="220 Diamonds">
-                                <input type="hidden" name="price" value="2.5">
-                                <button type="submit" class="btn btn-outline-info w-100 py-2 fw-bold x-small">220 💎 <span class="ms-2 text-white">($2.50)</span></button>
-                            </form>
-                            <form action="/portal/x/store/game/purchase" method="POST">
-                                <input type="hidden" name="game" value="FREE FIRE">
-                                <input type="hidden" name="item" value="330 Diamonds">
-                                <input type="hidden" name="price" value="3.7">
-                                <button type="submit" class="btn btn-info w-100 py-2 fw-bold x-small text-black shadow-lg">330 💎 <span class="ms-2 text-dark">($3.70)</span></button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+<div class="row g-4 text-center">
+    <div class="col-lg-12">
+        <div class="glass-card shadow-lg p-4 border-info border-opacity-25 mb-2">
+            <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-gamepad text-info me-2"></i> مركز شحن الألعاب والكارطات</h2>
+            <p class="text-dim">اشحن جواهرك وشداتك بـ أرخص الأسعار في الجزائر فوراً.</p>
+        </div>
+    </div>
 
-                <!-- PUBG SECTION -->
-                <div class="col-md-5">
-                    <div class="p-4 bg-black rounded border border-warning border-opacity-25 shadow-orange h-100 transition-fast hover-glow">
-                        <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775076764349.png" class="img-fluid rounded mb-3" style="max-height: 100px; object-fit: contain;" alt="PUBG">
-                        <h4 class="text-white cyber-font small mb-4">PUBG Mobile UC</h4>
-                        
-                        <div class="d-grid gap-3 p-2 bg-dark bg-opacity-25 rounded border border-dark">
-                            <form action="/portal/x/store/game/purchase" method="POST">
-                                <input type="hidden" name="game" value="PUBG">
-                                <input type="hidden" name="item" value="60 UC">
-                                <input type="hidden" name="price" value="1.0">
-                                <button type="submit" class="btn btn-outline-warning w-100 py-2 fw-bold x-small">60 💰 <span class="ms-2 text-white">($1.00)</span></button>
-                            </form>
-                            <form action="/portal/x/store/game/purchase" method="POST">
-                                <input type="hidden" name="game" value="PUBG">
-                                <input type="hidden" name="item" value="325 UC">
-                                <input type="hidden" name="price" value="4.6">
-                                <button type="submit" class="btn btn-outline-warning w-100 py-2 fw-bold x-small">325 💰 <span class="ms-2 text-white">($4.60)</span></button>
-                            </form>
-                            <form action="/portal/x/store/game/purchase" method="POST">
-                                <input type="hidden" name="game" value="PUBG">
-                                <input type="hidden" name="item" value="1800 UC">
-                                <input type="hidden" name="price" value="21.0">
-                                <button type="submit" class="btn btn-warning w-100 py-2 fw-bold x-small text-black shadow-lg">1800 💰 <span class="ms-2 text-dark">($21.00)</span></button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+    <!-- Free Fire -->
+    <div class="col-md-4">
+        <div class="glass-card shadow-lg p-3 h-100 border-danger border-opacity-25">
+            <img src="https://img.icons8.com/color/96/free-fire.png" class="mb-3" width="60">
+            <h5 class="text-white fw-bold">Free Fire Diamonds</h5>
+            <div class="list-group list-group-flush bg-transparent mb-3 text-start">
+                <button class="list-group-item bg-transparent text-white border-secondary border-opacity-25 x-small">110 Diamonds <span class="float-end text-success">220 DZD</span></button>
+                <button class="list-group-item bg-transparent text-white border-secondary border-opacity-25 x-small">231 Diamonds <span class="float-end text-success">440 DZD</span></button>
+                <button class="list-group-item bg-transparent text-white border-secondary border-opacity-25 x-small">583 Diamonds <span class="float-end text-success">1050 DZD</span></button>
             </div>
+            <div class="input-group input-group-sm mb-3">
+                <input type="text" class="form-control bg-black text-white border-danger border-opacity-25" placeholder="أدخل ID اللاعب">
+            </div>
+            <button class="btn btn-danger w-100 btn-sm fw-bold">طلب الشحن الآن</button>
+        </div>
+    </div>
 
-            <div class="mt-5 p-3 bg-dark bg-opacity-25 rounded border border-dark x-small text-dim text-center">
-                <i class="fa-solid fa-bolt text-success me-2"></i> الدفع فوري والمعالجة خلال دقائق. سيتم إرسال الكود أو الشحن المباشر ل حسابك فوراً.
+    <!-- PUBG Mobile -->
+    <div class="col-md-4">
+        <div class="glass-card shadow-lg p-3 h-100 border-warning border-opacity-25">
+            <img src="https://img.icons8.com/color/96/pubg.png" class="mb-3" width="60">
+            <h5 class="text-white fw-bold">PUBG Mobile UC</h5>
+            <div class="list-group list-group-flush bg-transparent mb-3 text-start">
+                <button class="list-group-item bg-transparent text-white border-secondary border-opacity-25 x-small">60 UC <span class="float-end text-success">180 DZD</span></button>
+                <button class="list-group-item bg-transparent text-white border-secondary border-opacity-25 x-small">325 UC <span class="float-end text-success">850 DZD</span></button>
+                <button class="list-group-item bg-transparent text-white border-secondary border-opacity-25 x-small">660 UC <span class="float-end text-success">1650 DZD</span></button>
             </div>
+            <div class="input-group input-group-sm mb-3">
+                <input type="text" class="form-control bg-black text-white border-warning border-opacity-25" placeholder="أدخل ID اللاعب">
+            </div>
+            <button class="btn btn-warning w-100 btn-sm fw-bold text-black">طلب الشحن الآن</button>
+        </div>
+    </div>
+
+    <!-- Google Play Cards -->
+    <div class="col-md-4">
+        <div class="glass-card shadow-lg p-3 h-100 border-primary border-opacity-25">
+            <img src="https://img.icons8.com/color/96/google-play.png" class="mb-3" width="60">
+            <h5 class="text-white fw-bold">Google Play Gift Cards</h5>
+            <div class="list-group list-group-flush bg-transparent mb-3 text-start">
+                <button class="list-group-item bg-transparent text-white border-secondary border-opacity-25 x-small">$5 Card <span class="float-end text-success">1100 DZD</span></button>
+                <button class="list-group-item bg-transparent text-white border-secondary border-opacity-25 x-small">$10 Card <span class="float-end text-success">2150 DZD</span></button>
+            </div>
+            <button class="btn btn-primary w-100 btn-sm fw-bold">شراء البطاقة</button>
         </div>
     </div>
 </div>
 
-<style>
-    .hover-glow:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2) !important; }
-    .shadow-blue:hover { box-shadow: 0 0 20px rgba(0, 150, 255, 0.2); }
-    .shadow-orange:hover { box-shadow: 0 0 20px rgba(255, 120, 0, 0.2); }
-    .x-small { font-size: 11px; }
-</style>
+<style> .x-small { font-size: 0.8rem; } </style>
 {% endblock %}
