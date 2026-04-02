@@ -4,45 +4,58 @@
 <div class="row pt-4 justify-content-center">
     <div class="col-lg-10">
         <div class="glass-card border-warning border-opacity-25 shadow-lg p-5 text-center">
-            <h2 class="cyber-font text-white mb-3"><i class="fa-solid fa-shop text-warning me-2"></i> متجر المنصة (Cyber Store)</h2>
-            <p class="text-dim mb-5">استخدم أرباحك من التعدين (USDT) لشراء خدمات حقيقية!</p>
+            <h2 class="cyber-font text-white mb-3"><i class="fa-solid fa-shop text-warning me-2"></i> متجر المنصة المتكامل</h2>
+            <p class="text-dim mb-5">مكافآت حقيقية مقابل جهود التعدين - صرف النقاط و USDT فوراً!</p>
 
             <div class="row g-4 justify-content-center">
-                <!-- Algeria Recharge Card -->
-                <div class="col-md-4">
-                    <a href="/portal/store/recharge" class="text-decoration-none">
-                        <div class="p-4 bg-dark bg-opacity-25 rounded border border-warning border-opacity-25 hover-scale transition-fast h-100">
-                           <i class="fa-solid fa-mobile-screen-button text-warning h1 mb-4"></i>
-                           <h4 class="text-white cyber-font small">تعبئة الرصيد 🇩🇿</h4>
-                           <div class="badge bg-warning text-black mt-2">فليكسي</div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Virtual Cards Card -->
-                <div class="col-md-4">
-                    <a href="/portal/store/cards" class="text-decoration-none">
-                        <div class="p-4 bg-dark bg-opacity-25 rounded border border-info border-opacity-25 hover-scale transition-fast h-100">
-                           <i class="fa-solid fa-credit-card text-info h1 mb-4"></i>
-                           <h4 class="text-white cyber-font small">البطاقات الافتراضية 💳</h4>
-                           <div class="badge bg-info text-black mt-2">VISA / MC</div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Games & Gifts Card -->
+                
+                <!-- 1. GAMES HUB (مركز الألعاب) -->
                 <div class="col-md-4">
                     <a href="/portal/store/games" class="text-decoration-none">
-                        <div class="p-4 bg-dark bg-opacity-25 rounded border border-success border-opacity-25 hover-scale transition-fast h-100">
-                           <i class="fa-solid fa-gamepad text-success h1 mb-4 shadow-sm"></i>
-                           <h4 class="text-white cyber-font small">الألعاب والهدايا 🎮</h4>
-                           <p class="x-small text-dim mt-3">Free Fire & PUBG Mobile.</p>
-                           <div class="badge bg-success text-black mt-2">متوفر</div>
+                        <div class="p-4 bg-dark bg-opacity-25 rounded-4 border border-success border-opacity-50 hover-scale transition-fast h-100 shadow-sm">
+                           <i class="fa-solid fa-gamepad text-success h1 mb-4 glow-green"></i>
+                           <h4 class="text-white cyber-font small">شحن الألعاب (Gaming) 🎮</h4>
+                           <p class="x-small text-dim mt-3">Free Fire Diamonds & PUBG Mobile UC.</p>
+                           <div class="badge bg-success text-black mt-2">شحن فوري 🔥</div>
                         </div>
                     </a>
                 </div>
+
+                <!-- 2. ALGERIA RECHARGE (تعبئة الرصيد) -->
+                <div class="col-md-4">
+                    <a href="/portal/store/recharge" class="text-decoration-none">
+                        <div class="p-4 bg-dark bg-opacity-25 rounded-4 border border-warning border-opacity-50 hover-scale transition-fast h-100 shadow-sm">
+                           <i class="fa-solid fa-mobile-screen-button text-warning h1 mb-4 glow-yellow"></i>
+                           <h4 class="text-white cyber-font small">تعبئة الرصيد (الجزائر) 🇩🇿</h4>
+                           <p class="x-small text-dim mt-3">Mobilis, Djezzy, Ooredoo (فليكسي).</p>
+                           <div class="badge bg-warning text-black mt-2">متوفر الآن</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- 3. VIRTUAL CARDS (البطاقات العالمية) -->
+                <div class="col-md-4">
+                    <a href="/portal/store/cards" class="text-decoration-none">
+                        <div class="p-4 bg-dark bg-opacity-25 rounded-4 border border-info border-opacity-50 hover-scale transition-fast h-100 shadow-sm">
+                           <i class="fa-solid fa-credit-card text-info h1 mb-4 glow-blue"></i>
+                           <h4 class="text-white cyber-font small">البطاقات الافتراضية 💳</h4>
+                           <p class="x-small text-dim mt-3">VISA & MasterCard (Fake/Real).</p>
+                           <div class="badge bg-info text-black mt-2">عالمية ✅</div>
+                        </div>
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .hover-scale:hover { transform: scale(1.05); filter: brightness(1.1); box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+    .transition-fast { transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .glow-green { text-shadow: 0 0 15px var(--accent-green); }
+    .glow-yellow { text-shadow: 0 0 15px #ffc107; }
+    .glow-blue { text-shadow: 0 0 15px #0dcaf0; }
+    .x-small { font-size: 11px; }
+</style>
 {% endblock %}
