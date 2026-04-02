@@ -285,15 +285,19 @@ def deliver_order():
 @app.route("/admin/dev-room") # "غرفة المطور" المطلوبة
 def dev_room():
     user = get_v_user()
-    if not user or not user.is_admin: return redirect(url_for("home"))
+    pin = request.args.get("pin")
     
-    all_users = User.query.all()
-    user_count = len(all_users)
-    orders = Order.query.order_by(Order.timestamp.desc()).all()
-    finances = FinanceRequest.query.order_by(FinanceRequest.timestamp.desc()).all()
+    # السماح بالدخول إذا كان المستخدم أدمن أو استخدم الرمز السري "akli2025"
+    if (user and user.is_admin) or pin == "akli2025":
+        all_users = User.query.all()
+        user_count = len(all_users)
+        orders = Order.query.order_by(Order.timestamp.desc()).all()
+        finances = FinanceRequest.query.order_by(FinanceRequest.timestamp.desc()).all()
+        
+        return render_template("dev_room.html", user=user, all_users=all_users, 
+                               user_count=user_count, orders=orders, finances=finances)
     
-    return render_template("dev_room.html", user=user, all_users=all_users, 
-                           user_count=user_count, orders=orders, finances=finances)
+    return redirect(url_for("home"))
 
 @app.route("/api/admin/finance/update", methods=["POST"])
 def update_finance():
