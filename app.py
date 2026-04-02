@@ -209,11 +209,11 @@ def convert():
         "balance_usdt": round(user.balance_usdt, 2)
     })
 
+
 @app.route("/portal/orders") # "مشترياتي"
 def orders():
     user = get_v_user()
     if not user: return redirect(url_for("login"))
-    # جلب طلبات المستخدم من الأحدث للأقدم
     user_orders = Order.query.filter_by(user_id=user.id).order_by(Order.timestamp.desc()).all()
     return render_template("orders.html", user=user, orders=user_orders)
 
@@ -221,22 +221,34 @@ def orders():
 def buy_product():
     user = get_v_user()
     if not user: return jsonify({"status": "fail"})
-    
     name = request.json.get("name")
     price = float(request.json.get("price", 0.0))
-    
     if user.balance_usdt < price:
         return jsonify({"status": "fail", "message": "عذراً، رصيدك غير كافٍ لإتمام الشراء!"})
-    
-    # خصم الرصيد
     user.balance_usdt -= price
-    
-    # إنشاء الطلب
     new_order = Order(user_id=user.id, product_name=name, price=price)
-    db.session.add(new_order)
-    db.session.commit()
-    
+    db.session.add(new_order); db.session.commit()
     return jsonify({"status": "success", "message": f"تم طلب {name} بنجاح! سيصلك الكود في 'مشترياتي' فوراً.", "balance_usdt": round(user.balance_usdt, 2)})
+
+@app.route("/admin/panel") # لوحة الإدارة
+def admin_panel():
+    user = get_v_user()
+    if not user or not user.is_admin: return redirect(url_for("home"))
+    all_users = User.query.all()
+    all_orders = Order.query.order_by(Order.timestamp.desc()).all()
+    return render_template("admin_dashboard.html", user=user, all_users=all_users, orders=all_orders)
+
+@app.route("/api/admin/deliver", methods=["POST"])
+def deliver_order():
+    user = get_v_user()
+    if not user or not user.is_admin: return jsonify({"status": "fail"})
+    oid = request.json.get("order_id"); data = request.json.get("delivery_data")
+    order = Order.query.get(oid)
+    if order:
+        order.delivery_data = data; order.status = "تم التسليم ✅"
+        db.session.commit()
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error"})
 
 @app.route("/sw.js")
 def serve_sw():

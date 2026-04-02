@@ -8,39 +8,53 @@
             
             <!-- SECTION 1: STORE PURCHASES -->
             <div class="mb-5">
-                <h4 class="text-warning mb-4 pb-2 border-bottom border-warning border-opacity-25"><i class="fa-solid fa-cart-shopping me-2"></i> 1. مشتريات الناس من المتجر (Store Orders)</h4>
+                <h4 class="text-warning mb-4 pb-2 border-bottom border-warning border-opacity-25"><i class="fa-solid fa-cart-shopping me-2"></i> 1. طلبات المتجر والبطاقات (Store Orders)</h4>
                 <div class="table-responsive bg-black bg-opacity-50 rounded border border-dark p-2">
                     <table class="table table-dark table-hover mb-0 x-small">
                         <thead>
                             <tr class="text-dim">
                                 <th>رقم الطلب</th>
-                                <th>النوع</th>
-                                <th>التفاصيل</th>
-                                <th>التكلفة ($)</th>
+                                <th>المستخدم</th>
+                                <th>المنتج</th>
+                                <th>السعر</th>
                                 <th>الحالة</th>
-                                <th>الإجراء</th>
+                                <th>إرسال البيانات (فيزا/كود)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for o in store_orders %}
+                            {% for o in orders %}
                             <tr>
                                 <td>#{{ o.id }}</td>
-                                <td><span class="badge bg-secondary">{{ o.order_type }}</span></td>
-                                <td>{{ o.details }}</td>
-                                <td class="text-success">${{ "%.2f"|format(o.cost_usdt or 0.0) }}</td>
-                                <td><span class="badge bg-{{ 'success' if o.status == 'DONE' else 'warning text-black' }}">{{ o.status }}</span></td>
+                                <td>User ID: {{ o.user_id }}</td>
+                                <td>{{ o.product_name }}</td>
+                                <td class="text-success">${{ "%.2f"|format(o.price or 0.0) }}</td>
+                                <td><span class="badge bg-{{ 'success' if 'تم' in o.status else 'warning text-black' }}">{{ o.status }}</span></td>
                                 <td>
-                                    {% if o.status == 'PENDING' %}
-                                    <a href="/admin/x/order/complete/{{ o.id }}" class="btn btn-success btn-sm py-0 px-2 fw-bold x-small">تم ✅</a>
-                                    {% endif %}
+                                    <div class="d-flex gap-1">
+                                        <input type="text" id="delivery_{{ o.id }}" class="form-control form-control-sm bg-dark border-dark text-info x-small" style="width:150px" placeholder="ادخل الكود/الفيزا" value="{{ o.delivery_data or '' }}">
+                                        <button onclick="deliverOrder({{ o.id }})" class="btn btn-success btn-sm py-0 px-2 fw-bold x-small">إرسال ✅</button>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
-                            {% if not store_orders %}<tr><td colspan="6" class="text-center text-dim py-4">لا توجد مشتريات حالياً</td></tr>{% endif %}
+                            {% if not orders %}<tr><td colspan="6" class="text-center text-dim py-4">لا توجد طلبات حالياً</td></tr>{% endif %}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <script>
+            async function deliverOrder(oid) {
+                const data = document.getElementById('delivery_' + oid).value;
+                if(!data) { alert("يرجى إدخال البيانات أولاً!"); return; }
+                const res = await fetch("/api/admin/deliver", {
+                    method: "POST", headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({order_id: oid, delivery_data: data})
+                });
+                const resData = await res.json();
+                if(resData.status === 'success') { alert("تم الإرسال بنجاح!"); location.reload(); }
+            }
+            </script>
 
             <!-- SECTION 2: FINANCIAL REQUESTS -->
             <div class="mb-5">
