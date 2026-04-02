@@ -2,72 +2,122 @@
 
 {% block content %}
 <div class="row g-4">
+    <!-- العنوان الرئيسي -->
     <div class="col-lg-12">
-        <div class="glass-card shadow-lg p-4 border-primary border-opacity-25 mb-4 text-center">
-            <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-wallet text-primary me-2"></i> المحفظة والمتجر</h2>
-            <p class="text-dim">قم بـ إيداع رصيد لتطوير عقدتك أو اسحب أرباح التعدين فوراً.</p>
+        <div class="glass-card shadow-lg p-5 border-success border-opacity-25 text-center position-relative overflow-hidden">
+            <div class="glow-bg-store"></div>
+            <h1 class="cyber-font text-white mb-2"><i class="fa-solid fa-store text-success me-2 glow-pulse"></i> المتجر الشامل v19</h1>
+            <p class="text-dim fs-5">استثمر في تطوير عقدتك، اسحب أرباحك، أو اشحن ألعابك بـ ضغطة واحدة.</p>
         </div>
     </div>
 
-    <!-- قسم الإيداع (Baridimob / CCP) -->
-    <div class="col-md-6">
-        <div class="glass-card shadow-lg p-4 h-100 border-info border-opacity-25">
-            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-building-columns text-info me-2"></i> إيداع رصيد (تعبئة 🇩🇿)</h4>
-            <div class="d-grid gap-3">
-                <div class="p-3 bg-black rounded border border-info border-opacity-10 position-relative overflow-hidden">
-                    <span class="badge bg-info text-black position-absolute top-0 end-0 m-2">Baridimob</span>
-                    <p class="small text-dim mb-1">الحساب البريدي الجاري (CCP)</p>
-                    <code class="text-white fs-5">0024567891 - Clé 44</code>
-                    <button class="btn btn-link btn-sm text-info p-0 ms-2" onclick="navigator.clipboard.writeText('002456789144')"><i class="fa-solid fa-copy"></i></button>
-                    <p class="mt-2 x-small text-dim">ارسل صورة الوصل للأدمن لتفعيل الرصيد.</p>
+    <!-- قسم تطوير العقدة (الاستثمار والأدوات) -->
+    <div class="col-lg-12 mt-5">
+        <h3 class="cyber-font text-white mb-4 border-bottom border-success border-opacity-25 pb-2"><i class="fa-solid fa-microchip text-success me-2"></i> باقات تطوير عقدة التعدين (Mining Units)</h3>
+        <div class="row g-4">
+            <!-- باقة المبتدئ -->
+            <div class="col-md-3">
+                <div class="glass-card p-4 text-center border-info border-opacity-25 h-100 product-card">
+                    <div class="mb-3"><i class="fa-solid fa-bolt-lightning text-info fs-1"></i></div>
+                    <h5 class="text-white">Bronze Node v1</h5>
+                    <p class="text-success cyber-font fs-3 mb-1">1,000 DZD</p>
+                    <p class="small text-dim mb-4">+50% Speed Boost<br>Mining Cycle: 30 Days</p>
+                    <button class="btn btn-info w-100 fw-bold">شراء الباقة</button>
                 </div>
-                <button class="btn btn-info fw-bold py-3"><i class="fa-solid fa-upload me-2"></i> رفع وصل الإيداع</button>
+            </div>
+            <!-- باقة المحترف -->
+            <div class="col-md-3">
+                <div class="glass-card p-4 text-center border-warning border-opacity-25 h-100 product-card">
+                    <div class="mb-3"><i class="fa-solid fa-shield-halved text-warning fs-1"></i></div>
+                    <h5 class="text-white">Silver Pro Node</h5>
+                    <p class="text-success cyber-font fs-3 mb-1">3,000 DZD</p>
+                    <p class="small text-dim mb-4">+150% Speed Boost<br>Auto-Mining Active</p>
+                    <button class="btn btn-warning w-100 fw-bold text-black">شراء الباقة</button>
+                </div>
+            </div>
+            <!-- باقة النخبة -->
+            <div class="col-md-3">
+                <div class="glass-card p-4 text-center border-primary border-opacity-25 h-100 product-card">
+                    <div class="mb-3"><i class="fa-solid fa-crown text-primary fs-1"></i></div>
+                    <h5 class="text-white">Gold Elite Unit</h5>
+                    <p class="text-success cyber-font fs-3 mb-1">5,000 DZD</p>
+                    <p class="small text-dim mb-4">+300% Speed Boost<br>Priority Payouts</p>
+                    <button class="btn btn-primary w-100 fw-bold">شراء الباقة</button>
+                </div>
+            </div>
+            <!-- باقة الماستر -->
+            <div class="col-md-3">
+                <div class="glass-card p-4 text-center border-success border-opacity-75 h-100 product-card highlight-card">
+                    <div class="mb-3"><i class="fa-solid fa-gem text-success fs-1"></i></div>
+                    <h5 class="text-white">Diamond Master Node</h5>
+                    <p class="text-success cyber-font fs-3 mb-1">10,000 DZD</p>
+                    <p class="small text-dim mb-4">+700% Speed Boost<br>VIP 24/7 Support</p>
+                    <button class="btn btn-success w-100 fw-bold shadow-glow">شراء الباقة</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- قسم السحب (USDT / Payeer) -->
-    <div class="col-md-6">
-        <div class="glass-card shadow-lg p-4 h-100 border-success border-opacity-25">
-            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-money-bill-transfer text-success me-2"></i> سحب الأرباح (Withdraw)</h4>
+    <!-- قسم الخدمات المالية (الإيداع والسحب) -->
+    <div class="col-lg-6 mt-5">
+        <div class="glass-card p-4 border-info border-opacity-25 h-100">
+            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-money-bill-transfer text-info me-2"></i> بوابات الإيداع (Deposit)</h4>
+            <div class="list-group list-group-flush bg-transparent">
+                <div class="list-group-item bg-transparent border-info border-opacity-10 text-white d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <div class="fw-bold">Baridimob 🇩🇿</div>
+                        <small class="text-dim">RIP: 0024567891 - Clé 44 (Mohamed)</small>
+                    </div>
+                    <button class="btn btn-outline-info btn-sm px-3" onclick="navigator.clipboard.writeText('002456789144')">نسخ</button>
+                </div>
+                <div class="list-group-item bg-transparent border-info border-opacity-10 text-white d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <div class="fw-bold">CCP Algérie Post</div>
+                        <small class="text-dim">Compte: 12345678 - Clé 99</small>
+                    </div>
+                    <button class="btn btn-outline-info btn-sm px-3" onclick="navigator.clipboard.writeText('1234567899')">نسخ</button>
+                </div>
+                <div class="list-group-item bg-transparent border-0 text-white py-3">
+                    <small class="text-dim d-block mb-2">بعد الإرسال، ارفع التذكيرة هنا:</small>
+                    <button class="btn btn-info w-100 fw-bold">رفع إيصال الدفع <i class="fa-solid fa-camera ms-1"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mt-5">
+        <div class="glass-card p-4 border-primary border-opacity-25 h-100">
+            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-sack-dollar text-primary me-2"></i> بوابات السحب (Withdrawals)</h4>
             <div class="mb-3">
-                <label class="form-label text-dim small">اختر وسيلة السحب</label>
-                <select class="form-select bg-black text-white border-success border-opacity-25 py-2">
+                <label class="form-label text-dim small">اختر وسيلة السحب المفضلة</label>
+                <select class="form-select bg-black text-white border-primary border-opacity-25 py-2">
                     <option value="usdt">USDT (TRC20)</option>
                     <option value="payeer">Payeer (USD)</option>
-                    <option value="flexy">Flexy (Mobilis/Djezzy)</option>
+                    <option value="baridimob">Baridimob (DZD)</option>
+                    <option value="flexy">Flexy (Mobilis/Djezzy/Ooredoo)</option>
                 </select>
             </div>
             <div class="mb-3">
-                <label class="form-label text-dim small">المبلغ المطلوب (Min 5$)</label>
-                <input type="number" class="form-control bg-black text-white border-success border-opacity-25" placeholder="0.00">
-            </div>
-            <div class="mb-3">
-                <label class="form-label text-dim small">عنوان المحفظة / الرقم</label>
-                <input type="text" class="form-control bg-black text-white border-success border-opacity-25" placeholder="TXXXXXXX / 06XXXXXX">
-            </div>
-            <button class="btn btn-success w-100 fw-bold py-3"><i class="fa-solid fa-paper-plane me-2"></i> تأكيد طلب السحب</button>
-        </div>
-    </div>
-
-    <!-- كتالوج المنتجات السريعة -->
-    <div class="col-lg-12">
-        <div class="glass-card shadow-lg p-4 border-warning border-opacity-25 mt-2">
-            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-tags text-warning me-2"></i> عروض تطوير العقدة</h4>
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="p-3 bg-black rounded text-center border border-warning border-opacity-10">
-                        <h5 class="text-white">باقة المبتدئ</h5>
-                        <p class="text-success cyber-font fs-4">1000 DZD</p>
-                        <p class="small text-dim">+50% سرعة تعدين</p>
-                        <button class="btn btn-warning w-100 btn-sm fw-bold">شراء الآن</button>
-                    </div>
+                <label class="form-label text-dim small">المبلغ المطلوب (الحد الأدنى 5$)</label>
+                <div class="input-group">
+                    <input type="number" class="form-control bg-black text-white border-primary border-opacity-25" placeholder="0.00">
+                    <span class="input-group-text bg-primary text-black fw-bold border-0">$</span>
                 </div>
-                <!-- المزيد من المنتجات -->
             </div>
+            <div class="mb-4">
+                <label class="form-label text-dim small">رقم الحساب / عنوان المحفظة</label>
+                <input type="text" class="form-control bg-black text-white border-primary border-opacity-25" placeholder="TXXXXXXX / RIP / 06XXXXXX">
+            </div>
+            <button class="btn btn-primary w-100 fw-bold py-3 shadow-glow">تأكيد طلب السحب الفوري <i class="fa-solid fa-paper-plane ms-1"></i></button>
         </div>
     </div>
 </div>
 
-<style> .x-small { font-size: 0.75rem; } </style>
+<style>
+    .glow-bg-store { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0,230,118,0.05) 0%, transparent 70%); pointer-events: none; }
+    .product-card { transition: 0.4s; cursor: pointer; }
+    .product-card:hover { transform: translateY(-10px); border-opacity: 0.8 !important; background: rgba(255,255,255,0.03); }
+    .highlight-card { background: linear-gradient(135deg, rgba(0,230,118,0.05) 0%, rgba(0,0,0,0.8) 100%); }
+    .shadow-glow { box-shadow: 0 0 20px rgba(0,230,118,0.3); }
+</style>
 {% endblock %}

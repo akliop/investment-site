@@ -4,15 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime, timedelta
 
-# المحرك v16 (نظام المتجر المتكامل والمسرع) - Restore All Features
+# المحرك v20: نظام "النهضة الشاملة" (إعادة كافة الخانات المفقودة والروابط)
 app = Flask(__name__)
-app.secret_key = "v16_akli_full_store_engine"
+app.secret_key = "v20_akli_full_engine_restoration"
 app.permanent_session_lifetime = timedelta(days=7)
 
 if os.environ.get('VERCEL'):
-    db_path = '/tmp/vault_v16.sqlite'
+    db_path = '/tmp/vault_v20.sqlite'
 else:
-    db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v16.sqlite')
+    db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v20.sqlite')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -24,48 +24,38 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     password = db.Column(db.String(120), nullable=False)
     xp = db.Column(db.Float, default=10.0)
-    referral_code = db.Column(db.String(20), unique=True)
     balance_usdt = db.Column(db.Float, default=0.0)
+    referral_code = db.Column(db.String(20), unique=True)
     is_admin = db.Column(db.Boolean, default=False)
 
 with app.app_context():
     db.create_all()
 
 def get_v_user():
-    uid = session.get("v16_id")
+    uid = session.get("v20_id")
     if not uid: return None
-    try:
-        user = User.query.get(uid)
-        return user
+    try: return User.query.get(uid)
     except: return None
 
-@app.route("/sw.js")
-def serve_sw():
-    content = 'self.addEventListener("fetch", (event) => { });'
-    return app.response_class(content, mimetype='application/javascript')
-
+# --- المسارات الرئيسية ---
 @app.route("/")
 def home():
     user = get_v_user()
     if user: return redirect(url_for("dashboard"))
     return render_template("landing.html", ref_code=request.args.get('ref'))
 
-@app.route("/sync", methods=["GET", "POST"])
+@app.route("/register", methods=["GET", "POST"])
 @app.route("/join_node", methods=["GET", "POST"])
-@app.route("/auth/v1/sync", methods=["GET", "POST"])
-def auth_sync():
-    if request.method == "GET": return redirect(url_for("home"))
+def register():
+    if request.method == "GET": return render_template("landing.html", ref_code=request.args.get('ref'))
     u = request.form.get("username", "").strip()
     p = request.form.get("password")
     if not u or not p: return redirect(url_for("home"))
-    if User.query.filter_by(username=u).first():
-        flash("المستخدم موجود", "error")
-        return redirect(url_for("home"))
+    if User.query.filter_by(username=u).first(): return redirect(url_for("login"))
     try:
         new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper())
         db.session.add(new_u); db.session.commit()
-        session["v16_id"] = new_u.id
-        session.permanent = True
+        session["v20_id"] = new_u.id; session.permanent = True
         return redirect(url_for("dashboard"))
     except: return redirect(url_for("home"))
 
@@ -76,12 +66,12 @@ def login():
         p = request.form.get("password")
         user = User.query.filter_by(username=u, password=p).first()
         if user:
-            session["v16_id"] = user.id
-            session.permanent = True
+            session["v20_id"] = user.id; session.permanent = True
             return redirect(url_for("dashboard"))
-        flash("بيانات خاطئة", "error")
+        flash("خطأ في البيانات", "error")
     return render_template("login.html")
 
+# --- بوابة "البارحة" (الخانات المفقودة) ---
 @app.route("/portal/home")
 def dashboard():
     user = get_v_user()
@@ -90,18 +80,43 @@ def dashboard():
     ref_link = f"{request.url_root}?ref={user.referral_code}"
     return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link)
 
-@app.route("/portal/store")
+@app.route("/portal/exchange") # "صرف النقاط" المفقودة
+def exchange():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    return render_template("exchange.html", user=user)
+
+@app.route("/portal/store") # "المتجر والسلع"
 def store():
     user = get_v_user()
     if not user: return redirect(url_for("login"))
     return render_template("store.html", user=user)
 
-@app.route("/portal/store/games")
+@app.route("/portal/store/games") # "شحن الألعاب"
 def games_store():
     user = get_v_user()
     if not user: return redirect(url_for("login"))
     return render_template("games.html", user=user)
 
+@app.route("/portal/withdraw") # "سحب"
+def withdraw():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    return render_template("store.html", user=user) # مدمج في المتجر
+
+@app.route("/portal/referrals") # "الإحالات"
+def referrals():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    return render_template("dashboard.html", user=user) # مدمج في لوحة التحكم
+
+@app.route("/portal/recharge") # "إيداع"
+def recharge():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    return render_template("store.html", user=user) # مدمج في المتجر
+
+# --- محرك التعدين ---
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse():
     user = get_v_user()
@@ -110,10 +125,14 @@ def pulse():
     db.session.commit()
     return jsonify({"status": "success", "xp": round(user.xp, 2)})
 
+@app.route("/sw.js")
+def serve_sw():
+    content = 'self.addEventListener("fetch", (event) => { });'
+    return app.response_class(content, mimetype='application/javascript')
+
 @app.route("/logout")
 def logout():
-    session.clear()
-    return redirect(url_for("home"))
+    session.clear(); return redirect(url_for("home"))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
