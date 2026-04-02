@@ -8,6 +8,18 @@
   ],
   "routes": [
     {
+      "src": "/auth/v1/sync",
+      "dest": "investment_site.py"
+    },
+    {
+      "src": "/sync",
+      "dest": "investment_site.py"
+    },
+    {
+      "src": "/register",
+      "dest": "investment_site.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "investment_site.py"
     }
