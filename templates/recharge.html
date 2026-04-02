@@ -111,10 +111,25 @@
 
             </div>
 
-            <div class="p-4 bg-black bg-opacity-30 border-top border-warning border-opacity-10 text-center">
-                <button class="btn btn-warning fw-bold px-5 py-3 rounded-pill shadow-lg text-black" onclick="window.print()">
-                    <i class="fa-solid fa-share-nodes me-2"></i> حفظ ومشاركة العنوان
-                </button>
+            <div class="p-4 bg-black bg-opacity-30 border-top border-warning border-opacity-10">
+                <h5 class="text-white cyber-font mb-4"><i class="fa-solid fa-file-signature text-warning me-2"></i> تأكيد الإيداع (Confirm Payment)</h5>
+                <form action="/portal/recharge/submit" method="POST" class="text-start">
+                    <div class="row g-3">
+                        <div class="col-md-6 text-start">
+                            <label class="text-dim small mb-2">المبلغ المودع ($)</label>
+                            <input type="number" step="0.01" name="amount" class="form-control bg-black text-white border-warning border-opacity-25" placeholder="أدخل المبلغ الذي أرسلته" required>
+                        </div>
+                        <div class="col-md-6 text-start">
+                            <label class="text-dim small mb-2">هاش المعاملة (TXID)</label>
+                            <input type="text" name="txid" class="form-control bg-black text-info border-warning border-opacity-25" placeholder="أدخل TXID هنا للتحقق" required>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-warning w-100 py-3 fw-bold text-black rounded-pill shadow-lg">
+                                <i class="fa-solid fa-paper-plane me-2"></i> إرسال طلب التأكيد للمطور
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
