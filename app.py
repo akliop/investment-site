@@ -148,6 +148,24 @@ def pulse():
     db.session.commit()
     return jsonify({"status": "success", "jewels": round(user.jewels, 2), "xp": round(user.xp, 2)})
 
+@app.route("/api/v2/node/convert", methods=["POST"])
+def convert():
+    user = get_v_user()
+    if not user: return jsonify({"status": "fail"})
+    # تحويل الجواهر: 10,000 جوهرة = 1.3 دولار
+    if user.jewels < 10000:
+        return jsonify({"status": "error", "message": "عذراً، رصيدك أقل من 10,000 جوهرة"})
+    
+    user.jewels -= 10000
+    user.balance_usdt += 1.3
+    db.session.commit()
+    return jsonify({
+        "status": "success", 
+        "message": "تم تحويل 10,000 جوهرة بنجاح إلى 1.3 USDT!",
+        "jewels": round(user.jewels, 2),
+        "balance": round(user.balance_usdt, 2)
+    })
+
 @app.route("/sw.js")
 def serve_sw():
     content = 'self.addEventListener("fetch", (event) => { });'
