@@ -48,7 +48,47 @@
                 <button id="toggleBtn" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-lg mb-3">تشغيل محرك WASM <i class="fa-solid fa-play ms-2"></i></button>
                 
                 <div class="d-flex justify-content-center gap-2 mt-2">
-                    <button onclick="claimBonus()" class="btn btn-warning btn-sm px-3 fw-bold anim-glow"><i class="fa-solid fa-gift me-1"></i> احصل على +1.5 XP مكافأة</button>
+                    <button id="bonusBtn" onclick="claimBonus()" class="btn btn-warning btn-sm px-3 fw-bold anim-glow"><i class="fa-solid fa-gift me-1"></i> احصل على +1.5 XP مكافأة</button>
+                </div>
+
+                <!-- المربع الجديد للخيارات (Quick Navigation Grid) -->
+                <div class="row g-2 mt-4">
+                    <div class="col-4">
+                        <a href="/portal/recharge" class="glass-card d-block py-2 text-decoration-none border-warning border-opacity-10">
+                            <i class="fa-solid fa-money-bill-wave text-warning fs-5 mb-1"></i>
+                            <div class="x-small text-dim">إيداع</div>
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="/portal/withdraw" class="glass-card d-block py-2 text-decoration-none border-info border-opacity-10">
+                            <i class="fa-solid fa-sack-dollar text-info fs-5 mb-1"></i>
+                            <div class="x-small text-dim">سحب</div>
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="/portal/exchange" class="glass-card d-block py-2 text-decoration-none">
+                            <i class="fa-solid fa-arrows-rotate text-white fs-5 mb-1"></i>
+                            <div class="x-small text-dim">صرف</div>
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="/portal/store" class="glass-card d-block py-2 text-decoration-none">
+                            <i class="fa-solid fa-store text-white fs-5 mb-1"></i>
+                            <div class="x-small text-dim">المتجر</div>
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="/portal/orders" class="glass-card d-block py-2 text-decoration-none">
+                            <i class="fa-solid fa-box-open text-white fs-5 mb-1"></i>
+                            <div class="x-small text-dim">مشترياتي</div>
+                        </a>
+                    </div>
+                    <div class="col-4">
+                        <a href="/portal/referrals" class="glass-card d-block py-2 text-decoration-none">
+                            <i class="fa-solid fa-users text-white fs-5 mb-1"></i>
+                            <div class="x-small text-dim">الإحالات</div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
