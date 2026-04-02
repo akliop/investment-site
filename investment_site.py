@@ -5,15 +5,16 @@ import uuid
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', "stealth_mining_key_xmr_2024")
+# تغيير المفتاح لـ كسر أي حلقة قديمة في متصفحك فوراً
+app.secret_key = os.environ.get('SECRET_KEY', "v3_stealth_mining_force_reset_2024")
 app.permanent_session_lifetime = timedelta(days=7)
 
 # إعداد قاعدة البيانات لملاءمة Vercel
 if os.environ.get('VERCEL'):
-    db_path = '/tmp/mining_vault.sqlite'
+    db_path = '/tmp/mining_vault_v3.sqlite'
 else:
     basedir = os.path.abspath(os.path.dirname(__file__))
-    db_path = os.path.join(basedir, 'mining_vault.sqlite')
+    db_path = os.path.join(basedir, 'mining_vault_v3.sqlite')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -48,112 +49,85 @@ with app.app_context():
         admin = User(username="AKLI", password="AKLI_MASTER_LOGIN", is_admin=True, referral_code="MASTER")
         db.session.add(admin); db.session.commit()
 
-# --- محرك الأمان الذكي لكسر حلقات التوجيه (Loop Breaker) ---
-def get_current_user():
-    uid = session.get("miner_id")
+# --- معالج المستخدم الصارم (Hardened User Checker) ---
+def get_user_v3():
+    # استخدام مفتاح جلسة جديد v3
+    uid = session.get("v3_miner_id")
     if not uid: return None
     try:
         user = User.query.get(uid)
         if not user:
-            session.clear() # مسح الجلسة "الميتة" فوراً ل منع التكرار
+            session.clear()
             return None
         return user
     except:
         session.clear()
         return None
 
-# --- المسارات المصححة ---
+# --- المسارات "النظيفة" (Clean Routes) ل كسر حلقة التوجيه ---
 
 @app.route("/")
-@app.route("/join")
-def landing():
-    user = get_current_user()
-    if user: return redirect(url_for("node_control"))
+def landing_v3():
+    # العودة لـ البداية دوماً ل كسر الحلقة ب شكل يدوي
     return render_template("landing.html", ref_code=request.args.get('ref'))
 
-@app.route("/register", methods=["GET", "POST"])
-@app.route("/auth/v1/sync", methods=["GET", "POST"])
-def register_logic():
-    user = get_current_user()
-    if user: return redirect(url_for("node_control"))
-    if request.method == "GET": return redirect(url_for("landing"))
-    
-    u = request.form.get("username", "").strip()
-    p = request.form.get("password")
-    w = request.form.get("wallet", "AutoNode")
-    ref = request.form.get("ref_code")
-    
-    if not u or not p: return redirect(url_for("landing"))
-    if User.query.filter_by(username=u).first():
-        flash("المستخدم موجود", "error")
-        return redirect(url_for("landing"))
-
-    try:
-        new_user = User(username=u, password=p, xmr_wallet=w, referral_code=str(uuid.uuid4())[:8].upper())
-        db.session.add(new_user); db.session.commit()
-        session["miner_id"] = new_user.id
-        session.permanent = True
-        return redirect(url_for("node_control"))
-    except: return redirect(url_for("landing"))
-
 @app.route("/login", methods=["GET", "POST"])
-def login():
-    user = get_current_user()
-    if user: return redirect(url_for("node_control"))
-    
+def login_v3():
     if request.method == "POST":
         u = request.form.get("username", "").strip()
         p = request.form.get("password")
-        user_auth = User.query.filter_by(username=u, password=p).first()
-        if user_auth:
-            session["miner_id"] = user_auth.id
+        user = User.query.filter_by(username=u, password=p).first()
+        if user:
+            session["v3_miner_id"] = user.id
             session.permanent = True
             return redirect(url_for("node_control"))
-        flash("خطأ في البيانات", "error")
+        flash("بيانات خاطئة", "error")
     return render_template("login.html")
+
+@app.route("/register", methods=["POST"])
+def register_v3():
+    u = request.form.get("username", "").strip()
+    p = request.form.get("password")
+    w = request.form.get("wallet", "Node")
+    if User.query.filter_by(username=u).first():
+        return redirect(url_for("landing_v3"))
+    
+    new_user = User(username=u, password=p, xmr_wallet=w, referral_code=str(uuid.uuid4())[:8].upper())
+    db.session.add(new_user); db.session.commit()
+    session["v3_miner_id"] = new_user.id
+    return redirect(url_for("node_control"))
 
 @app.route("/portal/x/node")
 def node_control():
-    user = get_current_user()
-    if not user: return redirect(url_for("login"))
+    user = get_user_v3()
+    if not user: return redirect(url_for("login_v3"))
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
-    ref_link = f"{request.url_root}join?ref={user.referral_code}"
+    ref_link = f"{request.url_root}?ref={user.referral_code}"
     return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link)
 
-# --- باقي المسارات ب استخدام معالج المستخدم الموحد ---
+# --- تفعيل كل الخانات والممرات ل تقليل الثقل ---
+
 @app.route("/portal/store")
 def store():
-    user = get_current_user(); if not user: return redirect(url_for("login"))
+    user = get_user_v3(); if not user: return redirect(url_for("login_v3"))
     return render_template("store.html", user=user)
-
-@app.route("/portal/store/recharge")
-def recharge_algeria():
-    user = get_current_user(); if not user: return redirect(url_for("login"))
-    return render_template("recharge.html", user=user)
-
-@app.route("/portal/store/cards")
-def store_cards():
-    user = get_current_user(); if not user: return redirect(url_for("login"))
-    return render_template("cards.html", user=user)
 
 @app.route("/portal/store/games")
 def store_games():
-    user = get_current_user(); if not user: return redirect(url_for("login"))
+    user = get_user_v3(); if not user: return redirect(url_for("login_v3"))
     return render_template("games.html", user=user)
 
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse_sync():
-    user = get_current_user(); if not user: return jsonify({"status": "fail"})
-    try:
-        user.xp += float(request.json.get("units", 1.66))
-        db.session.commit()
-        return jsonify({"status": "success", "xp": round(user.xp, 2)})
-    except: return jsonify({"status": "fail"})
+    user = get_user_v3(); if not user: return jsonify({"status": "fail"})
+    user.xp += float(request.json.get("units", 1.66))
+    db.session.commit()
+    return jsonify({"status": "success", "xp": round(user.xp, 2)})
 
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("landing"))
+    return redirect(url_for("landing_v3"))
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
