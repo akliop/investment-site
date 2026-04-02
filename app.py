@@ -42,6 +42,15 @@ class Order(db.Model):
     delivery_data = db.Column(db.Text) # بيانات الفيزا المرسلة من المطور
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+class FinanceRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    type = db.Column(db.String(20)) # DEPOSIT / WITHDRAW
+    amount = db.Column(db.Float)
+    details = db.Column(db.Text) # TXID or Address
+    status = db.Column(db.String(20), default="PENDING")
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 with app.app_context():
     db.create_all()
     # إصلاح تلقائي: إضافة الأعمدة إذا كانت مفقودة لتجنب خطأ 500
@@ -246,6 +255,33 @@ def deliver_order():
     order = Order.query.get(oid)
     if order:
         order.delivery_data = data; order.status = "تم التسليم ✅"
+        db.session.commit()
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error"})
+
+@app.route("/admin/dev-room") # "غرفة المطور" المطلوبة
+def dev_room():
+    user = get_v_user()
+    if not user or not user.is_admin: return redirect(url_for("home"))
+    
+    all_users = User.query.all()
+    user_count = len(all_users)
+    orders = Order.query.order_by(Order.timestamp.desc()).all()
+    finances = FinanceRequest.query.order_by(FinanceRequest.timestamp.desc()).all()
+    
+    return render_template("dev_room.html", user=user, all_users=all_users, 
+                           user_count=user_count, orders=orders, finances=finances)
+
+@app.route("/api/admin/finance/update", methods=["POST"])
+def update_finance():
+    user = get_v_user()
+    if not user or not user.is_admin: return jsonify({"status": "fail"})
+    fid = request.json.get("finance_id")
+    action = request.json.get("action") # APPROVE / REJECT
+    
+    req = FinanceRequest.query.get(fid)
+    if req:
+        req.status = "DONE" if action == "APPROVE" else "REJECTED"
         db.session.commit()
         return jsonify({"status": "success"})
     return jsonify({"status": "error"})
