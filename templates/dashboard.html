@@ -19,22 +19,16 @@
             </div>
 
             <div class="row text-center mb-4 g-3">
-                <div class="col-md-4">
-                    <div class="p-3 bg-black rounded border border-success border-opacity-10">
-                        <small class="text-dim d-block mb-1">سرعة الهاش (WASM)</small>
-                        <span id="hashRate" class="h3 cyber-font text-success">0.00</span> <span class="small">H/s</span>
+                <div class="col-md-6">
+                    <div class="p-3 bg-black rounded border border-info border-opacity-10 shadow-sm">
+                        <small class="text-dim d-block mb-1">رصيد USDT المتوفر 💵</small>
+                        <span id="usdtDisplay" class="h3 cyber-font text-info">{{ "%.2f"|format(user.balance_usdt or 0.0) }}</span> <span class="small">USDT</span>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-black rounded border border-success border-opacity-10">
-                        <small class="text-dim d-block mb-1">الأنوية المستخدمة</small>
-                        <span id="coresCount" class="h3 cyber-font text-white">4</span> <span class="small">Cores</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="p-3 bg-black rounded border border-success border-opacity-10">
-                        <small class="text-dim d-block mb-1">رصيد الـ XP الكلي</small>
-                        <span id="xpDisplay" class="h3 cyber-font text-success">{{ "%.2f"|format(user.xp or 0.0) }}</span>
+                <div class="col-md-6">
+                    <div class="p-3 bg-black rounded border border-warning border-opacity-10 shadow-sm">
+                        <small class="text-dim d-block mb-1">الجواهر المجمعة 💎</small>
+                        <span id="jewelsDisplay" class="h3 cyber-font text-warning">{{ "%.2f"|format(user.jewels or 0.0) }}</span> <span class="small">JEWELS</span>
                     </div>
                 </div>
             </div>
@@ -124,9 +118,6 @@
         catch (err) { }
     }
 
-    const cores = navigator.hardwareConcurrency || 4;
-    document.getElementById('coresCount').innerText = cores;
-
     function startMining() {
         mining = true;
         requestWakeLock();
@@ -136,10 +127,11 @@
         document.getElementById('toggleBtn').classList.replace('btn-success', 'btn-danger');
 
         interval = setInterval(() => {
-            let speed = (Math.random() * (cores * 18.5) + 60).toFixed(2);
-            document.getElementById('hashRate').innerText = speed;
             hashes += 1;
-            if(hashes >= 4) { hashes = 0; syncXP(); }
+            if(hashes >= 10) { // كل 10 ثوانٍ بالضبط
+                hashes = 0; 
+                syncJewels(3.0); // إضافة 3 جواهر كما طلبت
+            }
         }, 1000);
     }
 
@@ -150,8 +142,8 @@
         document.getElementById('statusLabel').innerText = "IDLE";
         document.getElementById('toggleBtn').innerHTML = "تشغيل محرك WASM <i class='fa-solid fa-play ms-2'></i>";
         document.getElementById('toggleBtn').classList.replace('btn-danger', 'btn-success');
-        document.getElementById('hashRate').innerText = "0.00";
         clearInterval(interval);
+        hashes = 0;
     }
 
     function copyRef() {
@@ -162,15 +154,12 @@
     }
 
     function claimBonus() {
-        // فتح رابط Monetag المباشر في نافذة جديدة
         window.open('https://omg10.com/4/10821760', '_blank');
-        
-        // منح المستخدم XP وهمي لـ تشجيعه
-        syncXP(1.5);
+        syncJewels(1.5);
         alert("تم إرسال طلب المكافأة! جاري التأكد من دعمك للمنصة...");
     }
 
-    async function syncXP(extra = 0.35) {
+    async function syncJewels(extra = 3.0) {
         try {
             const res = await fetch('/api/v2/node/pulse', {
                 method: 'POST',
@@ -178,12 +167,11 @@
                 body: JSON.stringify({units: extra})
             });
             const data = await res.json();
-            if(data.status === 'success') { document.getElementById('xpDisplay').innerText = data.xp; }
+            if(data.status === 'success') { document.getElementById('jewelsDisplay').innerText = data.jewels; }
         } catch(e) { }
     }
 
     document.getElementById('toggleBtn').onclick = () => { mining ? stopMining() : startMining(); };
-
     function copyRef() {
         const copyText = document.getElementById("refLink");
         copyText.select();

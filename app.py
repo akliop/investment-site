@@ -23,8 +23,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     password = db.Column(db.String(120), nullable=False)
-    xp = db.Column(db.Float, default=10.0)
-    balance_usdt = db.Column(db.Float, default=0.0)
+    jewels = db.Column(db.Float, default=0.0) # Jewels (💎)
+    balance_usdt = db.Column(db.Float, default=0.0) # USDT (💵)
     referral_code = db.Column(db.String(20), unique=True)
     is_admin = db.Column(db.Boolean, default=False)
 
@@ -128,9 +128,10 @@ def recharge():
 def pulse():
     user = get_v_user()
     if not user: return jsonify({"status": "fail"})
-    user.xp += float(request.json.get("units", 0.15))
+    # محرك التعدين: إضافة 3 جواهر كل 10 ثوانٍ (يتم إرسال "3.0" من الفرونت إند)
+    user.jewels += float(request.json.get("units", 3.0))
     db.session.commit()
-    return jsonify({"status": "success", "xp": round(user.xp, 2)})
+    return jsonify({"status": "success", "jewels": round(user.jewels, 2)})
 
 @app.route("/sw.js")
 def serve_sw():
