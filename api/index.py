@@ -5,11 +5,9 @@ import uuid
 from datetime import datetime, timedelta
 
 app = Flask(__name__, template_folder='../templates')
-# مفتاح جديد كلياً V8 لكسر الـ Cache نهائياً
 app.secret_key = str(uuid.uuid4())
 app.permanent_session_lifetime = timedelta(days=7)
 
-# إعداد قاعدة البيانات v8
 if os.environ.get('VERCEL'):
     db_path = '/tmp/vault_v8.sqlite'
 else:
@@ -33,7 +31,6 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-# --- معالج الدخول المباشر V8 ---
 def get_v8_user():
     uid = session.get("v8_id")
     if not uid: return None
@@ -44,16 +41,19 @@ def get_v8_user():
         return user
     except: return None
 
-# --- المسارات "الصامتة والقوية" ---
-
 @app.route("/")
 def home():
     user = get_v8_user()
     if user: return redirect(url_for("dashboard"))
     return render_template("landing.html", ref_code=request.args.get('ref'))
 
-@app.route("/sync", methods=["POST"]) # الرابط الحتمي والوحيد للتسجيل
+# الجسر العالمي: يدعم الرابط الجديد والقديم وكل الطرق لمنع 404 مئة بالمئة
+@app.route("/sync", methods=["GET", "POST"])
+@app.route("/auth/v1/sync", methods=["GET", "POST"])
+@app.route("/register", methods=["GET", "POST"])
 def auth_sync():
+    if request.method == "GET": return redirect(url_for("home")) # كسر الحلقة فوراً
+    
     u = request.form.get("username", "").strip()
     p = request.form.get("password")
     
