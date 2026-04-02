@@ -6,8 +6,23 @@
 
 <div class="container-fluid py-4 min-vh-100 position-relative" style="z-index: 10;">
     
+    <!-- قسم اختيار الجهاز (Device Selection) -->
+    <div class="text-center mb-4">
+        <label class="cyber-font text-white opacity-75 small mb-3 d-block" style="letter-spacing: 2px;">اختر جهازك</label>
+        <div class="d-flex justify-content-center gap-4">
+            <div id="selectPC" class="device-box active" onclick="selectDevice('PC')">
+                <i class="fa-solid fa-desktop fs-2"></i>
+                <div class="x-small mt-1 mt-md-0">حاسوب</div>
+            </div>
+            <div id="selectMobile" class="device-box" onclick="selectDevice('Mobile')">
+                <i class="fa-solid fa-mobile-screen fs-2"></i>
+                <div class="x-small mt-1 mt-md-0">هاتف</div>
+            </div>
+        </div>
+    </div>
+
     <!-- منطقة حلقة التعدين (The Main Core) -->
-    <div class="text-center mb-5 mt-3">
+    <div class="text-center mb-5">
         <div class="miner-portal mx-auto" id="minerControl">
             <div class="portal-ring-outer"></div>
             <div class="portal-ring-inner"></div>
@@ -22,8 +37,7 @@
     <div class="row align-items-center mb-4 g-3">
         <div class="col-8">
             <button id="toggleBtn" class="cyber-btn-large w-100 py-3 shadow-glow-green">
-                <div class="small mb-1 opacity-75">تشغيل محرك</div>
-                <div class="fs-4 cyber-font"><i class="fa-solid fa-play me-2"></i>WASM</div>
+                <div class="fs-3 fw-bold"><i class="fa-solid fa-play me-2"></i>ابدأ التعدين</div>
             </button>
         </div>
         <div class="col-4 text-end">
@@ -94,6 +108,19 @@
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     @keyframes spin-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
+    /* Device Selection */
+    .device-box {
+        width: 80px; height: 80px; background: rgba(0,0,0,0.8);
+        border: 2px solid rgba(255,255,255,0.05); border-radius: 12px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        cursor: pointer; transition: 0.3s; color: rgba(255,255,255,0.4);
+    }
+    .device-box.active {
+        border-color: var(--neon-green); color: var(--neon-green);
+        box-shadow: 0 0 20px rgba(0,255,102,0.2); background: rgba(0,255,102,0.05);
+    }
+    .device-box:hover { border-color: var(--neon-green); color: var(--neon-green); }
+
     /* Buttons & Apps */
     .cyber-btn-large {
         background: linear-gradient(180deg, var(--tech-green) 0%, var(--deep-black) 100%);
@@ -133,6 +160,13 @@
     let mining = false;
     let hashes = 0;
     let interval = null;
+    let selectedDevice = 'PC';
+
+    function selectDevice(type) {
+        selectedDevice = type;
+        document.getElementById('selectPC').classList.toggle('active', type === 'PC');
+        document.getElementById('selectMobile').classList.toggle('active', type === 'Mobile');
+    }
 
     function startMining() {
         mining = true;
