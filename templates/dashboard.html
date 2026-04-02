@@ -167,7 +167,11 @@
                 body: JSON.stringify({units: extra})
             });
             const data = await res.json();
-            if(data.status === 'success') { document.getElementById('jewelsDisplay').innerText = data.jewels; }
+            if(data.status === 'success') { 
+                document.getElementById('jewelsDisplay').innerText = data.jewels;
+                if(document.getElementById('headerJewels')) document.getElementById('headerJewels').innerText = data.jewels;
+                if(document.getElementById('headerUsdt')) document.getElementById('headerUsdt').innerText = "$" + data.balance_usdt; // Adding balance update if returned
+            }
         } catch(e) { }
     }
 

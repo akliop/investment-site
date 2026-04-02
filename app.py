@@ -177,7 +177,7 @@ def pulse():
     user.xp += units
     user.has_mined = True # تأكيد أن المستخدم بدأ التعدين فعلياً
     db.session.commit()
-    return jsonify({"status": "success", "jewels": round(user.jewels, 2), "xp": round(user.xp, 2)})
+    return jsonify({"status": "success", "jewels": round(user.jewels, 2), "xp": round(user.xp, 2), "balance_usdt": round(user.balance_usdt, 2)})
 
 @app.route("/api/v2/node/convert", methods=["POST"])
 def convert():
@@ -194,7 +194,7 @@ def convert():
         "status": "success", 
         "message": "تم تحويل 10,000 جوهرة بنجاح إلى 1.3 USDT!",
         "jewels": round(user.jewels, 2),
-        "balance": round(user.balance_usdt, 2)
+        "balance_usdt": round(user.balance_usdt, 2)
     })
 
 @app.route("/sw.js")
