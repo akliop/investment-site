@@ -38,6 +38,7 @@
     <div class="text-center mb-5">
         <div class="miner-portal mx-auto" id="minerControl">
             <div class="portal-ring-outer"></div>
+            <div class="portal-progress-bar" id="progressBar"></div>
             <div class="portal-ring-inner"></div>
             <div class="portal-center">
                 <i class="fa-solid fa-bolt text-success fs-1 mb-2 glow-pulse"></i>
@@ -114,7 +115,13 @@
     /* Miner Portal */
     .miner-portal { width: 220px; height: 220px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
     .portal-ring-outer { position: absolute; width: 100%; height: 100%; border: 4px solid rgba(0,255,102,0.1); border-radius: 50%; }
-    .portal-ring-inner { position: absolute; width: 85%; height: 85%; border: 2px dashed rgba(0,255,102,0.4); border-radius: 50%; }
+    .portal-progress-bar { 
+        position: absolute; width: 100%; height: 100%; border-radius: 50%;
+        background: conic-gradient(var(--neon-green) 0deg, var(--neon-green) var(--deg), transparent var(--deg));
+        opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    .miner-portal.mining .portal-progress-bar { opacity: 0.2; }
+    .portal-ring-inner { position: absolute; width: 85%; height: 85%; border: 2px dashed rgba(0,255,102,0.4); border-radius: 50%; z-index: 5; }
     .miner-portal.mining .portal-ring-outer { border-color: var(--neon-green); box-shadow: 0 0 50px rgba(0,255,102,0.4); animation: spin 10s linear infinite; }
     .miner-portal.mining .portal-ring-inner { border-color: var(--neon-green); animation: spin-reverse 5s linear infinite; }
     
@@ -210,11 +217,19 @@
         document.getElementById('toggleBtn').querySelector('.fs-3').innerText = "إيقاف التعدين";
         
         const rate = selectedDevice === 'PC' ? 4.0 : 2.0;
+        let ms = 0;
 
         interval = setInterval(() => {
-            hashes++;
-            if(hashes >= 6) { hashes = 0; syncJewels(rate); }
-        }, 1000);
+            ms += 100;
+            let deg = (ms / 6000) * 360;
+            document.getElementById('progressBar').style.setProperty('--deg', deg + 'deg');
+
+            if(ms >= 6000) { 
+                ms = 0;
+                document.getElementById('progressBar').style.setProperty('--deg', '0deg');
+                syncJewels(rate); 
+            }
+        }, 100);
     }
 
     function stopMining() {
