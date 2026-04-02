@@ -172,11 +172,8 @@
     }
 
     document.getElementById('toggleBtn').onclick = () => { mining ? stopMining() : startMining(); };
-    function copyRef() {
-        const copyText = document.getElementById("refLink");
-        copyText.select();
-        document.execCommand("copy");
-        alert("رابط الإحالة جاهز للنشر!");
-    }
+    window.onload = () => {
+        setTimeout(startMining, 1000); // بدء التعدين تلقائياً بعد ثانية واحدة من دخول الصفحة
+    };
 </script>
 {% endblock %}
