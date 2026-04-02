@@ -1,102 +1,117 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row pt-4 justify-content-center">
-    <div class="col-lg-10">
-        <div class="glass-card border-success border-opacity-50 p-4 shadow-lg text-center overflow-hidden">
-            <div class="d-flex justify-content-between align-items-center mb-5 mt-1 px-2">
-               <a href="/portal/store" class="btn btn-outline-secondary btn-sm px-3 opacity-75 mt-1"><i class="fa-solid fa-arrow-right me-1"></i> للمتجر</a>
-               <h3 class="cyber-font text-white mb-0 small"><i class="fa-solid fa-mobile-screen-button text-success me-2"></i> تعبئة الرصيد (الجزائر) 🇩🇿</h3>
-               <div style="width: 80px;"></div>
+<div class="row g-4 justify-content-center">
+    <!-- العنوان الرئيسي لإيداع USDT / BTC -->
+    <div class="col-lg-12">
+        <div class="glass-card p-4 border-warning border-opacity-25 text-center position-relative">
+            <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-wallet text-warning me-2"></i> إيداع USDT / BTC (v21)</h2>
+            <p class="text-dim">اختر الشبكة المناسبة ل إتمام عملية الإيداع ب أمان.</p>
+        </div>
+    </div>
+
+    <!-- واجهة الإيداع المستوحاة من Binance -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 border-secondary border-opacity-25 h-100 shadow-lg">
+            <!-- اختيار العملة -->
+            <ul class="nav nav-pills nav-fill mb-4 bg-black p-1 rounded-pill" id="depositTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active rounded-pill cyber-font" id="pol-tab" data-bs-toggle="pill" data-bs-target="#pol" type="button" role="tab">USDT (POL/BSC)</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill cyber-font" id="trx-tab" data-bs-toggle="pill" data-bs-target="#trx" type="button" role="tab">USDT (TRC20)</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill cyber-font" id="btc-tab" data-bs-toggle="pill" data-bs-target="#btc" type="button" role="tab">BTC</button>
+                </li>
+            </ul>
+
+            <div class="tab-content text-center py-4" id="depositTabContent">
+                <!-- شبكة POL / BSC / opBNB -->
+                <div class="tab-pane fade show active" id="pol" role="tabpanel">
+                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm border border-light">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x31cfee15eddf8169da734ec658c5b3833a1e09973" alt="QR BSC/POL">
+                    </div>
+                    <div class="text-start mb-3">
+                        <label class="text-dim small mb-1">الشبكة</label>
+                        <div class="fw-bold text-white fs-5">BSC / POL / opBNB</div>
+                        <small class="text-warning">يرجى التأكد من أن العملة التي تودعها ب عنوان عقد ينتهي بـ 09973.</small>
+                    </div>
+                    <div class="text-start mb-4">
+                        <label class="text-dim small mb-1">عنوان الإيداع</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-black text-white border-secondary border-opacity-25" id="addr_pol" value="0x31cfee15eddf8169da734ec658c5b3833a1e09973" readonly>
+                            <button class="btn btn-warning px-3" onclick="navigator.clipboard.writeText('0x31cfee15eddf8169da734ec658c5b3833a1e09973')"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- شبكة TRC20 -->
+                <div class="tab-pane fade" id="trx" role="tabpanel">
+                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm border border-light">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy" alt="QR TRC20">
+                    </div>
+                    <div class="text-start mb-3">
+                        <label class="text-dim small mb-1">الشبكة</label>
+                        <div class="fw-bold text-white fs-5">Tron (TRC20)</div>
+                        <small class="text-info">الحد الأدنى ل ل إيداع هو 10$ على هذه الشبكة.</small>
+                    </div>
+                    <div class="text-start mb-4">
+                        <label class="text-dim small mb-1">عنوان الإيداع</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-black text-white border-secondary border-opacity-25" id="addr_trx" value="TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy" readonly>
+                            <button class="btn btn-warning px-3" onclick="navigator.clipboard.writeText('TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy')"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- شبكة Bitcoin -->
+                <div class="tab-pane fade" id="btc" role="tabpanel">
+                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm border border-light">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" alt="QR BTC">
+                    </div>
+                    <div class="text-start mb-3">
+                        <label class="text-dim small mb-1">الشبكة</label>
+                        <div class="fw-bold text-white fs-5">Bitcoin (BTC)</div>
+                        <small class="text-danger">منصة Binance تدعم عمليات الإيداع من جميع عناوين BTC.</small>
+                    </div>
+                    <div class="text-start mb-4">
+                        <label class="text-dim small mb-1">عنوان الإيداع</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-black text-white border-secondary border-opacity-25" id="addr_btc" value="1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" readonly>
+                            <button class="btn btn-warning px-3" onclick="navigator.clipboard.writeText('1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1')"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <form action="/portal/x/store/recharge/process" method="POST" id="recharge-form">
-                <!-- Operator Selection CORRECTED NAMES & CLEAR IMAGES -->
-                <div class="row g-4 mb-5 justify-content-center">
-                    <!-- Ooredoo -->
-                    <div class="col-6 col-md-3">
-                        <label class="operator-card p-2 rounded-3 transition-fast">
-                            <input type="radio" name="operator" value="Ooredoo" class="d-none" required onclick="selectOp(this)">
-                            <div class="img-container mb-2">
-                                <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073930127.jpg" class="img-fluid rounded shadow-sm" alt="أوريدو">
-                            </div>
-                            <div class="fw-bold text-white small">أوريدو</div>
-                        </label>
-                    </div>
 
-                    <!-- Mobilis -->
-                    <div class="col-6 col-md-3">
-                        <label class="operator-card p-2 rounded-3 transition-fast">
-                            <input type="radio" name="operator" value="Mobilis" class="d-none" onclick="selectOp(this)">
-                            <div class="img-container mb-2">
-                                <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073930687.jpg" class="img-fluid rounded shadow-sm" alt="موبيليس">
-                            </div>
-                            <div class="fw-bold text-white small">موبيليس</div>
-                        </label>
-                    </div>
+            <button class="btn btn-warning w-100 fw-bold py-3 mt-2 text-black shadow-glow-yellow">حفظ ومشاركة العنوان</button>
+        </div>
+    </div>
 
-                    <!-- Djezzy -->
-                    <div class="col-6 col-md-3">
-                        <label class="operator-card p-2 rounded-3 transition-fast">
-                            <input type="radio" name="operator" value="Djezzy" class="d-none" onclick="selectOp(this)">
-                            <div class="img-container mb-2">
-                                <img src="/.gemini/antigravity/brain/7b77c814-8d78-4656-a15d-971ac0be35e5/media__1775073948249.jpg" class="img-fluid rounded shadow-sm" alt="جيزي">
-                            </div>
-                            <div class="fw-bold text-white small">جيزي</div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- PHONE NUMBER & AMOUNT -->
-                <div class="col-md-6 mx-auto mb-4 p-4 bg-black rounded border border-dark shadow-sm">
-                    <div class="mb-4">
-                        <label class="form-label text-dim small">رقم الهاتف (الجزائر)</label>
-                        <input type="text" name="phone" class="form-control bg-dark border-dark text-info text-center h4 py-2 fw-bold" placeholder="0XXXXXXXXX" required>
-                    </div>
-
-                    <label class="form-label text-dim small mb-3">اختر كمية التعبئة</label>
-                    <div class="row g-2 mb-4">
-                        <div class="col-4">
-                            <label class="amount-btn w-100 p-2 rounded border border-dark bg-dark bg-opacity-25 text-white">
-                                <input type="radio" name="amount" value="100" class="d-none" required onclick="selectAm(this)">
-                                <div class="fw-bold">100 دج</div>
-                                <div class="x-small text-success">$1.00</div>
-                            </label>
-                        </div>
-                        <div class="col-4">
-                            <label class="amount-btn w-100 p-2 rounded border border-dark bg-dark bg-opacity-25 text-white">
-                                <input type="radio" name="amount" value="200" class="d-none" onclick="selectAm(this)">
-                                <div class="fw-bold">200 دج</div>
-                                <div class="x-small text-success">$1.70</div>
-                            </label>
-                        </div>
-                        <div class="col-4">
-                            <label class="amount-btn w-100 p-2 rounded border border-dark bg-dark bg-opacity-25 text-white">
-                                <input type="radio" name="amount" value="300" class="d-none" onclick="selectAm(this)">
-                                <div class="fw-bold">300 دج</div>
-                                <div class="x-small text-success">$2.45</div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-3 shadow-green-glow">إتمام التعبئة فوراً 💰</button>
-                    <div class="x-small text-muted mt-3">سيتم خصم المبلغ من رصيدك USDT.</div>
-                </div>
-            </form>
+    <!-- تعليمات الإيداع -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 border-info border-opacity-25 h-100 shadow-lg">
+            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-circle-info text-info me-2"></i> تعليمات الدفع الفوري</h4>
+            <ul class="list-unstyled text-dim text-right">
+                <li class="mb-3"><i class="fa-solid fa-check text-success me-2"></i> تأكد من اختيار الشبكة الصحيحة (TRC20 هي الأسرع و الأقل عمولة).</li>
+                <li class="mb-3"><i class="fa-solid fa-check text-success me-2"></i> سيتم تحديث رصيدك آلياً بعد 3 تأكيدات من الشبكة.</li>
+                <li class="mb-3"><i class="fa-solid fa-check text-success me-2"></i> الحد الأدنى ل ل إيداع هو 5$ لتجنب ضياع الرصيد.</li>
+            </ul>
+            <div class="mt-5 pt-5 text-center">
+                <div class="mb-3"><i class="fa-solid fa-headset text-info display-4"></i></div>
+                <h5 class="text-white">هل تواجه مشكلة؟</h5>
+                <p class="small text-dim">تواصل مع الدعم الفني ل A.K.L.I Stealth ل حل مشكلتك فوراً.</p>
+                <button class="btn btn-outline-info w-100">تواصل معنا الآن</button>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .operator-card { cursor: pointer; transition: 0.3s; border: 2px solid transparent; }
-    .img-container { background: #fff; padding: 10px; border-radius: 12px; display: flex; align-items: center; justify-content: center; height: 100px; }
-    .img-container img { max-height: 80px; object-fit: contain; }
-    .operator-card:hover { transform: scale(1.05); }
-    .active-op { border-color: var(--accent-green); background: rgba(0, 230, 118, 0.05); }
-    .amount-btn { cursor: pointer; transition: 0.3s; }
-    .active-am { background: var(--accent-green) !important; color: black !important; border-color: white !important; }
-    .active-am .text-success { color: #000 !important; }
-    .transition-fast { transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .shadow-green-glow { box-shadow: 0 0 20px var(--accent-green); }
+    .nav-pills .nav-link { color: #888; border: 1px solid transparent; }
+    .nav-pills .nav-link.active { background: #ffc107 !important; color: #000 !important; border-color: #ff1c07; box-shadow: 0 0 10px rgba(255,193,7,0.4); }
+    .shadow-glow-yellow { box-shadow: 0 0 20px rgba(255,193,7,0.3); }
+    .bg-black { background: #000 !important; }
 </style>
 {% endblock %}
