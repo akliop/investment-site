@@ -4,8 +4,19 @@
 <div class="row pt-4 ms-2 me-2">
     <div class="col-lg-12">
         <div class="glass-card border-danger border-opacity-50 p-4 shadow-lg overflow-hidden">
-            <h2 class="cyber-font text-white mb-5"><i class="fa-solid fa-user-shield text-danger me-2"></i> مركز السيطرة (Master Admin Console)</h2>
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h2 class="cyber-font text-white m-0"><i class="fa-solid fa-user-shield text-danger me-2"></i> مركز السيطرة (Admin Console)</h2>
+                <a href="/admin/dev-room" class="btn btn-danger fw-bold px-4 py-2 shadow-glow animate-pulse">
+                    <i class="fa-solid fa-code me-2"></i> الدخول إلى غرفة المطور الموحدة (Dev Room)
+                </a>
+            </div>
             
+            <style>
+                .shadow-glow { box-shadow: 0 0 20px rgba(220, 53, 69, 0.4); border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+                .shadow-glow:hover { box-shadow: 0 0 35px rgba(220, 53, 69, 0.7); transform: scale(1.05); }
+                .animate-pulse { animation: pulse-red 2s infinite; }
+                @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+            </style>            
             <!-- SECTION 1: STORE PURCHASES -->
             <div class="mb-5">
                 <h4 class="text-warning mb-4 pb-2 border-bottom border-warning border-opacity-25"><i class="fa-solid fa-cart-shopping me-2"></i> 1. طلبات المتجر والبطاقات (Store Orders)</h4>
