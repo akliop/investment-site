@@ -1,58 +1,147 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row pt-4 justify-content-center">
+<div class="row g-4 justify-content-center">
+
+    <!-- العنوان الرئيسي -->
+    <div class="col-lg-12">
+        <div class="glass-card p-4 border-danger border-opacity-25 text-center position-relative overflow-hidden">
+            <div style="position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,50,50,0.04) 0%,transparent 70%);pointer-events:none;"></div>
+            <h2 class="cyber-font text-white mb-2">
+                <i class="fa-solid fa-arrow-up-from-bracket text-danger me-2"></i> بوابة السحب الفوري
+            </h2>
+            <p class="text-dim">اسحب أرباحك إلى محفظتك الخارجية بـ أمان و سرعة</p>
+        </div>
+    </div>
+
+    <!-- اختيار شبكة الاستلام -->
     <div class="col-lg-6">
-        <div class="glass-card border-danger border-opacity-25 shadow-lg p-4">
-            <h2 class="cyber-font text-white mb-4 text-center small"><i class="fa-solid fa-money-bill-transfer text-danger me-2"></i> سحب الأرباح (Withdraw Hub)</h2>
-            
-            <!-- CURRENT BALANCE DISPLAY -->
-            <div class="p-3 bg-black rounded border border-dark mb-4 text-center">
-                <div class="x-small text-dim mb-1">رصيدك المتوفر حالياً</div>
-                <div class="h2 text-white fw-bold glow-update">${{ "%.2f"|format(user.balance_usdt or 0.0) }}</div>
-                <div class="x-small text-success mt-1">المكافئ لـ {{ "%.1f"|format(user.xp or 0.0) }} XP</div>
-            </div>
+        <div class="glass-card p-4 border-secondary border-opacity-25 shadow-lg h-100">
+            <h5 class="cyber-font text-white mb-4"><i class="fa-solid fa-network-wired text-danger me-2"></i> اختر شبكة الاستلام</h5>
 
-            <form action="/portal/x/withdraw/request" method="POST">
-                <div class="mb-4">
-                    <label class="form-label text-dim small">اختر شبكة السحب</label>
-                    <select class="form-select bg-dark border-dark text-info" required>
-                        <option value="trc20" selected>USDT (TRC20) - سحب فوري</option>
-                        <option value="bep20">USDT (BEP20) - سحب آمن</option>
-                        <option value="btc">Bitcoin (BTC) - معالجة بطيئة</option>
-                        <option value="xmr">Monero (XMR) - خصوصية تامة</option>
-                    </select>
-                </div>
+            <ul class="nav nav-pills nav-fill mb-4 bg-black p-1 rounded-pill" id="withdrawTab" role="tablist">
+                <li class="nav-item"><button class="nav-link active rounded-pill cyber-font small" data-bs-toggle="pill" data-bs-target="#w-pol">USDT<br><span class="text-muted" style="font-size:9px">POL/BSC</span></button></li>
+                <li class="nav-item"><button class="nav-link rounded-pill cyber-font small" data-bs-toggle="pill" data-bs-target="#w-trx">USDT<br><span class="text-muted" style="font-size:9px">TRC20</span></button></li>
+                <li class="nav-item"><button class="nav-link rounded-pill cyber-font small" data-bs-toggle="pill" data-bs-target="#w-btc">BTC<br><span class="text-muted" style="font-size:9px">Bitcoin</span></button></li>
+                <li class="nav-item"><button class="nav-link rounded-pill cyber-font small" data-bs-toggle="pill" data-bs-target="#w-bnb">BNB<br><span class="text-muted" style="font-size:9px">opBNB</span></button></li>
+            </ul>
 
-                <div class="mb-4">
-                    <label class="form-label text-dim small">عنوان محفظتك (Wallet Address)</label>
-                    <input type="text" name="wallet" class="form-control bg-dark border-dark text-white text-center" value="{{ user.xmr_wallet or '' }}" placeholder="أدخل هنا عنوان محفظتك" required>
-                </div>
+            <div class="tab-content text-center" id="withdrawTabContent">
 
-                <div class="mb-4">
-                    <label class="form-label text-dim small">المبلغ المطلوب سحبه ($)</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-black border-dark text-success">$</span>
-                        <input type="number" name="amount" step="0.01" min="2.5" class="form-control bg-dark border-dark text-white text-center" placeholder="الحد الأدنى 2.50" required>
+                <!-- POL / BSC -->
+                <div class="tab-pane fade show active" id="w-pol">
+                    <div class="mb-3 d-inline-block p-2 bg-white rounded-4 shadow-sm">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=0x31cfee15eddf8169da734ec658c5b383a1e09973" alt="QR POL/BSC" class="rounded-3">
                     </div>
-                    <div class="form-text x-small text-muted text-center mt-2">سيتم خصم المبلغ من رصيد الدولار الظاهر بالأعلى.</div>
+                    <div class="text-start mb-2">
+                        <span class="badge bg-warning text-black mb-2">BSC / POL / Polygon POS</span>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-black text-warning border-secondary border-opacity-25 small" value="0x31cfee15eddf8169da734ec658c5b383a1e09973" readonly>
+                            <button class="btn btn-outline-warning btn-sm px-3" onclick="navigator.clipboard.writeText('0x31cfee15eddf8169da734ec658c5b383a1e09973');this.innerHTML='✓'"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                        <small class="text-danger d-block mt-2">⚠️ يرجى التأكد من أن عملة USDT التي تلودعها بعنوان عقد ينتهي بـ 09973</small>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-danger w-100 py-2 fw-bold shadow-lg" {% if (user.balance_usdt or 0) < 2.5 %}disabled{% endif %}>
-                    <i class="fa-solid fa-paper-plane me-2"></i> تقديم طلب السحب
-                </button>
-            </form>
+                <!-- TRC20 -->
+                <div class="tab-pane fade" id="w-trx">
+                    <div class="mb-3 d-inline-block p-2 bg-white rounded-4 shadow-sm">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy" alt="QR TRC20" class="rounded-3">
+                    </div>
+                    <div class="text-start mb-2">
+                        <span class="badge bg-danger mb-2">Tron (TRC20)</span>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-black text-danger border-secondary border-opacity-25 small" value="TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy" readonly>
+                            <button class="btn btn-outline-danger btn-sm px-3" onclick="navigator.clipboard.writeText('TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy');this.innerHTML='✓'"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                        <small class="text-info d-block mt-2">⚡ الحد الأدنى للسحب: 10$ - الأسرع و الأقل عمولة</small>
+                    </div>
+                </div>
 
-            <div class="mt-5 p-3 bg-dark bg-opacity-25 rounded border border-dark x-small text-dim">
-                <p class="mb-1"><i class="fa-solid fa-circle-info text-warning me-2"></i> الحد الأدنى للسحب هو 2.50$ دولار.</p>
-                <p class="mb-0"><i class="fa-solid fa-clock text-warning me-2"></i> تستغرق معالجة الطلبات من ساعة إلى 24 ساعة كحد أقصى.</p>
+                <!-- BTC -->
+                <div class="tab-pane fade" id="w-btc">
+                    <div class="mb-3 d-inline-block p-2 bg-white rounded-4 shadow-sm">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" alt="QR BTC" class="rounded-3">
+                    </div>
+                    <div class="text-start mb-2">
+                        <span class="badge bg-warning text-black mb-2">Bitcoin (BTC)</span>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-black text-warning border-secondary border-opacity-25 small" value="1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" readonly>
+                            <button class="btn btn-outline-warning btn-sm px-3" onclick="navigator.clipboard.writeText('1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1');this.innerHTML='✓'"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                        <small class="text-dim d-block mt-2">منصة Binance تدعم جميع عناوين BTC</small>
+                    </div>
+                </div>
+
+                <!-- opBNB -->
+                <div class="tab-pane fade" id="w-bnb">
+                    <div class="mb-3 d-inline-block p-2 bg-white rounded-4 shadow-sm">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=0x31cfee15eddf8169da734ec658c5b383a1e09973" alt="QR opBNB" class="rounded-3">
+                    </div>
+                    <div class="text-start mb-2">
+                        <span class="badge bg-info text-black mb-2">opBNB</span>
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-black text-info border-secondary border-opacity-25 small" value="0x31cfee15eddf8169da734ec658c5b383a1e09973" readonly>
+                            <button class="btn btn-outline-info btn-sm px-3" onclick="navigator.clipboard.writeText('0x31cfee15eddf8169da734ec658c5b383a1e09973');this.innerHTML='✓'"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
+
+    <!-- نموذج طلب السحب -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 border-danger border-opacity-25 shadow-lg h-100">
+            <h5 class="cyber-font text-white mb-4"><i class="fa-solid fa-paper-plane text-danger me-2"></i> تقديم طلب السحب</h5>
+
+            <form action="/portal/withdraw/submit" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-dim small">العملة / الشبكة</label>
+                    <select class="form-select bg-black text-white border-secondary border-opacity-25">
+                        <option>USDT - POL / BSC (BEP20)</option>
+                        <option>USDT - TRC20 (Tron) ⚡ الأسرع</option>
+                        <option>BTC - Bitcoin</option>
+                        <option>BNB - opBNB</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-dim small">المبلغ المطلوب (الحد الأدنى 5$)</label>
+                    <div class="input-group">
+                        <input type="number" min="5" step="0.01" class="form-control bg-black text-white border-secondary border-opacity-25" placeholder="0.00">
+                        <span class="input-group-text bg-danger text-white border-0 fw-bold">USDT</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-dim small">عنوان محفظتك (للاستلام)</label>
+                    <input type="text" class="form-control bg-black text-white border-secondary border-opacity-25" placeholder="TRxxx... / 0x... / 1xxx...">
+                    <small class="text-danger">تأكد جيداً من العنوان - لا يمكن استرداد الأموال بعد الإرسال</small>
+                </div>
+
+                <button type="submit" class="btn btn-danger w-100 fw-bold py-3" style="box-shadow:0 0 20px rgba(220,53,69,0.3)">
+                    <i class="fa-solid fa-paper-plane me-2"></i> تأكيد طلب السحب الفوري
+                </button>
+            </form>
+
+            <div class="mt-4 p-3 glass-card border-info border-opacity-25">
+                <h6 class="text-info cyber-font mb-2"><i class="fa-solid fa-circle-info me-1"></i> تعليمات السحب</h6>
+                <ul class="list-unstyled small text-dim mb-0">
+                    <li class="mb-1">✅ يتم معالجة طلبات السحب خلال 24 ساعة</li>
+                    <li class="mb-1">✅ TRC20 هي الأسرع و الأقل عمولة</li>
+                    <li class="mb-1">✅ الحد الأدنى للسحب هو 5$</li>
+                    <li>✅ تأكد من صحة عنوان محفظتك قبل الإرسال</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <style>
-    .glow-update { text-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
-    .x-small { font-size: 11px; }
+    .nav-pills .nav-link { color: #888; border: 1px solid transparent; }
+    .nav-pills .nav-link.active { background: #dc3545 !important; color: #fff !important; box-shadow: 0 0 10px rgba(220,53,69,0.4); }
 </style>
 {% endblock %}
