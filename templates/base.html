@@ -76,41 +76,32 @@
     </style>
     {% endif %}
 
-    <header class="cyber-header py-3 mb-4 sticky-top">
+    <header class="cyber-header py-3 mb-0 sticky-top">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="/" class="navbar-brand cyber-font fs-3 text-white m-0">A.K.L.I <span class="text-success small">Node</span><i class="fa-solid fa-microchip ms-2 text-success"></i></a>
-            
-            {% if user %}
-            <!-- شريط حالة الأرصدة (Game-style Top Bar) -->
-            <div class="d-flex gap-2 mx-auto px-2 py-1 bg-black rounded-pill border border-white border-opacity-10 align-items-center shadow-glow-small">
-                <div class="d-flex align-items-center gap-1 border-end border-white border-opacity-10 pe-2">
-                    <i class="fa-solid fa-gem text-warning x-small"></i>
-                    <span id="headerJewels" class="cyber-font x-small text-warning fw-bold">{{ "%.1f"|format(user.jewels or 0.0) }}</span>
+            <!-- Balances on the left -->
+            <div class="d-flex gap-3 align-items-center">
+                <div class="d-flex align-items-center gap-1">
+                    <span id="headerUsdt" class="cyber-font text-success fw-bold">${{ "%.2f"|format(user.balance_usdt or 0.0) }}</span>
                 </div>
-                <div class="d-flex align-items-center gap-1 ps-1">
-                    <i class="fa-solid fa-money-bill-wave text-success x-small"></i>
-                    <span id="headerUsdt" class="cyber-font x-small text-success fw-bold">${{ "%.2f"|format(user.balance_usdt or 0.0) }}</span>
+                <div class="d-flex align-items-center gap-1">
+                    <span id="headerJewels" class="cyber-font text-warning fw-bold">{{ "%.1f"|format(user.jewels or 0.0) }}</span>
+                    <i class="fa-solid fa-gem text-warning small"></i>
                 </div>
             </div>
-            <style>.shadow-glow-small { box-shadow: 0 0 10px rgba(0, 230, 118, 0.2); }</style>
-            {% endif %}
 
-            <nav class="d-none d-lg-flex gap-1 flex-wrap">
-                <a href="/portal/recharge" class="nav-link-cyber text-warning fw-bold"><i class="fa-solid fa-money-bill-wave me-1"></i> إيداع</a>
-                <a href="/portal/withdraw" class="nav-link-cyber text-info fw-bold"><i class="fa-solid fa-sack-dollar me-1"></i> سحب</a>
-                <a href="/portal/exchange" class="nav-link-cyber"><i class="fa-solid fa-arrows-rotate me-1"></i> صرف</a>
-                <a href="/portal/store" class="nav-link-cyber"><i class="fa-solid fa-store me-1"></i> المتجر</a>
-                <a href="/portal/orders" class="nav-link-cyber"><i class="fa-solid fa-box-open me-1"></i> مشترياتي</a>
-                <a href="/portal/referrals" class="nav-link-cyber"><i class="fa-solid fa-users me-1"></i> الإحالات</a>
-                <a href="/portal/home" class="nav-link-cyber"><i class="fa-solid fa-microchip me-1"></i> العقدة</a>
-                <a href="/logout" class="nav-link-cyber text-danger"><i class="fa-solid fa-power-off"></i></a>
-            </nav>
-
-            <div class="d-flex gap-2 align-items-center">
-                <a href="/portal/home" class="btn btn-cyber btn-sm px-4">لوحة التحكم</a>
-            </div>
+            <!-- Logo on the right -->
+            <a href="/" class="navbar-brand cyber-font fs-3 text-white m-0 d-flex align-items-center">
+                A.K.L.I <span class="text-success small ms-1">NODE</span>
+                <div class="ms-2 bg-success rounded-1 p-1 d-flex align-items-center justify-content-center" style="width:24px; height:24px;">
+                    <i class="fa-solid fa-microchip text-black x-small"></i>
+                </div>
+            </a>
         </div>
     </header>
+    <style>
+        .site-alert { border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .cyber-header { border-bottom: 2px solid #00ff0033; background: #000; box-shadow: 0 0 20px #00ff0011; }
+    </style>
 
     <div class="container pb-5">
         {% with messages = get_flashed_messages(with_categories=true) %}

@@ -1,198 +1,181 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- طبقة التعتيم للوضع الليلي -->
-<div id="nightOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-black" style="display:none; z-index: 9999; opacity: 0.96; pointer-events: none;"></div>
+<!-- الطبقة الخلفية السايبربانك -->
+<div class="cyber-bg-overlay"></div>
 
-<div class="row g-4">
-    <!-- محرك التعدين vWASM -->
-    <div class="col-lg-8">
-        <div class="glass-card shadow-lg p-4 h-100 border-success border-opacity-25" id="mainMinerCard">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="cyber-font text-white m-0">
-                    <i class="fa-solid fa-microchip text-success me-2 glow-pulse"></i> عقدة التعدين <span class="text-success">vWASM</span>
-                </h3>
-            <div class="text-center py-4">
-                <div class="miner-circle-wrap mx-auto mb-4" id="minerControl">
-                    <div class="miner-outer-ring"></div>
-                    <div class="miner-inner-node">
-                        <i class="fa-solid fa-bolt text-success fs-1 mb-2"></i>
-                        <div class="text-white small cyber-font" id="statusLabel">OFFLINE</div>
-                    </div>
-                </div>
-                <button id="toggleBtn" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-lg mb-3">تشغيل محرك WASM <i class="fa-solid fa-play ms-2"></i></button>
-                
-                <div class="d-flex justify-content-center gap-2 mt-2">
-                    <button id="bonusBtn" onclick="claimBonus()" class="btn btn-warning btn-sm px-3 fw-bold anim-glow"><i class="fa-solid fa-gift me-1"></i> احصل على +1.5 XP مكافأة</button>
-                </div>
-
-                <!-- المربع الجديد للخيارات (Quick Navigation Grid) -->
-                <div class="row g-2 mt-4">
-                    <div class="col-4">
-                        <a href="/portal/recharge" class="glass-card d-block py-2 text-decoration-none border-warning border-opacity-10">
-                            <i class="fa-solid fa-money-bill-wave text-warning fs-5 mb-1"></i>
-                            <div class="x-small text-dim">إيداع</div>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="/portal/withdraw" class="glass-card d-block py-2 text-decoration-none border-info border-opacity-10">
-                            <i class="fa-solid fa-sack-dollar text-info fs-5 mb-1"></i>
-                            <div class="x-small text-dim">سحب</div>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="/portal/exchange" class="glass-card d-block py-2 text-decoration-none">
-                            <i class="fa-solid fa-arrows-rotate text-white fs-5 mb-1"></i>
-                            <div class="x-small text-dim">صرف</div>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="/portal/store" class="glass-card d-block py-2 text-decoration-none">
-                            <i class="fa-solid fa-store text-white fs-5 mb-1"></i>
-                            <div class="x-small text-dim">المتجر</div>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="/portal/orders" class="glass-card d-block py-2 text-decoration-none">
-                            <i class="fa-solid fa-box-open text-white fs-5 mb-1"></i>
-                            <div class="x-small text-dim">مشترياتي</div>
-                        </a>
-                    </div>
-                    <div class="col-4">
-                        <a href="/portal/referrals" class="glass-card d-block py-2 text-decoration-none">
-                            <i class="fa-solid fa-users text-white fs-5 mb-1"></i>
-                            <div class="x-small text-dim">الإحالات</div>
-                        </a>
-                    </div>
-                </div>
+<div class="container-fluid py-4 min-vh-100 position-relative" style="z-index: 10;">
+    
+    <!-- منطقة حلقة التعدين (The Main Core) -->
+    <div class="text-center mb-5 mt-3">
+        <div class="miner-portal mx-auto" id="minerControl">
+            <div class="portal-ring-outer"></div>
+            <div class="portal-ring-inner"></div>
+            <div class="portal-center">
+                <i class="fa-solid fa-bolt text-success fs-1 mb-2 glow-pulse"></i>
+                <div class="cyber-font text-white opacity-75" id="statusLabel" style="font-size: 1.2rem; letter-spacing: 2px;">OFFLINE</div>
             </div>
         </div>
     </div>
 
-    <!-- إحصائيات والتحكم -->
-    <div class="col-lg-4">
-        <div class="glass-card shadow-lg p-4 mb-4 border-warning border-opacity-25" id="rankCard">
-            <h4 class="cyber-font text-white mb-3"><i class="fa-solid fa-trophy text-warning me-2"></i> نخبة المعدنين</h4>
-            <div class="list-group list-group-flush bg-transparent">
-                {% for miner in top_miners %}
-                <div class="list-group-item bg-transparent text-white border-0 px-0 d-flex justify-content-between align-items-center">
-                    <span><i class="fa-solid fa-user-ninja text-dim me-2"></i> {{ miner.username }}</span>
-                    <span class="badge bg-warning text-black">{{ "%.1f"|format(miner.xp) }} XP</span>
+    <!-- التحكم والعينة -->
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-8">
+            <button id="toggleBtn" class="cyber-btn-large w-100 py-3 shadow-glow-green">
+                <div class="small mb-1 opacity-75">تشغيل محرك</div>
+                <div class="fs-4 cyber-font"><i class="fa-solid fa-play me-2"></i>WASM</div>
+            </button>
+        </div>
+        <div class="col-4 text-end">
+            <div class="cyber-label">
+                <div class="small opacity-50">عقدة التعدين</div>
+                <div class="text-success cyber-font fw-bold">VWASM</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط المكافأة -->
+    <div class="mb-5">
+        <button onclick="claimBonus()" class="bonus-bar w-100 py-2 px-3 d-flex justify-content-between align-items-center">
+            <span class="small fw-bold">احصل على +1.5 XP مكافأة</span>
+            <i class="fa-solid fa-gift"></i>
+        </button>
+    </div>
+
+    <!-- شبكة التطبيقات والديكور -->
+    <div class="row">
+        <div class="col-8">
+            <div class="row g-3">
+                {% set actions = [
+                    ('/portal/exchange', 'fa-arrows-rotate', 'صرف', 'info'),
+                    ('/portal/withdraw', 'fa-sack-dollar', 'سحب', 'info'),
+                    ('/portal/recharge', 'fa-money-bill-wave', 'إيداع', 'warning'),
+                    ('/portal/referrals', 'fa-users', 'الإحالات', 'white'),
+                    ('/portal/orders', 'fa-box-open', 'مشترياتي', 'white'),
+                    ('/portal/store', 'fa-store', 'المتجر', 'white')
+                ] %}
+                {% for link, icon, label, color in actions %}
+                <div class="col-4">
+                    <a href="{{ link }}" class="app-btn text-decoration-none shadow-sm">
+                        <div class="app-icon-wrap mb-1">
+                            <i class="fa-solid {{ icon }} text-{{ color }}"></i>
+                        </div>
+                        <div class="x-small text-white opacity-75">{{ label }}</div>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
         </div>
-
-        <div class="glass-card shadow-lg p-4 border-primary border-opacity-25 h-100">
-            <h4 class="cyber-font text-white mb-3"><i class="fa-solid fa-link text-primary me-2"></i> برنامج الإحالات</h4>
-            <p class="text-dim small">اربح عمولة 10% من نقاط XP التي يجمعها أصدقاؤك عند استخدامهم رابطك الخاص.</p>
-            <div class="input-group mb-2 mt-3">
-                <input type="text" class="form-control bg-black text-white border-0 text-center" value="{{ ref_link }}" id="refLink" readonly>
-                <button class="btn btn-primary btn-sm" onclick="copyRef()"><i class="fa-solid fa-copy"></i></button>
+        <div class="col-4 d-flex align-items-center justify-content-center">
+            <!-- نمط النقاط Hexagonal -->
+            <div class="dot-pattern d-grid" style="grid-template-columns: repeat(3, 12px); gap: 15px;">
+                <div class="dot"></div><div class="dot"></div><div class="dot active"></div>
+                <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+                <div class="dot"></div><div class="dot active"></div><div class="dot"></div>
             </div>
-            <p class="text-dim x-small text-center"><i class="fa-solid fa-check-circle text-success me-1"></i> رابطك نشط وجاهز للنشر</p>
         </div>
     </div>
 </div>
 
 <style>
-    .miner-circle-wrap { width: 180px; height: 180px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: 0.5s; background: rgba(0,0,0,0.5); border: 2px solid #222; }
-    .miner-outer-ring { position: absolute; width: 100%; height: 100%; border: 4px dashed #00e676; border-radius: 50%; opacity: 0.1; transition: 0.5s; }
-    .miner-circle-wrap.mining .miner-outer-ring { animation: rotate 4s linear infinite; opacity: 1; box-shadow: 0 0 30px rgba(0, 230, 118, 0.4); }
-    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .mining-cores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); gap: 10px; }
-    .core-box { height: 8px; border-radius: 4px; background: #222; transition: 0.3s; }
-    .core-box.active { background: #00e676; box-shadow: 0 0 10px rgba(0, 230, 118, 0.5); }
-    .x-small { font-size: 0.75rem; }
+    :root { --neon-green: #00ff66; --deep-black: #050505; }
+    body { background: var(--deep-black) !important; color: white; overflow-x: hidden; }
+    
+    .cyber-bg-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at 50% 50%, rgba(0,255,102,0.05) 0%, transparent 80%);
+        pointer-events: none; z-index: 1;
+    }
+
+    /* Miner Portal */
+    .miner-portal { width: 220px; height: 220px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+    .portal-ring-outer { position: absolute; width: 100%; height: 100%; border: 3px solid rgba(0,255,102,0.1); border-radius: 50%; }
+    .portal-ring-inner { position: absolute; width: 85%; height: 85%; border: 2px dashed rgba(0,255,102,0.3); border-radius: 50%; }
+    .miner-portal.mining .portal-ring-outer { border-color: var(--neon-green); box-shadow: 0 0 40px rgba(0,255,102,0.3); animation: spin 10s linear infinite; }
+    .miner-portal.mining .portal-ring-inner { border-color: var(--neon-green); animation: spin-reverse 5s linear infinite; }
+    
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes spin-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+
+    /* Buttons & Apps */
+    .cyber-btn-large {
+        background: linear-gradient(180deg, #0d3822 0%, #000 100%);
+        border: 2px solid #00ff6666; border-radius: 12px; color: white;
+        text-align: center; position: relative; transition: 0.2s;
+    }
+    .cyber-btn-large:active { transform: scale(0.96); }
+    .shadow-glow-green { box-shadow: 0 0 15px rgba(0,255,102,0.1); }
+    
+    .bonus-bar {
+        background: linear-gradient(90deg, #111 0%, #4a3502 50%, #111 100%);
+        border: 1px solid #ffaa0044; border-radius: 10px; color: #ffcc00;
+        font-family: inherit; font-size: 0.85rem; transition: 0.3s;
+    }
+
+    .app-btn {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.8); border: 1.5px solid rgba(0,255,102,0.15); border-radius: 12px;
+        aspect-ratio: 1/1; transition: 0.3s;
+    }
+    .app-btn:hover { border-color: var(--neon-green); transform: translateY(-3px); }
+    .app-icon-wrap { font-size: 1.4rem; filter: drop-shadow(0 0 5px currentColor); }
+
+    /* Dots Decoration */
+    .dot { width: 8px; height: 8px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+    .dot.active { background: var(--neon-green); box-shadow: 0 0 12px var(--neon-green); }
+
+    .cyber-label { line-height: 1.1; }
+    .x-small { font-size: 0.65rem; }
 </style>
 
 <script>
     let mining = false;
     let hashes = 0;
     let interval = null;
-    let wakeLock = null;
-    let nightMode = false;
-
-    document.getElementById('nightModeBtn').onclick = () => {
-        nightMode = !nightMode;
-        const overlay = document.getElementById('nightOverlay');
-        const btn = document.getElementById('nightModeBtn');
-        if(nightMode) {
-            overlay.style.display = "block";
-            btn.innerHTML = "<i class='fa-solid fa-sun me-1'></i> إيقاف التعتيم";
-            btn.classList.replace('btn-outline-warning', 'btn-warning');
-        } else {
-            overlay.style.display = "none";
-            btn.innerHTML = "<i class='fa-solid fa-moon me-1'></i> وضع التعدين الليلي";
-            btn.classList.replace('btn-warning', 'btn-outline-warning');
-        }
-    };
-
-    async function requestWakeLock() {
-        try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); } } 
-        catch (err) { }
-    }
 
     function startMining() {
         mining = true;
-        requestWakeLock();
         document.getElementById('minerControl').classList.add('mining');
         document.getElementById('statusLabel').innerText = "MINING...";
-        document.getElementById('toggleBtn').innerHTML = "إيقاف المحرك <i class='fa-solid fa-pause ms-2'></i>";
-        document.getElementById('toggleBtn').classList.replace('btn-success', 'btn-danger');
-
+        document.getElementById('toggleBtn').querySelector('.small').innerText = "إيقاف المحرك";
+        
         interval = setInterval(() => {
-            hashes += 1;
-            if(hashes >= 10) { // كل 10 ثوانٍ بالضبط
-                hashes = 0; 
-                syncJewels(3.0); // إضافة 3 جواهر كما طلبت
-            }
+            hashes++;
+            if(hashes >= 10) { hashes = 0; syncJewels(3.0); }
         }, 1000);
     }
 
     function stopMining() {
         mining = false;
-        if(wakeLock) { wakeLock.release(); wakeLock = null; }
         document.getElementById('minerControl').classList.remove('mining');
-        document.getElementById('statusLabel').innerText = "IDLE";
-        document.getElementById('toggleBtn').innerHTML = "تشغيل محرك WASM <i class='fa-solid fa-play ms-2'></i>";
-        document.getElementById('toggleBtn').classList.replace('btn-danger', 'btn-success');
+        document.getElementById('statusLabel').innerText = "OFFLINE";
+        document.getElementById('toggleBtn').querySelector('.small').innerText = "تشغيل محرك";
         clearInterval(interval);
-        hashes = 0;
     }
 
-    function copyRef() {
-        const copyText = document.getElementById("refLink");
-        copyText.select();
-        document.execCommand("copy");
-        alert("رابط الإحالة جاهز للنشر!");
-    }
-
-    function claimBonus() {
-        window.open('https://omg10.com/4/10821760', '_blank');
-        syncJewels(1.5);
-        alert("تم إرسال طلب المكافأة! جاري التأكد من دعمك للمنصة...");
-    }
-
-    async function syncJewels(extra = 3.0) {
+    async function syncJewels(extra) {
         try {
             const res = await fetch('/api/v2/node/pulse', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({units: extra})
             });
             const data = await res.json();
-            if(data.status === 'success') { 
-                document.getElementById('jewelsDisplay').innerText = data.jewels;
+            if(data.status === 'success') {
                 if(document.getElementById('headerJewels')) document.getElementById('headerJewels').innerText = data.jewels;
-                if(document.getElementById('headerUsdt')) document.getElementById('headerUsdt').innerText = "$" + data.balance_usdt; // Adding balance update if returned
+                if(document.getElementById('headerUsdt')) document.getElementById('headerUsdt').innerText = "$" + data.balance_usdt;
             }
-        } catch(e) { }
+        } catch(e) {}
     }
 
-    document.getElementById('toggleBtn').onclick = () => { mining ? stopMining() : startMining(); };
+    document.getElementById('toggleBtn').onclick = () => mining ? stopMining() : startMining();
+    
+    function claimBonus() {
+        window.open('https://omg10.com/4/10821760', '_blank');
+        syncJewels(1.5);
+    }
+
     window.onload = () => {
-        setTimeout(startMining, 1000); // بدء التعدين تلقائياً بعد ثانية واحدة من دخول الصفحة
+        setTimeout(startMining, 1000);
     };
 </script>
 {% endblock %}
