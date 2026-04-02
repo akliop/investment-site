@@ -2,116 +2,167 @@
 
 {% block content %}
 <div class="row g-4 justify-content-center">
-    <!-- العنوان الرئيسي لإيداع USDT / BTC -->
+
+    <!-- العنوان الرئيسي -->
     <div class="col-lg-12">
-        <div class="glass-card p-4 border-warning border-opacity-25 text-center position-relative">
-            <h2 class="cyber-font text-white mb-2"><i class="fa-solid fa-wallet text-warning me-2"></i> إيداع USDT / BTC (v21)</h2>
-            <p class="text-dim">اختر الشبكة المناسبة ل إتمام عملية الإيداع ب أمان.</p>
+        <div class="glass-card p-4 border-warning border-opacity-50 text-center position-relative overflow-hidden">
+            <div style="position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,193,7,0.05) 0%,transparent 70%);pointer-events:none;"></div>
+            <h2 class="cyber-font text-white mb-2">
+                <i class="fa-solid fa-money-bill-wave text-warning me-2"></i> بوابة الإيداع (DEPOSIT)
+            </h2>
+            <p class="text-dim">أرسل USDT أو BTC مباشرة إلى عنوانك - يتم تحديث الرصيد فوراً بعد التأكيد</p>
         </div>
     </div>
 
-    <!-- واجهة الإيداع المستوحاة من Binance -->
-    <div class="col-lg-6">
-        <div class="glass-card p-4 border-secondary border-opacity-25 h-100 shadow-lg">
-            <!-- اختيار العملة -->
+    <!-- واجهة QR و العناوين -->
+    <div class="col-lg-7">
+        <div class="glass-card p-4 border-warning border-opacity-25 shadow-lg">
+            <h5 class="cyber-font text-white mb-4 text-center"><i class="fa-solid fa-qrcode text-warning me-2"></i> اختر الشبكة ل رؤية عنوانك</h5>
+
+            <!-- تبويبات الشبكات -->
             <ul class="nav nav-pills nav-fill mb-4 bg-black p-1 rounded-pill" id="depositTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active rounded-pill cyber-font" id="pol-tab" data-bs-toggle="pill" data-bs-target="#pol" type="button" role="tab">USDT (POL/BSC)</button>
+                <li class="nav-item">
+                    <button class="nav-link active rounded-pill cyber-font small" data-bs-toggle="pill" data-bs-target="#d-pol">USDT<br><small class="text-muted" style="font-size:9px">POL/BSC</small></button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill cyber-font" id="trx-tab" data-bs-toggle="pill" data-bs-target="#trx" type="button" role="tab">USDT (TRC20)</button>
+                <li class="nav-item">
+                    <button class="nav-link rounded-pill cyber-font small" data-bs-toggle="pill" data-bs-target="#d-trx">USDT<br><small class="text-muted" style="font-size:9px">TRC20</small></button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill cyber-font" id="btc-tab" data-bs-toggle="pill" data-bs-target="#btc" type="button" role="tab">BTC</button>
+                <li class="nav-item">
+                    <button class="nav-link rounded-pill cyber-font small" data-bs-toggle="pill" data-bs-target="#d-btc">BTC<br><small class="text-muted" style="font-size:9px">Bitcoin</small></button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link rounded-pill cyber-font small" data-bs-toggle="pill" data-bs-target="#d-bnb">BNB<br><small class="text-muted" style="font-size:9px">opBNB</small></button>
                 </li>
             </ul>
 
-            <div class="tab-content text-center py-4" id="depositTabContent">
-                <!-- شبكة POL / BSC / opBNB -->
-                <div class="tab-pane fade show active" id="pol" role="tabpanel">
-                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm border border-light">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x31cfee15eddf8169da734ec658c5b3833a1e09973" alt="QR BSC/POL">
+            <div class="tab-content text-center" id="depositTabContent">
+
+                <!-- POL / BSC -->
+                <div class="tab-pane fade show active" id="d-pol">
+                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x31cfee15eddf8169da734ec658c5b383a1e09973" alt="QR POL/BSC">
                     </div>
-                    <div class="text-start mb-3">
-                        <label class="text-dim small mb-1">الشبكة</label>
-                        <div class="fw-bold text-white fs-5">BSC / POL / opBNB</div>
-                        <small class="text-warning">يرجى التأكد من أن العملة التي تودعها ب عنوان عقد ينتهي بـ 09973.</small>
-                    </div>
-                    <div class="text-start mb-4">
-                        <label class="text-dim small mb-1">عنوان الإيداع</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-black text-white border-secondary border-opacity-25" id="addr_pol" value="0x31cfee15eddf8169da734ec658c5b3833a1e09973" readonly>
-                            <button class="btn btn-warning px-3" onclick="navigator.clipboard.writeText('0x31cfee15eddf8169da734ec658c5b3833a1e09973')"><i class="fa-regular fa-copy"></i></button>
+                    <div class="text-start">
+                        <div class="d-flex gap-2 mb-2 flex-wrap">
+                            <span class="badge bg-warning text-black">Polygon POS</span>
+                            <span class="badge bg-primary">BNB Smart Chain (BEP20)</span>
+                        </div>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-black text-warning border-secondary border-opacity-25 small" value="0x31cfee15eddf8169da734ec658c5b383a1e09973" readonly>
+                            <button class="btn btn-warning px-3" onclick="navigator.clipboard.writeText('0x31cfee15eddf8169da734ec658c5b383a1e09973');this.innerHTML='✓ تم'">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="alert alert-warning bg-transparent border-warning border-opacity-25 py-2 small">
+                            ⚠️ يرجى التأكد من أن العملة التي تودعها USDT بعنوان عقد ينتهي بـ <strong>...09973</strong>
                         </div>
                     </div>
                 </div>
 
-                <!-- شبكة TRC20 -->
-                <div class="tab-pane fade" id="trx" role="tabpanel">
-                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm border border-light">
+                <!-- TRC20 -->
+                <div class="tab-pane fade" id="d-trx">
+                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy" alt="QR TRC20">
                     </div>
-                    <div class="text-start mb-3">
-                        <label class="text-dim small mb-1">الشبكة</label>
-                        <div class="fw-bold text-white fs-5">Tron (TRC20)</div>
-                        <small class="text-info">الحد الأدنى ل ل إيداع هو 10$ على هذه الشبكة.</small>
-                    </div>
-                    <div class="text-start mb-4">
-                        <label class="text-dim small mb-1">عنوان الإيداع</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-black text-white border-secondary border-opacity-25" id="addr_trx" value="TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy" readonly>
-                            <button class="btn btn-warning px-3" onclick="navigator.clipboard.writeText('TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy')"><i class="fa-regular fa-copy"></i></button>
+                    <div class="text-start">
+                        <span class="badge bg-danger mb-2">Tron (TRC20)</span>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-black text-danger border-secondary border-opacity-25 small" value="TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy" readonly>
+                            <button class="btn btn-danger px-3" onclick="navigator.clipboard.writeText('TRvoqf1GcB7UagrJj5prTURRDTDswfY6oy');this.innerHTML='✓ تم'">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="alert alert-info bg-transparent border-info border-opacity-25 py-2 small">
+                            ⚡ الحد الأدنى للإيداع: 10$ - هذه الشبكة الأسرع و الأقل عمولة
                         </div>
                     </div>
                 </div>
 
-                <!-- شبكة Bitcoin -->
-                <div class="tab-pane fade" id="btc" role="tabpanel">
-                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm border border-light">
+                <!-- BTC -->
+                <div class="tab-pane fade" id="d-btc">
+                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" alt="QR BTC">
                     </div>
-                    <div class="text-start mb-3">
-                        <label class="text-dim small mb-1">الشبكة</label>
-                        <div class="fw-bold text-white fs-5">Bitcoin (BTC)</div>
-                        <small class="text-danger">منصة Binance تدعم عمليات الإيداع من جميع عناوين BTC.</small>
-                    </div>
-                    <div class="text-start mb-4">
-                        <label class="text-dim small mb-1">عنوان الإيداع</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control bg-black text-white border-secondary border-opacity-25" id="addr_btc" value="1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" readonly>
-                            <button class="btn btn-warning px-3" onclick="navigator.clipboard.writeText('1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1')"><i class="fa-regular fa-copy"></i></button>
+                    <div class="text-start">
+                        <span class="badge bg-warning text-black mb-2">Bitcoin (BTC)</span>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-black text-warning border-secondary border-opacity-25 small" value="1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1" readonly>
+                            <button class="btn btn-warning px-3" onclick="navigator.clipboard.writeText('1225jA1f8Heu35fnS83bsEMRt5BWYYJeL1');this.innerHTML='✓ تم'">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="alert alert-secondary bg-transparent border-secondary border-opacity-25 py-2 small text-dim">
+                            منصة Binance تدعم جميع عناوين BTC (التي تبدأ بـ "1" و "3" و "bc1p" و "bc1q")
                         </div>
                     </div>
                 </div>
+
+                <!-- opBNB -->
+                <div class="tab-pane fade" id="d-bnb">
+                    <div class="mb-4 d-inline-block p-3 bg-white rounded-4 shadow-sm">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=0x31cfee15eddf8169da734ec658c5b383a1e09973" alt="QR opBNB">
+                    </div>
+                    <div class="text-start">
+                        <span class="badge bg-info text-black mb-2">opBNB</span>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-black text-info border-secondary border-opacity-25 small" value="0x31cfee15eddf8169da734ec658c5b383a1e09973" readonly>
+                            <button class="btn btn-info px-3" onclick="navigator.clipboard.writeText('0x31cfee15eddf8169da734ec658c5b383a1e09973');this.innerHTML='✓ تم'">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <button class="btn btn-warning w-100 fw-bold py-3 mt-2 text-black shadow-glow-yellow">حفظ ومشاركة العنوان</button>
+            <button class="btn btn-warning w-100 fw-bold py-3 mt-3 text-black" style="box-shadow:0 0 20px rgba(255,193,7,0.3)">
+                <i class="fa-solid fa-share-nodes me-2"></i> حفظ ومشاركة العنوان
+            </button>
         </div>
     </div>
 
     <!-- تعليمات الإيداع -->
-    <div class="col-lg-6">
-        <div class="glass-card p-4 border-info border-opacity-25 h-100 shadow-lg">
-            <h4 class="cyber-font text-white mb-4"><i class="fa-solid fa-circle-info text-info me-2"></i> تعليمات الدفع الفوري</h4>
-            <ul class="list-unstyled text-dim text-right">
-                <li class="mb-3"><i class="fa-solid fa-check text-success me-2"></i> تأكد من اختيار الشبكة الصحيحة (TRC20 هي الأسرع و الأقل عمولة).</li>
-                <li class="mb-3"><i class="fa-solid fa-check text-success me-2"></i> سيتم تحديث رصيدك آلياً بعد 3 تأكيدات من الشبكة.</li>
-                <li class="mb-3"><i class="fa-solid fa-check text-success me-2"></i> الحد الأدنى ل ل إيداع هو 5$ لتجنب ضياع الرصيد.</li>
+    <div class="col-lg-5">
+        <div class="glass-card p-4 border-info border-opacity-25 shadow-lg h-100">
+            <h5 class="cyber-font text-white mb-4"><i class="fa-solid fa-circle-info text-info me-2"></i> تعليمات الإيداع</h5>
+            <ul class="list-unstyled text-dim">
+                <li class="mb-3 d-flex gap-2">
+                    <span class="text-success fw-bold">01</span>
+                    <span>اختر الشبكة المناسبة و انسخ العنوان أو امسح رمز QR</span>
+                </li>
+                <li class="mb-3 d-flex gap-2">
+                    <span class="text-success fw-bold">02</span>
+                    <span>أرسل المبلغ من محفظتك أو منصة التداول الخاصة بك</span>
+                </li>
+                <li class="mb-3 d-flex gap-2">
+                    <span class="text-success fw-bold">03</span>
+                    <span>انتظر 3 تأكيدات من الشبكة (عادة أقل من 5 دقائق)</span>
+                </li>
+                <li class="d-flex gap-2">
+                    <span class="text-success fw-bold">04</span>
+                    <span>سيتم تحديث رصيدك آلياً و ستصلك إشعار فوري</span>
+                </li>
             </ul>
-            <div class="mt-5 pt-5 text-center">
-                <div class="mb-3"><i class="fa-solid fa-headset text-info display-4"></i></div>
-                <h5 class="text-white">هل تواجه مشكلة؟</h5>
-                <p class="small text-dim">تواصل مع الدعم الفني ل A.K.L.I Stealth ل حل مشكلتك فوراً.</p>
-                <button class="btn btn-outline-info w-100">تواصل معنا الآن</button>
+
+            <div class="mt-4 p-3 glass-card border-warning border-opacity-25">
+                <h6 class="text-warning fw-bold mb-2">⚡ مقارنة الشبكات</h6>
+                <table class="table table-dark table-sm small mb-0">
+                    <thead><tr><th>الشبكة</th><th>السرعة</th><th>العمولة</th></tr></thead>
+                    <tbody>
+                        <tr><td class="text-danger">TRC20</td><td>⚡ دقيقة</td><td class="text-success">~1$</td></tr>
+                        <tr><td class="text-warning">BSC/POL</td><td>🔄 3 دقائق</td><td class="text-success">~2$</td></tr>
+                        <tr><td class="text-info">opBNB</td><td>🔄 5 دقائق</td><td class="text-success">~1$</td></tr>
+                        <tr><td class="text-warning">BTC</td><td>⏳ 30 دقيقة</td><td class="text-danger">~5$</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+
 </div>
 
 <style>
     .nav-pills .nav-link { color: #888; border: 1px solid transparent; }
-    .nav-pills .nav-link.active { background: #ffc107 !important; color: #000 !important; border-color: #ff1c07; box-shadow: 0 0 10px rgba(255,193,7,0.4); }
-    .shadow-glow-yellow { box-shadow: 0 0 20px rgba(255,193,7,0.3); }
-    .bg-black { background: #000 !important; }
+    .nav-pills .nav-link.active { background: #ffc107 !important; color: #000 !important; box-shadow: 0 0 10px rgba(255,193,7,0.4); }
 </style>
 {% endblock %}
