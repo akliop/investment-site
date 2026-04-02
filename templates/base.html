@@ -29,7 +29,7 @@
                 <i class="fa-solid fa-microchip me-1 text-success"></i>A.K.L.I <span class="text-success small">Node</span> 
             </a>
             
-            {% if session.miner_id and user %}
+            {% if session.v4_id and user %}
             <div class="d-flex align-items-center ms-auto me-2 d-none d-md-flex">
                 <div class="wallet-stat"><span class="stat-val">{{ "%.1f"|format(user.xp or 0.0) }} XP</span></div>
                 <div class="wallet-stat"><span class="stat-val text-white">${{ "%.2f"|format(user.balance_usdt or 0.0) }}</span></div>
@@ -42,17 +42,14 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center mt-3 mt-lg-0">
-                    {% if session.miner_id %}
+                    {% if session.v4_id %}
                         <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/portal/store/games"><i class="fa-solid fa-gamepad me-1"></i> شحن الألعاب 🎮</a></li>
                         <li class="nav-item"><a class="nav-link text-white fw-bold" href="/portal/store"><i class="fa-solid fa-shop me-1"></i> المتجر 🔥</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/portal/deposit">إيداع</a></li>
-                        <li class="nav-item"><a class="nav-link text-info fw-bold" href="/portal/exchange">صرف النقاط</a></li>
-                        <li class="nav-item"><a class="nav-link text-danger" href="/portal/withdraw">سحب</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/portal/referrals">الإحالات</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/portal/x/node">العقدة</a></li>
-                        <li class="nav-item"><a class="nav-link text-muted ms-lg-2" href="/logout"><i class="fa-solid fa-power-off"></i></a></li>
+                        <li class="nav-item"><a class="nav-link" href="/portal/home">العقدة الرئيسية</a></li>
+                        <li class="nav-item"><a class="nav-link text-muted ms-lg-2" href="/logout"><i class="fa-solid fa-power-off"></i> خروج</a></li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="/login">دخول</a></li>
+                        <li class="nav-item"><a class="nav-link btn btn-success btn-sm text-black fw-bold px-3 ms-lg-2" href="/">ابدأ الآن</a></li>
                     {% endif %}
                 </ul>
             </div>
