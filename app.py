@@ -4,17 +4,16 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime, timedelta
 
-# المحرك v12 (نظام الصمود المطلق) - Vercel Standard API Build
-app = Flask(__name__, template_folder='../templates')
-app.secret_key = "v12_akli_stealth_mining_standard"
+# المحرك v13 (نظام التشغيل المطلق) - Root-Level Deployment
+app = Flask(__name__)
+app.secret_key = str(uuid.uuid4()) # مفتاح عشوائي لكسر الجلسات القديمة
 app.permanent_session_lifetime = timedelta(days=7)
 
-# إعداد قاعدة البيانات v12 - مسار tmp حيوي لـ Vercel
+# إعداد قاعدة البيانات v13 - مسار tmp حيوي لـ Vercel
 if os.environ.get('VERCEL'):
-    db_path = '/tmp/vault_v12.sqlite'
+    db_path = '/tmp/vault_v13.sqlite'
 else:
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    db_path = os.path.join(basedir, '../vault_v12.sqlite')
+    db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v13.sqlite')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -33,8 +32,8 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-def get_v_user():
-    uid = session.get("v12_id")
+def get_sys_user():
+    uid = session.get("v13_id")
     if not uid: return None
     try:
         user = User.query.get(uid)
@@ -43,21 +42,25 @@ def get_v_user():
 
 @app.route("/")
 def home():
-    user = get_v_user()
-    if user: return redirect(url_for("dashboard"))
+    user = get_sys_user()
+    if user:
+        return redirect(url_for("dashboard"))
     return render_template("landing.html", ref_code=request.args.get('ref'))
 
-# نظام المزامنة والفتح المطلق v12 (يدعم كل الطرق لمنع 404)
+# نظام المزامنة والفتح المطلق v13 (يدعم كل الطرق لمنع 404)
 @app.route("/sync", methods=["GET", "POST"])
 @app.route("/join_node", methods=["GET", "POST"])
 @app.route("/auth/v1/sync", methods=["GET", "POST"])
 def auth_sync():
-    if request.method == "GET": return redirect(url_for("home"))
+    if request.method == "GET":
+        return redirect(url_for("home"))
     
     u = request.form.get("username", "").strip()
     p = request.form.get("password")
     
-    if not u or not p: return redirect(url_for("home"))
+    if not u or not p:
+        return redirect(url_for("home"))
+        
     if User.query.filter_by(username=u).first():
         flash("المستخدم موجود", "error")
         return redirect(url_for("home"))
@@ -65,9 +68,11 @@ def auth_sync():
     try:
         new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper())
         db.session.add(new_u); db.session.commit()
-        session["v12_id"] = new_u.id
+        session["v13_id"] = new_u.id
+        session.permanent = True
         return redirect(url_for("dashboard"))
-    except: return redirect(url_for("home"))
+    except:
+        return redirect(url_for("home"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -76,27 +81,33 @@ def login():
         p = request.form.get("password")
         user = User.query.filter_by(username=u, password=p).first()
         if user:
-            session["v12_id"] = user.id
+            session["v13_id"] = user.id
+            session.permanent = True
             return redirect(url_for("dashboard"))
         flash("بيانات خاطئة", "error")
     return render_template("login.html")
 
 @app.route("/portal/home")
 def dashboard():
-    user = get_v_user()
-    if not user: return redirect(url_for("login"))
+    user = get_sys_user()
+    if not user:
+        return redirect(url_for("login"))
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
     ref_link = f"{request.url_root}?ref={user.referral_code}"
     return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link)
 
 @app.route("/portal/store")
 def store():
-    user = get_v_user(); if not user: return redirect(url_for("login"))
+    user = get_sys_user()
+    if not user:
+        return redirect(url_for("login"))
     return render_template("store.html", user=user)
 
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse():
-    user = get_v_user(); if not user: return jsonify({"status": "fail"})
+    user = get_sys_user()
+    if not user:
+        return jsonify({"status": "fail"})
     user.xp += float(request.json.get("units", 1.66))
     db.session.commit()
     return jsonify({"status": "success", "xp": round(user.xp, 2)})
