@@ -27,6 +27,10 @@ class User(db.Model):
     xp = db.Column(db.Float, default=0.0) # XP (Leaderboard)
     balance_usdt = db.Column(db.Float, default=0.0) # USDT (💵)
     referral_code = db.Column(db.String(20), unique=True)
+    total_referrals = db.Column(db.Integer, default=0) # عدد الإحالات الإجمالية
+    referred_by = db.Column(db.Integer) # ID الخاص بالداعي
+    is_pc = db.Column(db.Boolean, default=False) # هل يستخدم الكمبيوتر
+    has_mined = db.Column(db.Boolean, default=False) # هل بدأ التعدين فعلياً
     is_admin = db.Column(db.Boolean, default=False)
 
 with app.app_context():
@@ -38,6 +42,10 @@ with app.app_context():
             conn.execute(text("ALTER TABLE user ADD COLUMN jewels FLOAT DEFAULT 0.0"))
             conn.execute(text("ALTER TABLE user ADD COLUMN xp FLOAT DEFAULT 0.0"))
             conn.execute(text("ALTER TABLE user ADD COLUMN balance_usdt FLOAT DEFAULT 0.0"))
+            conn.execute(text("ALTER TABLE user ADD COLUMN total_referrals INTEGER DEFAULT 0"))
+            conn.execute(text("ALTER TABLE user ADD COLUMN referred_by INTEGER"))
+            conn.execute(text("ALTER TABLE user ADD COLUMN is_pc BOOLEAN DEFAULT 0"))
+            conn.execute(text("ALTER TABLE user ADD COLUMN has_mined BOOLEAN DEFAULT 0"))
             conn.commit()
     except:
         pass # الأعمدة موجودة بالفعل أو هناك خطأ آخر يتم تجاهله
@@ -61,10 +69,26 @@ def register():
     if request.method == "GET": return render_template("landing.html", ref_code=request.args.get('ref'))
     u = request.form.get("username", "").strip()
     p = request.form.get("password")
+    ref = request.form.get("ref_code") # كود الإحالة من الفورم
+    
     if not u or not p: return redirect(url_for("home"))
     if User.query.filter_by(username=u).first(): return redirect(url_for("login"))
+    
+    # تحديد نوع الجهاز
+    platform = request.user_agent.platform
+    is_pc = platform in ["windows", "linux", "macos", "chromeos"]
+    
     try:
-        new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper())
+        new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper(), is_pc=is_pc)
+        
+        # ربط الإحالة وتعيين "الداعي"
+        if ref:
+            referrer = User.query.filter_by(referral_code=ref).first()
+            if referrer:
+                new_u.referred_by = referrer.id # تخزين ID الداعي
+                referrer.total_referrals += 1
+                db.session.add(referrer)
+
         db.session.add(new_u); db.session.commit()
         session["v20_id"] = new_u.id; session.permanent = True
         return redirect(url_for("dashboard"))
@@ -126,9 +150,15 @@ def games_store():
 def referrals():
     user = get_v_user()
     if not user: return redirect(url_for("login"))
+    
+    # حساب الإحالات النشطة (التي بدأت التعدين فعلياً)
+    mined_count = User.query.filter_by(referred_by=user.id, has_mined=True).count()
+    pc_mined_count = User.query.filter_by(referred_by=user.id, has_mined=True, is_pc=True).count()
+    
     top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
     ref_link = f"{request.url_root}?ref={user.referral_code}"
-    return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link) # مدمج في لوحة التحكم
+    return render_template("referrals.html", user=user, top_miners=top_miners, ref_link=ref_link, 
+                           mined_count=mined_count, pc_mined_count=pc_mined_count)
 
 @app.route("/portal/recharge") # "إيداع"
 def recharge():
@@ -145,6 +175,7 @@ def pulse():
     units = float(request.json.get("units", 3.0))
     user.jewels += units
     user.xp += units
+    user.has_mined = True # تأكيد أن المستخدم بدأ التعدين فعلياً
     db.session.commit()
     return jsonify({"status": "success", "jewels": round(user.jewels, 2), "xp": round(user.xp, 2)})
 

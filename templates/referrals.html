@@ -10,66 +10,58 @@
             </div>
 
             <!-- THE QUAD INCENTIVE BARS (أشرطة التحفيز الرباعية) -->
-            <div class="row g-4 mb-5">
-                <!-- Goal 1: 5 Members -->
-                <div class="col-md-6">
-                    <div class="p-3 bg-black rounded border border-dark border-opacity-50 h-100">
+             <div class="row g-4 mb-5">
+                <!-- Goal 1: 5 Miners -->
+                <div class="col-md-4">
+                    <div class="p-3 bg-black rounded border border-info border-opacity-25 h-100 position-relative">
+                        <span class="badge bg-danger position-absolute top-0 end-0 m-2 x-small anim-pulse">مهمة يومية</span>
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-white small fw-bold">الهدف: 5 أعضاء</span>
-                            <span class="text-success small fw-bold">+250 XP</span>
+                            <span class="text-white small fw-bold">ادعُ 5 (تعدين)</span>
+                            <span class="text-info small fw-bold">+400 XP</span>
                         </div>
                         <div class="progress bg-dark" style="height: 10px;">
-                            {% set p1 = (user.total_referrals / 5 * 100) if (user.total_referrals < 5) else 100 %}
-                            <div class="progress-bar bg-success shadow-green-glow" style="width: {{ p1 }}%"></div>
+                            {% set p1 = (mined_count / 5 * 100) if (mined_count < 5) else 100 %}
+                            <div class="progress-bar bg-info" style="width: {{ p1 }}%"></div>
                         </div>
-                        <div class="text-end mt-1 x-small text-dim">{{ user.total_referrals }}/5</div>
+                        <div class="text-end mt-1 x-small text-dim">{{ mined_count }}/5 نجحوا</div>
                     </div>
                 </div>
 
-                <!-- Goal 2: 10 Members -->
-                <div class="col-md-6">
-                    <div class="p-3 bg-black rounded border border-dark border-opacity-50 h-100">
+                <!-- Goal 2: 2 PC Miners -->
+                <div class="col-md-4">
+                    <div class="p-3 bg-black rounded border border-success border-opacity-25 h-100 position-relative">
+                        <span class="badge bg-success position-absolute top-0 end-0 m-2 x-small">PC ONLY</span>
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-white small fw-bold">الهدف: 10 أعضاء</span>
+                            <span class="text-white small fw-bold">2 حواسيب (تعدين)</span>
                             <span class="text-success small fw-bold">+500 XP</span>
                         </div>
                         <div class="progress bg-dark" style="height: 10px;">
-                            {% set p2 = (user.total_referrals / 10 * 100) if (user.total_referrals < 10) else 100 %}
-                            <div class="progress-bar bg-info shadow-blue-glow" style="width: {{ p2 }}%"></div>
+                            {% set p2 = (pc_mined_count / 2 * 100) if (pc_mined_count < 2) else 100 %}
+                            <div class="progress-bar bg-success" style="width: {{ p2 }}%"></div>
                         </div>
-                        <div class="text-end mt-1 x-small text-dim">{{ user.total_referrals }}/10</div>
+                        <div class="text-end mt-1 x-small text-dim">{{ pc_mined_count }}/2 نجحوا</div>
                     </div>
                 </div>
 
-                <!-- Goal 3: 30 Members -->
-                <div class="col-md-6">
-                    <div class="p-3 bg-black rounded border border-dark border-opacity-50 h-100">
+                <!-- Goal 3: 10 PC Miners -->
+                <div class="col-md-4">
+                    <div class="p-3 bg-black rounded border border-warning border-opacity-25 h-100 highlight-gold">
+                        <span class="badge bg-warning text-black position-absolute top-0 end-0 m-2 x-small fw-bold">MEGA BONUS</span>
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-white small fw-bold">الهدف: 30 عضو</span>
-                            <span class="text-success small fw-bold">+800 XP</span>
+                            <span class="text-warning small fw-bold">10 حواسيب (تعدين)</span>
+                            <span class="text-white small fw-bold">+10,000 XP 🔥</span>
                         </div>
                         <div class="progress bg-dark" style="height: 10px;">
-                            {% set p3 = (user.total_referrals / 30 * 100) if (user.total_referrals < 30) else 100 %}
-                            <div class="progress-bar bg-warning shadow-orange-glow" style="width: {{ p3 }}%"></div>
+                            {% set p3 = (pc_mined_count / 10 * 100) if (pc_mined_count < 10) else 100 %}
+                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: {{ p3 }}%"></div>
                         </div>
-                        <div class="text-end mt-1 x-small text-dim">{{ user.total_referrals }}/30</div>
+                        <div class="text-end mt-1 x-small text-warning fw-bold">{{ pc_mined_count }}/10 نجحوا</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Goal 4: 35 Members (GOLDEN GOAL) -->
-                <div class="col-md-6">
-                    <div class="p-3 bg-black rounded border border-warning border-opacity-25 h-100 shadow-sm">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-warning small fw-bold">الهدف الذهبي: 35 عضو</span>
-                            <span class="text-white fw-bold">+1050 XP 🏆</span>
-                        </div>
-                        <div class="progress bg-dark" style="height: 12px;">
-                            {% set p4 = (user.total_referrals / 35 * 100) if (user.total_referrals < 35) else 100 %}
-                            <div class="progress-bar bg-warning progress-bar-striped progress-bar-animated" style="width: {{ p4 }}%"></div>
-                        </div>
-                        <div class="text-end mt-1 x-small text-warning fw-bold">{{ user.total_referrals }}/35</div>
-                    </div>
-                </div>
+            <div class="alert bg-dark border-0 text-center mb-4 py-2">
+                <i class="fa-solid fa-clock-rotate-left text-warning me-2"></i> <span class="small text-dim">ملاحظة: المهام والمكافآت تتجدد تلقائياً كل 24 ساعة (امتيازات العضوية النشطة).</span>
             </div>
 
             <!-- Referral Link BOX -->
