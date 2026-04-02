@@ -12,31 +12,6 @@
                 <h3 class="cyber-font text-white m-0">
                     <i class="fa-solid fa-microchip text-success me-2 glow-pulse"></i> عقدة التعدين <span class="text-success">vWASM</span>
                 </h3>
-                <div class="d-flex gap-2">
-                    <button id="nightModeBtn" class="btn btn-outline-warning btn-sm fw-bold px-3"><i class="fa-solid fa-moon me-1"></i> وضع التعدين الليلي</button>
-                    <span class="badge bg-success text-black fw-bold px-3 py-2 animate-pulse">متصل بالأنوية (Multi-threaded)</span>
-                </div>
-            </div>
-
-            <div class="row text-center mb-4 g-3">
-                <div class="col-md-6">
-                    <div class="p-3 bg-black rounded border border-info border-opacity-10 shadow-sm">
-                        <small class="text-dim d-block mb-1">رصيد USDT المتوفر 💵</small>
-                        <span id="usdtDisplay" class="h3 cyber-font text-info">{{ "%.2f"|format(user.balance_usdt or 0.0) }}</span> <span class="small">USDT</span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="p-3 bg-black rounded border border-warning border-opacity-10 shadow-sm">
-                        <small class="text-dim d-block mb-1">الجواهر المجمعة 💎</small>
-                        <span id="jewelsDisplay" class="h3 cyber-font text-warning">{{ "%.2f"|format(user.jewels or 0.0) }}</span> <span class="small">JEWELS</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mining-cores-grid mb-4" id="coresGrid">
-                <div class="core-box active"></div><div class="core-box active"></div><div class="core-box active"></div><div class="core-box active"></div>
-            </div>
-
             <div class="text-center py-4">
                 <div class="miner-circle-wrap mx-auto mb-4" id="minerControl">
                     <div class="miner-outer-ring"></div>
