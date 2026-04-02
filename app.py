@@ -92,9 +92,18 @@ def store():
     if not user: return redirect(url_for("login"))
     return render_template("store.html", user=user)
 
-@app.route("/portal/withdraw")
+@app.route("/portal/withdraw") # "سحب"
 def withdraw():
-    return redirect(url_for("dashboard"))
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    return render_template("withdraw.html", user=user)
+
+@app.route("/portal/withdraw/submit", methods=["POST"]) 
+def withdraw_submit():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    flash("تم استلام طلب السحب بنجاح! سيتم معالجته خلال 24 ساعة.", "success")
+    return redirect(url_for("withdraw"))
 
 @app.route("/portal/store/games") # "شحن الألعاب"
 def games_store():
