@@ -108,9 +108,11 @@ def referrals():
     if not user: return redirect(url_for("login"))
     return render_template("dashboard.html", user=user) # مدمج في لوحة التحكم
 
-@app.route("/portal/recharge")
+@app.route("/portal/recharge") # "إيداع"
 def recharge():
-    return redirect(url_for("dashboard"))
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    return render_template("recharge.html", user=user)
 
 # --- محرك التعدين ---
 @app.route("/api/v2/node/pulse", methods=["POST"])
