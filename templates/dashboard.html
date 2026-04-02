@@ -9,14 +9,27 @@
     <!-- قسم اختيار الجهاز (Device Selection) -->
     <div class="text-center mb-4">
         <label class="cyber-font text-white opacity-75 small mb-3 d-block" style="letter-spacing: 2px;">اختر جهازك</label>
-        <div class="d-flex justify-content-center gap-4">
-            <div id="selectPC" class="device-box active" onclick="selectDevice('PC')">
-                <i class="fa-solid fa-desktop fs-2"></i>
-                <div class="x-small mt-1 mt-md-0">حاسوب</div>
+        <div class="d-flex justify-content-center gap-5">
+            <div class="text-center d-flex flex-column align-items-center">
+                <div id="selectMobile" class="device-box" onclick="selectDevice('Mobile')">
+                    <i class="fa-solid fa-mobile-screen fs-2"></i>
+                    <div class="x-small mt-1 mt-md-0 d-none d-md-block">هاتف</div>
+                </div>
+                <div class="mt-2 x-small">
+                    <span class="text-danger fw-bold">ملاحظة:</span>
+                    <span class="text-warning">كل 6 ث 2 ج</span>
+                </div>
             </div>
-            <div id="selectMobile" class="device-box" onclick="selectDevice('Mobile')">
-                <i class="fa-solid fa-mobile-screen fs-2"></i>
-                <div class="x-small mt-1 mt-md-0">هاتف</div>
+            
+            <div class="text-center d-flex flex-column align-items-center">
+                <div id="selectPC" class="device-box active" onclick="selectDevice('PC')">
+                    <i class="fa-solid fa-desktop fs-2"></i>
+                    <div class="x-small mt-1 mt-md-0 d-none d-md-block">حاسوب</div>
+                </div>
+                <div class="mt-2 x-small">
+                    <span class="text-danger fw-bold">ملاحظة:</span>
+                    <span class="text-warning">كل 6 ث 4 ج</span>
+                </div>
             </div>
         </div>
     </div>
@@ -172,11 +185,13 @@
         mining = true;
         document.getElementById('minerControl').classList.add('mining');
         document.getElementById('statusLabel').innerText = "MINING...";
-        document.getElementById('toggleBtn').querySelector('.small').innerText = "إيقاف المحرك";
+        document.getElementById('toggleBtn').querySelector('.fs-3').innerText = "إيقاف التعدين";
         
+        const rate = selectedDevice === 'PC' ? 4.0 : 2.0;
+
         interval = setInterval(() => {
             hashes++;
-            if(hashes >= 10) { hashes = 0; syncJewels(3.0); }
+            if(hashes >= 6) { hashes = 0; syncJewels(rate); }
         }, 1000);
     }
 
