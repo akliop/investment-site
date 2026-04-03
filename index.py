@@ -10,12 +10,19 @@ app.secret_key = str(uuid.uuid4()) # مفتاح عشوائي لكسر الجلس
 app.permanent_session_lifetime = timedelta(days=7)
 
 # إعداد قاعدة البيانات v12
-if os.environ.get('VERCEL'):
+# إعداد قاعدة البيانات v12 - دعم قاعدة بيانات ثابتة
+db_url = os.environ.get('DATABASE_URL') or os.environ.get('NEON_DATABASE_URL')
+if db_url:
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+elif os.environ.get('VERCEL'):
     db_path = '/tmp/vault_v12.sqlite'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 else:
     db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v12.sqlite')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

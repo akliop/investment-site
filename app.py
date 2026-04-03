@@ -9,12 +9,20 @@ app = Flask(__name__)
 app.secret_key = "v20_akli_full_engine_restoration"
 app.permanent_session_lifetime = timedelta(days=7)
 
-if os.environ.get('VERCEL'):
+# إعداد قاعدة البيانات - التغيير هنا لضمان عدم حذف البيانات
+db_url = os.environ.get('DATABASE_URL') or os.environ.get('NEON_DATABASE_URL')
+if db_url:
+    # Vercel يستخدم postgres:// ولكن SQLAlchemy يتطلب postgresql://
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+elif os.environ.get('VERCEL'):
     db_path = '/tmp/vault_v20.sqlite'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 else:
     db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v20.sqlite')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -362,8 +370,7 @@ def send_notification():
 
 @app.route("/sw.js")
 def serve_sw():
-    content = 'self.addEventListener("fetch", (event) => { });'
-    return app.response_class(content, mimetype='application/javascript')
+    return send_from_directory('static', 'sw.js', mimetype='application/javascript')
 
 @app.context_processor
 def inject_notice():
