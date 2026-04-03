@@ -9,21 +9,18 @@ app = Flask(__name__)
 app.secret_key = "v20_akli_full_engine_restoration"
 app.permanent_session_lifetime = timedelta(days=7)
 
-# نظام الربط بقاعدة البيانات (دعم SQLite محلياً و Postgres على Vercel)
+# ميكانيكا الربط الذكي: يدعم Postgres للأبد ويدعم SQLite للتجربة
 db_url = os.environ.get('DATABASE_URL')
-if db_url:
-    # إصلاح رابط Postgres ليتوافق مع SQLAlchemy 2.0+ واستخدام محرك pg8000
+if db_url and "postgres" in db_url:
+    # لضمان استقرار الربط مع Vercel
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql+pg8000://", 1)
-    else:
+    elif "postgresql://" in db_url and "+pg8000" not in db_url:
         db_url = db_url.replace("postgresql://", "postgresql+pg8000://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
-    # العودة لـ SQLite في حال عدم وجود DATABASE_URL (للتطوير المحلي)
-    if os.environ.get('VERCEL'):
-        db_path = '/tmp/vault_v20.sqlite'
-    else:
-        db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v20.sqlite')
+    # العودة لـ SQLite لضمان أن الموقع "يدخل" في كل الظروف
+    db_path = '/tmp/vault_v20.sqlite' if os.environ.get('VERCEL') else os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v20.sqlite')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -68,23 +65,7 @@ class GlobalNotification(db.Model):
 
 with app.app_context():
     db.create_all()
-    # إصلاح تلقائي: إضافة الأعمدة إذا كانت مفقودة لتجنب خطأ 500
-    try:
-        from sqlalchemy import text
-        with db.engine.connect() as conn:
-            conn.execute(text("ALTER TABLE user ADD COLUMN jewels FLOAT DEFAULT 0.0"))
-            conn.execute(text("ALTER TABLE user ADD COLUMN xp FLOAT DEFAULT 0.0"))
-            conn.execute(text("ALTER TABLE user ADD COLUMN balance_usdt FLOAT DEFAULT 0.0"))
-            conn.execute(text("ALTER TABLE user ADD COLUMN total_referrals INTEGER DEFAULT 0"))
-            conn.execute(text("ALTER TABLE user ADD COLUMN referred_by INTEGER"))
-            conn.execute(text("ALTER TABLE user ADD COLUMN is_pc BOOLEAN DEFAULT 0"))
-            conn.execute(text("ALTER TABLE user ADD COLUMN has_mined BOOLEAN DEFAULT 0"))
-            conn.commit()
-    except:
-        pass
-    
-    # محاولة إنشاء جدول الطلبات إذا لم يوجد
-    db.create_all()
+    # تم تبسيط هذا الجزء لزيادة الاستقرار وسهولة الفتح
 
 def get_v_user():
     uid = session.get("v20_id")
