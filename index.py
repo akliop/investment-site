@@ -24,6 +24,13 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 
 db = SQLAlchemy(app)
 
+@app.errorhandler(500)
+def handle_500(e):
+    import traceback
+    error = traceback.format_exc()
+    return f"<h3>ADMIN DEBUG: 500 Internal Server Error</h3><pre>{error}</pre>", 500
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False, index=True) # Gmail
@@ -140,7 +147,9 @@ def dashboard():
 @app.route("/portal/referrals")
 @app.route("/portal/orders")
 def portal_pages():
-    user = get_v_user(); if not user: return redirect(url_for("login"))
+    user = get_v_user()
+    if not user:
+        return redirect(url_for("login"))
     p = request.path.split("/")[-1]
     # حساب الإحالات للـ Referrals
     mined_count = 0; pc_mined_count = 0
