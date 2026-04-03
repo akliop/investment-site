@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime, timedelta
 
-# المحرك v27: النسخة الأبدية (Final Eternal Node) - حل مشكلة المزامنة والربط بـ SupportXMR
+# المحرك v27.1: النسخة الأبدية (Final Eternal Node - REBUILD FORCE)
 app = Flask(__name__)
 app.secret_key = "v27_eternal_node_key"
 app.permanent_session_lifetime = timedelta(days=7)
