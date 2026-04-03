@@ -62,12 +62,14 @@ class GlobalNotification(db.Model):
     message = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# إنشاء الجداول عند البدء
+# إنشاء الجداول وتحديثها (Clean Start v26)
 with app.app_context():
     try:
+        # ملاحظة: سنقوم بمسح الجداول القديمة لمرة واحدة لضمان توافق "الجواهر" والحقول الجديدة
+        db.drop_all() 
         db.create_all()
     except Exception as e:
-        print(f"Database Creation Warning: {e}")
+        print(f"Database Reset Warning: {e}")
 
 def get_v_user():
     uid = session.get("v24_id")
