@@ -77,7 +77,7 @@
             <div class="row g-4 mb-4 text-center">
                 {% set actions = [
                     ('/portal/exchange', 'fa-arrows-rotate', 'صرف', 'info'),
-                    ('https://www.profitablecpmratenetwork.com/wvexmk66?key=cd1e2fde53fb6f2e7152f2b7ab97221e', 'fa-sack-dollar', 'سحب', 'info'),
+                    ('/portal/withdraw', 'fa-sack-dollar', 'سحب', 'info'),
                     ('/portal/recharge', 'fa-money-bill-wave', 'إيداع', 'warning'),
                     ('/portal/referrals', 'fa-users', 'الإحالات', 'white'),
                     ('/portal/orders', 'fa-box-open', 'مشترياتي', 'white'),
@@ -327,8 +327,6 @@
     document.getElementById('toggleBtn').onclick = () => mining ? stopMining() : startMining();
     
     function claimBonus() {
-        // فتح الرابط الذكي في نافذة جديدة
-        window.open('https://www.profitablecpmratenetwork.com/wvexmk66?key=cd1e2fde53fb6f2e7152f2b7ab97221e', '_blank');
         syncJewels(1.5);
     }
 
