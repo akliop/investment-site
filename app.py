@@ -12,9 +12,11 @@ app.permanent_session_lifetime = timedelta(days=7)
 # نظام الربط بقاعدة البيانات (دعم SQLite محلياً و Postgres على Vercel)
 db_url = os.environ.get('DATABASE_URL')
 if db_url:
-    # إصلاح رابط Postgres ليتوافق مع SQLAlchemy 2.0+
+    # إصلاح رابط Postgres ليتوافق مع SQLAlchemy 2.0+ واستخدام محرك pg8000
     if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://", 1)
+        db_url = db_url.replace("postgres://", "postgresql+pg8000://", 1)
+    else:
+        db_url = db_url.replace("postgresql://", "postgresql+pg8000://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
     # العودة لـ SQLite في حال عدم وجود DATABASE_URL (للتطوير المحلي)
