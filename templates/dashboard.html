@@ -17,7 +17,7 @@
                 </div>
                 <div class="mt-2 x-small" style="max-width: 100px; line-height: 1.4;">
                     <span class="text-danger fw-bold d-block">ملاحظة:</span>
-                    <span class="text-warning">كل 6 ثواني تحصل على 2 جوهرة</span>
+                    <span class="text-warning">كل 60 ثانية تحصل على 2 جوهرة</span>
                 </div>
             </div>
             
@@ -28,7 +28,7 @@
                 </div>
                 <div class="mt-2 x-small" style="max-width: 100px; line-height: 1.4;">
                     <span class="text-danger fw-bold d-block">ملاحظة:</span>
-                    <span class="text-warning">كل 6 ثواني تحصل على 4 جوهرة</span>
+                    <span class="text-warning">كل 60 ثانية تحصل على 4 جوهرة</span>
                 </div>
             </div>
         </div>
@@ -267,10 +267,10 @@
 
         syncInterval = setInterval(() => {
             ms += 100;
-            let deg = (ms / 6000) * 360;
+            let deg = (ms / 60000) * 360; // دورة كاملة كل 60 ثانية
             document.getElementById('progressBar').style.setProperty('--deg', deg + 'deg');
 
-            if(ms >= 6000) { 
+            if(ms >= 60000) { 
                 ms = 0;
                 document.getElementById('progressBar').style.setProperty('--deg', '0deg');
                 syncJewels(rate); 
