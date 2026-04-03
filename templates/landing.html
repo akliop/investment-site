@@ -20,9 +20,10 @@
             <form action="/join_node" method="POST">
                 <input type="hidden" name="ref_code" value="{{ ref_code or '' }}">
                 <div class="row g-2 mb-3">
-                    <div class="col-md-6">
-                        <input type="text" name="username" class="form-control py-3" placeholder="اسم المستخدم المستعار" required>
-                    </div>
+                    <div class="mb-3">
+                            <label class="text-dim small mb-2">الجيميل (Gmail)</label>
+                            <input type="text" name="username" class="form-control bg-black text-white border-success border-opacity-25" placeholder="example@gmail.com" required>
+                        </div>
                     <div class="col-md-6">
                         <input type="password" name="password" class="form-control py-3" placeholder="كلمة المرور السرية" required>
                     </div>
