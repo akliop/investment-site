@@ -86,9 +86,9 @@
                             {% for m in money_orders %}
                             <tr>
                                 <td>#{{ m.id }}</td>
-                                <td><span class="badge bg-{{ 'danger' if m.order_type == 'WITHDRAW' else 'primary' }}">{{ m.order_type }}</span></td>
+                                <td><span class="badge bg-{{ 'danger' if m.type == 'WITHDRAW' else 'primary' }}">{{ m.type }}</span></td>
                                 <td>{{ m.details }}</td>
-                                <td class="fw-bold">${{ "%.2f"|format(m.cost_usdt or 0.0) }}</td>
+                                <td class="fw-bold">${{ "%.2f"|format(m.amount or 0.0) }}</td>
                                 <td><span class="badge bg-{{ 'success' if m.status == 'DONE' else 'warning text-black' }}">{{ m.status }}</span></td>
                                 <td>
                                     {% if m.status == 'PENDING' %}

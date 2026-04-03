@@ -93,6 +93,16 @@
                     </a>
                 </div>
                 {% endfor %}
+                {% if user.is_admin %}
+                <div class="col-4">
+                    <a href="/portal/admin_dashboard" class="app-btn text-decoration-none shadow-glow-small py-3 border-danger">
+                        <div class="app-icon-wrap mb-2">
+                            <i class="fa-solid fa-user-shield text-danger"></i>
+                        </div>
+                        <div class="x-small text-white opacity-75">لوحة الأدمن</div>
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

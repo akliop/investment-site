@@ -33,11 +33,12 @@ def handle_500(e):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=True, nullable=False, index=True) # Gmail
+    username = db.Column(db.String(120), unique=True, nullable=False, index=True) # Username/Gmail
     password = db.Column(db.String(120), nullable=False)
     jewels = db.Column(db.Float, default=0.0)
     xp = db.Column(db.Float, default=0.0)
     balance_usdt = db.Column(db.Float, default=0.0)
+    xmr_wallet = db.Column(db.String(200)) # Added missing field
     referral_code = db.Column(db.String(20), unique=True)
     total_referrals = db.Column(db.Integer, default=0)
     referred_by = db.Column(db.Integer)
@@ -57,7 +58,7 @@ class Order(db.Model):
 class FinanceRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
-    type = db.Column(db.String(20))
+    type = db.Column(db.String(20)) # "DEPOSIT" or "WITHDRAW"
     amount = db.Column(db.Float)
     details = db.Column(db.Text)
     status = db.Column(db.String(20), default="PENDING")
@@ -75,14 +76,39 @@ with app.app_context():
     except Exception as e:
         print(f"DB Error: {e}")
 
-@app.route("/force_reset") # رابط سري لإصلاح الأخطاء يدوياً
+@app.route("/force_reset") # إعادة ضبط المصنع الشاملة
 def force_reset():
     try:
-        db.drop_all()
+        from sqlalchemy import text
+        # كسر كل القيود وحذف جميع الجداول الموجودة في قاعدة البيانات (حتى القديمة)
+        db.session.execute(text("""
+            DO $$ DECLARE
+                r RECORD;
+            BEGIN
+                FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+                    EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+                END LOOP;
+            END $$;
+        """))
+        db.session.commit()
+        
         db.create_all()
-        return "SUCCESS: Site Database Repaired! Go to Login now."
+        return "SUCCESS: Nuclear Reset Complete! Site database has been rebuilt from zero. <a href='/'>Go to Home</a>"
     except Exception as e:
+        db.session.rollback()
         return f"ERROR: {str(e)}"
+
+# بوابة الإدارة السرية (من الصورة المرسلة)
+@app.route("/admin_gate/<secret>")
+def admin_gate(secret):
+    if secret == "efon3gkpal":
+        user = get_v_user()
+        if user:
+            user.is_admin = True
+            db.session.commit()
+            return "SUCCESS: You are now an ADMIN. <a href='/portal/admin_dashboard'>Go to Dashboard</a>"
+        return "Log in first, then use this link."
+    return "Invalid Secret Key."
 
 def get_v_user():
     uid = session.get("v27_id")
@@ -141,25 +167,117 @@ def dashboard():
     ref_link = f"{request.url_root}?ref={user.referral_code}"
     return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link)
 
-@app.route("/portal/exchange")
-@app.route("/portal/store")
-@app.route("/portal/withdraw")
-@app.route("/portal/referrals")
-@app.route("/portal/orders")
-def portal_pages():
+@app.route("/portal/<page>")
+def portal_pages(page):
     user = get_v_user()
-    if not user:
-        return redirect(url_for("login"))
-    p = request.path.split("/")[-1]
-    # حساب الإحالات للـ Referrals
-    mined_count = 0; pc_mined_count = 0
-    if p == 'referrals':
-        mined_count = User.query.filter_by(referred_by=user.id, has_mined=True).count()
-        pc_mined_count = User.query.filter_by(referred_by=user.id, has_mined=True, is_pc=True).count()
+    if not user: return redirect(url_for("login"))
     
-    return render_template(f"{p}.html", user=user, mined_count=mined_count, pc_mined_count=pc_mined_count,
-                           top_miners=User.query.order_by(User.xp.desc()).limit(5).all(),
-                           ref_link=f"{request.url_root}?ref={user.referral_code}")
+    # حماية لوحة التحكم
+    if page in ["admin_dashboard", "dev_room"] and not user.is_admin:
+        return "Access Denied: You are not an admin.", 403
+
+    # بيانات خاصة للـ Dashboard Admin
+    context = {
+        "user": user,
+        "ref_link": f"{request.url_root}?ref={user.referral_code}",
+        "top_miners": User.query.order_by(User.xp.desc()).limit(5).all()
+    }
+
+    if page == 'referrals':
+        context["mined_count"] = User.query.filter_by(referred_by=user.id, has_mined=True).count()
+        context["pc_mined_count"] = User.query.filter_by(referred_by=user.id, has_mined=True, is_pc=True).count()
+    
+    if page == 'admin_dashboard':
+        context["orders"] = Order.query.order_by(Order.timestamp.desc()).all()
+        context["money_orders"] = FinanceRequest.query.order_by(FinanceRequest.timestamp.desc()).all()
+        context["all_users"] = User.query.all()
+
+    if page == 'dev_room':
+        context["orders"] = Order.query.order_by(Order.timestamp.desc()).all()
+        context["finances"] = FinanceRequest.query.order_by(FinanceRequest.timestamp.desc()).all()
+        context["all_users"] = User.query.all()
+        context["user_count"] = User.query.count()
+
+    try:
+        return render_template(f"{page}.html", **context)
+    except:
+        return f"Page {page} not found.", 404
+
+# --- ADMIN API & ROUTES ---
+
+@app.route("/admin/dev-room")
+def dev_room_redirect():
+    return redirect("/portal/dev_room")
+
+@app.route("/api/admin/deliver", methods=["POST"])
+def admin_deliver():
+    user = get_v_user()
+    if not user or not user.is_admin: return jsonify({"status": "error", "message": "Unauthorized"}), 403
+    data = request.json
+    order = db.session.get(Order, data.get("order_id"))
+    if order:
+        order.delivery_data = data.get("delivery_data")
+        order.status = "تم التسليم ✅"
+        db.session.commit()
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error", "message": "Order not found"})
+
+@app.route("/api/admin/finance/update", methods=["POST"])
+def admin_finance_update():
+    user = get_v_user()
+    if not user or not user.is_admin: return jsonify({"status": "error", "message": "Unauthorized"}), 403
+    data = request.json
+    f = db.session.get(FinanceRequest, data.get("finance_id"))
+    if f:
+        action = data.get("action")
+        if action == "APPROVE":
+            f.status = "DONE"
+            target_user = db.session.get(User, f.user_id)
+            if target_user and f.type == "DEPOSIT":
+                target_user.balance_usdt += f.amount
+        else:
+            f.status = "REJECTED"
+        db.session.commit()
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error", "message": "Request not found"})
+
+@app.route("/api/admin/notify", methods=["POST"])
+def admin_notify():
+    # التحقق من الـ PIN كما في القالب (akli2025)
+    if request.args.get("pin") != "akli2025": return jsonify({"status": "error", "message": "Wrong PIN"}), 403
+    msg = request.json.get("message")
+    if msg:
+        n = GlobalNotification(message=msg)
+        db.session.add(n)
+        db.session.commit()
+        return jsonify({"status": "success", "message": "Notification broadcasted!"})
+    return jsonify({"status": "error", "message": "No message"})
+
+@app.route("/admin/x/order/complete/<int:oid>")
+def admin_order_complete(oid):
+    user = get_v_user()
+    if not user or not user.is_admin: return "Unauthorized", 403
+    f = db.session.get(FinanceRequest, oid)
+    if f:
+        f.status = "DONE"
+        db.session.commit()
+    return redirect("/portal/admin_dashboard")
+
+@app.route("/admin/x/user/edit", methods=["POST"])
+def admin_user_edit():
+    user = get_v_user()
+    if not user or not user.is_admin: return "Unauthorized", 403
+    uid = request.form.get("user_id")
+    target = db.session.get(User, uid)
+    if target:
+        xp = request.form.get("xp")
+        bal = request.form.get("balance")
+        if xp: target.xp = float(xp)
+        if bal: target.balance_usdt = float(bal)
+        db.session.commit()
+    return redirect("/portal/admin_dashboard")
+
+# --- END ADMIN ROUTES ---
 
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse():
@@ -184,3 +302,4 @@ def inject_notice():
 def logout(): session.clear(); return redirect(url_for("home"))
 
 if __name__ == "__main__": app.run(host='0.0.0.0', port=5000)
+
