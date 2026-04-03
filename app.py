@@ -4,31 +4,29 @@ from flask_sqlalchemy import SQLAlchemy
 import uuid
 from datetime import datetime, timedelta
 
-# المحرك v21: إصلاح البناء (Build Fix) ودعم الربط المستدام بمسبح SupportXMR
+# المحرك v24: النسخة الحديدية (Ironclad Stability) - حل مشكلة 500 وتأمين التعدين
 app = Flask(__name__)
-app.secret_key = "v21_akli_engine_stable"
+app.secret_key = "v24_iron_node_stability"
 app.permanent_session_lifetime = timedelta(days=7)
 
-# إعداد قاعدة البيانات - التغيير هنا لضمان عدم حذف البيانات واستقرا البناء
+# إعداد قاعدة البيانات - تأمين الربط مع Neon أو SQLite كخطة بديلة
 db_url = os.environ.get('DATABASE_URL') or os.environ.get('NEON_DATABASE_URL')
 if db_url:
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-elif os.environ.get('VERCEL'):
-    db_path = '/tmp/vault_v21.sqlite'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 else:
-    db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v21.sqlite')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+    # استخدام قاعدة بيانات محلية مؤقتة إذا لم يتوفر رابط خارجي لضمان عدم توقف الموقع
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///akli_node_vault.sqlite'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['PROPAGATE_EXCEPTIONS'] = True # السماح بإظهار الأخطاء الحقيقية
 
 db = SQLAlchemy(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    username = db.Column(db.String(120), unique=True, nullable=False, index=True) # Gmail
     password = db.Column(db.String(120), nullable=False)
     jewels = db.Column(db.Float, default=0.0)
     xp = db.Column(db.Float, default=0.0)
@@ -63,13 +61,17 @@ class GlobalNotification(db.Model):
     message = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
+# إنشاء الجداول عند البدء
 with app.app_context():
-    db.create_all()
+    try:
+        db.create_all()
+    except Exception as e:
+        print(f"Database Creation Warning: {e}")
 
 def get_v_user():
-    uid = session.get("v21_id")
+    uid = session.get("v24_id")
     if not uid: return None
-    try: return User.query.get(uid)
+    try: return db.session.get(User, uid) # استخدام الطريقة الحديثة لـ SQLAlchemy 3.x
     except: return None
 
 @app.route("/")
@@ -81,20 +83,24 @@ def home():
 @app.route("/register", methods=["GET", "POST"])
 @app.route("/join_node", methods=["GET", "POST"])
 def register():
-    if request.method == "GET": return render_template("landing.html", ref_code=request.args.get('ref'))
+    if request.method == "GET": return redirect(url_for("home"))
+    
     u = request.form.get("username", "").strip()
     p = request.form.get("password", "")
     ref = request.form.get("ref_code", "").strip()
-    if not u or not p: return redirect(url_for("home"))
+    
+    if not u or not p:
+        flash("يرجى إكمال البيانات!", "error")
+        return redirect(url_for("home"))
 
-    if User.query.filter_by(username=u).first():
-        flash("هذا الجيميل مسجل مسبقاً، يرجى تسجيل الدخول", "info")
-        return redirect(url_for("login"))
-    
-    ua = request.user_agent.platform or ""
-    is_pc = ua.lower() in ["windows", "linux", "macos", "chromeos"]
-    
     try:
+        if User.query.filter_by(username=u).first():
+            flash("هذا الجيميل مسجل مسبقاً!", "info")
+            return redirect(url_for("login"))
+        
+        ua = request.user_agent.platform or ""
+        is_pc = ua.lower() in ["windows", "linux", "macos", "chromeos"]
+        
         new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper(), is_pc=is_pc)
         if ref:
             referrer = User.query.filter_by(referral_code=ref).first()
@@ -102,11 +108,16 @@ def register():
                 new_u.referred_by = referrer.id
                 referrer.total_referrals += 1
                 db.session.add(referrer)
-        db.session.add(new_u); db.session.commit()
-        session["v21_id"] = new_u.id; session.permanent = True
+        
+        db.session.add(new_u)
+        db.session.commit()
+        session["v24_id"] = new_u.id
+        session.permanent = True
         return redirect(url_for("dashboard"))
-    except:
-        db.session.rollback(); return redirect(url_for("home"))
+    except Exception as e:
+        db.session.rollback()
+        # إظهار الخطأ للمساعدة في تتبع المشكلة (سيتم إخفاؤه لاحقاً)
+        return f"Database Error Occurred: {str(e)}", 500
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -115,9 +126,9 @@ def login():
         p = request.form.get("password")
         user = User.query.filter_by(username=u, password=p).first()
         if user:
-            session["v21_id"] = user.id; session.permanent = True
+            session["v24_id"] = user.id; session.permanent = True
             return redirect(url_for("dashboard"))
-        flash("خطأ في بيانات الدخول!", "error")
+        flash("خطأ في الجيميل أو كلمة المرور!", "error")
     return render_template("login.html")
 
 @app.route("/portal/home")
@@ -200,14 +211,6 @@ def convert():
     db.session.commit()
     return jsonify({"status": "success", "message": "تم تحويل 10,000 جوهرة!", "jewels": round(user.jewels, 2), "balance_usdt": round(user.balance_usdt, 2)})
 
-@app.route("/portal/orders")
-def orders():
-    user = get_v_user()
-    if not user: return redirect(url_for("login"))
-    user_orders = Order.query.filter_by(user_id=user.id).order_by(Order.timestamp.desc()).all()
-    return render_template("orders.html", user=user, orders=user_orders)
-
-@app.route("/admin/panel")
 @app.route("/admin/dev-room")
 def admin_panel():
     user = get_v_user()
