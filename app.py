@@ -16,8 +16,9 @@ if db_url:
         db_url = db_url.replace("postgres://", "postgresql://", 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
-    # استخدام قاعدة بيانات محلية مؤقتة إذا لم يتوفر رابط خارجي لضمان عدم توقف الموقع
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///akli_node_vault.sqlite'
+    # استخدام المجلد المؤقت الإلزامي لـ Vercel لمنع خطأ 500
+    db_path = "/tmp/akli_node_v25.sqlite" if os.environ.get('VERCEL') else "akli_node_v25.sqlite"
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PROPAGATE_EXCEPTIONS'] = True # السماح بإظهار الأخطاء الحقيقية
