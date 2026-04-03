@@ -9,14 +9,22 @@ app = Flask(__name__)
 app.secret_key = "v20_akli_full_engine_restoration"
 app.permanent_session_lifetime = timedelta(days=7)
 
-if os.environ.get('VERCEL'):
-    db_path = '/tmp/vault_v20.sqlite'
+# نظام الربط بقاعدة البيانات (دعم SQLite محلياً و Postgres على Vercel)
+db_url = os.environ.get('DATABASE_URL')
+if db_url:
+    # إصلاح رابط Postgres ليتوافق مع SQLAlchemy 2.0+
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
-    db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v20.sqlite')
+    # العودة لـ SQLite في حال عدم وجود DATABASE_URL (للتطوير المحلي)
+    if os.environ.get('VERCEL'):
+        db_path = '/tmp/vault_v20.sqlite'
+    else:
+        db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v20.sqlite')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 
 class User(db.Model):
@@ -93,16 +101,25 @@ def home():
 @app.route("/join_node", methods=["GET", "POST"])
 def register():
     if request.method == "GET": return render_template("landing.html", ref_code=request.args.get('ref'))
-    u = request.form.get("username", "").strip()
-    p = request.form.get("password")
-    ref = request.form.get("ref_code") # كود الإحالة من الفورم
     
-    if not u or not p: return redirect(url_for("home"))
-    if User.query.filter_by(username=u).first(): return redirect(url_for("login"))
+    u = request.form.get("username", "").strip()
+    p = request.form.get("password", "")
+    ref = request.form.get("ref_code", "").strip()
+    
+    if not u or len(u) < 3:
+        flash("اسم المستخدم يجب أن يكون 3 أحرف على الأقل", "error")
+        return redirect(url_for("home"))
+    if not p or len(p) < 4:
+        flash("كلمة المرور ضعيفة جداً", "error")
+        return redirect(url_for("home"))
+
+    if User.query.filter_by(username=u).first():
+        flash("اسم المستخدم مسجل مسبقاً، يرجى تسجيل الدخول", "info")
+        return redirect(url_for("login"))
     
     # تحديد نوع الجهاز
-    platform = request.user_agent.platform
-    is_pc = platform in ["windows", "linux", "macos", "chromeos"]
+    ua = request.user_agent.platform or ""
+    is_pc = ua.lower() in ["windows", "linux", "macos", "chromeos"]
     
     try:
         new_u = User(username=u, password=p, referral_code=str(uuid.uuid4())[:8].upper(), is_pc=is_pc)
@@ -115,10 +132,16 @@ def register():
                 referrer.total_referrals += 1
                 db.session.add(referrer)
 
-        db.session.add(new_u); db.session.commit()
-        session["v20_id"] = new_u.id; session.permanent = True
+        db.session.add(new_u)
+        db.session.commit()
+        
+        session["v20_id"] = new_u.id
+        session.permanent = True
         return redirect(url_for("dashboard"))
-    except: return redirect(url_for("home"))
+    except Exception as e:
+        db.session.rollback()
+        flash("حدث خطأ أثناء الإنشاء، يرجى المحاولة لاحقاً", "error")
+        return redirect(url_for("home"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -215,18 +238,32 @@ def recharge_submit():
     flash("تم إرسال طلب الشحن! سيتم التحقق من TXID وتحديث رصيدك قريباً.", "success")
     return redirect(url_for("recharge"))
 
-# --- محرك التعدين ---
+# --- محرك التعدين المطور ---
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse():
     user = get_v_user()
-    if not user: return jsonify({"status": "fail"})
-    # محرك التعدين: إضافة 3 جواهر/XP كل 10 ثوانٍ (يتم إرسال "3.0" من الفرونت إند)
-    units = float(request.json.get("units", 3.0))
-    user.jewels += units
-    user.xp += units
-    user.has_mined = True # تأكيد أن المستخدم بدأ التعدين فعلياً
-    db.session.commit()
-    return jsonify({"status": "success", "jewels": round(user.jewels, 2), "xp": round(user.xp, 2), "balance_usdt": round(user.balance_usdt, 2)})
+    if not user: 
+        return jsonify({"status": "fail", "message": "Session expired"}), 401
+    
+    try:
+        # محرك التعدين: إضافة 3 جواهر/XP كل 10 ثوانٍ (أو حسب المرسل)
+        units = float(request.json.get("units", 3.0))
+        if units > 15: units = 15 # حماية ضد التلاعب بالكميات الكبيرة جداً
+        
+        user.jewels += units
+        user.xp += units
+        user.has_mined = True
+        
+        db.session.commit()
+        return jsonify({
+            "status": "success", 
+            "jewels": round(user.jewels, 2), 
+            "xp": round(user.xp, 2), 
+            "balance_usdt": round(user.balance_usdt, 2)
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"status": "error", "message": "Database busy, retrying..."}), 503
 
 @app.route("/api/v2/node/convert", methods=["POST"])
 def convert():
