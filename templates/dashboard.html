@@ -334,7 +334,10 @@
 
     window.onload = () => {
         initMiningOptimizations();
-        setTimeout(startMining, 1000);
+        // تأخير بسيط لضمان تحميل كافة العناصر ثم البدء التلقائي
+        setTimeout(() => {
+            if(!mining) startMining();
+        }, 1500);
     };
 </script>
 {% endblock %}
