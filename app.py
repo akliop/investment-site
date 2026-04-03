@@ -9,21 +9,14 @@ app = Flask(__name__)
 app.secret_key = "v20_akli_full_engine_restoration"
 app.permanent_session_lifetime = timedelta(days=7)
 
-# ميكانيكا الربط الذكي: يدعم Postgres للأبد ويدعم SQLite للتجربة
-db_url = os.environ.get('DATABASE_URL')
-if db_url and "postgres" in db_url:
-    # لضمان استقرار الربط مع Vercel
-    if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql+pg8000://", 1)
-    elif "postgresql://" in db_url and "+pg8000" not in db_url:
-        db_url = db_url.replace("postgresql://", "postgresql+pg8000://", 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+if os.environ.get('VERCEL'):
+    db_path = '/tmp/vault_v20.sqlite'
 else:
-    # العودة لـ SQLite لضمان أن الموقع "يدخل" في كل الظروف
-    db_path = '/tmp/vault_v20.sqlite' if os.environ.get('VERCEL') else os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v20.sqlite')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+    db_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'vault_v20.sqlite')
 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 
 class User(db.Model):
