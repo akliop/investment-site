@@ -34,6 +34,36 @@
             </div>
         </div>
     </div>
+    
+    <!-- عرض حالة الـ VIP وقوة التعدين الحالية -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-auto">
+            <div class="glass-card px-4 py-2 d-flex align-items-center gap-3 border-{{ 'warning' if user.vip_package != 'FREE' else 'success' }} border-opacity-25">
+                <div class="text-center">
+                    <div class="x-small text-dim">نظام التعدين</div>
+                    <div class="cyber-font text-white small">{{ 'VIP' if user.vip_package != 'FREE' else 'FREE NODE' }}</div>
+                </div>
+                <div class="vr bg-white opacity-25"></div>
+                <div class="text-center">
+                    <div class="x-small text-dim">القوة الحالية</div>
+                    <div class="cyber-font text-success small" id="currentRate">
+                        {% if user.mining_rate > 0 %}
+                            {{ user.mining_rate }} P/min
+                        {% else %}
+                            {{ '4.0' if user.is_pc else '2.0' }} P/min
+                        {% endif %}
+                    </div>
+                </div>
+                {% if user.vip_package != 'FREE' %}
+                <div class="vr bg-white opacity-25"></div>
+                <div class="text-center">
+                    <div class="x-small text-dim">الباقة</div>
+                    <div class="cyber-font text-warning small">{{ user.vip_package }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
     <!-- منطقة حلقة التعدين (The Main Core) -->
     <div class="text-center mb-5">
@@ -71,7 +101,45 @@
         </button>
     </div>
 
-    <!-- شبكة التطبيقات والديكور -->
+    <!-- قسم الباقات VIP المدمج -->
+    <div class="row mt-2 mb-5 justify-content-center">
+        <div class="col-lg-12 text-center mb-4">
+            <h4 class="cyber-font text-white"><i class="fa-solid fa-gem text-warning me-2 glow-pulse"></i> ترقية قوة التعدين (VIP)</h4>
+        </div>
+        
+        <div class="col-6 col-md-3 mb-3">
+            <div class="vip-card-mini glass-card p-3 text-center border-success border-opacity-25" style="--c: #00ff66;">
+                <div class="x-small text-success fw-bold">BASIC</div>
+                <div class="h4 text-white my-2">$5</div>
+                <div class="x-small text-dim mb-3">8 P/min</div>
+                <button class="btn btn-outline-success btn-xs w-100 fw-bold" onclick="buyVip('VIP 1 ($5)', 5.0)">تفعيل</button>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <div class="vip-card-mini glass-card p-3 text-center border-info border-opacity-25" style="--c: #00d2ff;">
+                <div class="x-small text-info fw-bold">SILVER</div>
+                <div class="h4 text-white my-2">$10</div>
+                <div class="x-small text-dim mb-3">16 P/min</div>
+                <button class="btn btn-outline-info btn-xs w-100 fw-bold" onclick="buyVip('VIP 2 ($10)', 10.0)">تفعيل</button>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <div class="vip-card-mini glass-card p-3 text-center border-warning border-opacity-25" style="--c: #ffaa00;">
+                <div class="x-small text-warning fw-bold">GOLD</div>
+                <div class="h4 text-white my-2">$15</div>
+                <div class="x-small text-dim mb-3">24 P/min</div>
+                <button class="btn btn-outline-warning btn-xs w-100 fw-bold" onclick="buyVip('VIP 3 ($15)', 15.0)">تفعيل</button>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 mb-3">
+            <div class="vip-card-mini glass-card p-3 text-center border-danger border-opacity-25" style="--c: #ff0055;">
+                <div class="x-small text-danger fw-bold">ULTIMATE</div>
+                <div class="h4 text-white my-2">$30</div>
+                <div class="x-small text-dim mb-3">30 P/min</div>
+                <button class="btn btn-outline-danger btn-xs w-100 fw-bold" onclick="buyVip('VIP 4 ($30)', 30.0)">تفعيل</button>
+            </div>
+        </div>
+    </div>
     <div class="row mt-4">
         <div class="col-10 mx-auto">
             <div class="row g-4 mb-4 text-center">
@@ -185,6 +253,17 @@
 
     .cyber-label { line-height: 1.1; }
     .x-small { font-size: 0.7rem; font-weight: 600; }
+    .btn-xs { font-size: 0.7rem; padding: 2px 5px; }
+
+    .vip-card-mini {
+        transition: 0.3s;
+        background: rgba(0,0,0,0.4);
+    }
+    .vip-card-mini:hover {
+        transform: translateY(-3px);
+        border-color: var(--c) !important;
+        box-shadow: 0 0 15px var(--c);
+    }
 </style>
 
 <!-- مكتبة NoSleep وعناصر التعدين المشفرة -->
@@ -229,6 +308,13 @@
         selectedDevice = type;
         document.getElementById('selectPC').classList.toggle('active', type === 'PC');
         document.getElementById('selectMobile').classList.toggle('active', type === 'Mobile');
+        
+        // Update currentRate UI if not VIP
+        const serverRate = {{ user.mining_rate or 0.0 }};
+        if (serverRate === 0) {
+            const rate = type === 'PC' ? '4.0 P/min' : '2.0 P/min';
+            if(document.getElementById('currentRate')) document.getElementById('currentRate').innerText = rate;
+        }
     }
 
     // طلب Wake Lock لمنع إطفاء الشاشة
@@ -273,7 +359,8 @@
         document.getElementById('minerControl').classList.add('mining');
         document.getElementById('toggleBtn').querySelector('.fs-3').innerHTML = '<i class="fa-solid fa-stop me-2"></i>إيقاف التعدين';
         
-        const rate = selectedDevice === 'PC' ? 4.0 : 2.0;
+        const serverRate = {{ user.mining_rate or 0.0 }};
+        const rate = serverRate > 0 ? serverRate : (selectedDevice === 'PC' ? 4.0 : 2.0);
         let ms = 0;
 
         syncInterval = setInterval(() => {
@@ -336,8 +423,18 @@
 
     document.getElementById('toggleBtn').onclick = () => mining ? stopMining() : startMining();
     
-    function claimBonus() {
-        syncJewels(1.5);
+    async function buyVip(name, price) {
+        if(!confirm(`هل تريد تفعيل ${name} مقابل $${price}؟`)) return;
+        try {
+            const res = await fetch('/api/v2/node/buy', {
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: name, price: price})
+            });
+            const data = await res.json();
+            alert(data.message);
+            if(data.status === 'success') window.location.reload();
+        } catch(e) { alert("خطأ في الاتصال"); }
     }
 
     window.onload = () => {

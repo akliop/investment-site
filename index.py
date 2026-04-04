@@ -45,6 +45,8 @@ class User(db.Model):
     is_pc = db.Column(db.Boolean, default=False)
     has_mined = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
+    mining_rate = db.Column(db.Float, default=0.0)
+    vip_package = db.Column(db.String(50), default="FREE")
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -277,16 +279,119 @@ def admin_user_edit():
         db.session.commit()
     return redirect("/portal/admin_dashboard")
 
-# --- END ADMIN ROUTES ---
+# --- FINANCE SUBMISSIONS ---
+
+@app.route("/portal/recharge/submit", methods=["POST"])
+def recharge_submit():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    
+    amount = float(request.form.get("amount", 0))
+    txid = request.form.get("txid")
+    
+    if amount < 5.0:
+        flash("عذراً، الحد الأدنى للإيداع هو 5 دولار ($5)", "error")
+        return redirect("/portal/recharge")
+        
+    new_req = FinanceRequest(
+        user_id=user.id,
+        type="DEPOSIT",
+        amount=amount,
+        details=f"TXID: {txid}",
+        status="PENDING"
+    )
+    db.session.add(new_req)
+    db.session.commit()
+    flash("تم إرسال طلب الإيداع بنجاح! سيتم التحقق من المعاملة قريباً.", "success")
+    return redirect("/portal/home")
+
+@app.route("/portal/withdraw/submit", methods=["POST"])
+def withdraw_submit():
+    user = get_v_user()
+    if not user: return redirect(url_for("login"))
+    
+    amount = float(request.form.get("amount", 0))
+    address = request.form.get("address")
+    network = request.form.get("network")
+    
+    if amount < 5.0:
+        flash("عذراً، الحد الأدنى للسحب هو 5 دولار ($5)", "error")
+        return redirect("/portal/withdraw")
+        
+    if user.balance_usdt < amount:
+        flash("رصيدك الحالي غير كافٍ لإتمام عملية السحب!", "error")
+        return redirect("/portal/withdraw")
+        
+    user.balance_usdt -= amount
+    new_req = FinanceRequest(
+        user_id=user.id,
+        type="WITHDRAW",
+        amount=amount,
+        details=f"Network: {network} | Address: {address}",
+        status="PENDING"
+    )
+    db.session.add(new_req)
+    db.session.commit()
+    flash("تم تسجيل طلب السحب بنجاح! سيتم التحويل خلال 24 ساعة.", "success")
+    return redirect("/portal/home")
+
+# --- END FINANCE SUBMISSIONS ---
 
 @app.route("/api/v2/node/pulse", methods=["POST"])
 def pulse():
     user = get_v_user()
     if not user: return jsonify({"status": "fail"}), 401
-    u = float(request.json.get("units", 3.0))
-    user.jewels += u; user.xp += u; user.has_mined = True
+    
+    # Calculate rate based on device if no VIP package
+    if user.mining_rate > 0:
+        rate = user.mining_rate
+    else:
+        rate = 4.0 if user.is_pc else 2.0
+        
+    user.jewels += rate
+    user.xp += rate
+    user.has_mined = True
     db.session.commit()
     return jsonify({"status": "success", "jewels": round(user.jewels, 2), "xp": round(user.xp, 2), "balance_usdt": round(user.balance_usdt, 2)})
+
+@app.route("/api/v2/node/buy", methods=["POST"])
+def buy_product():
+    user = get_v_user()
+    if not user: return jsonify({"status": "error", "message": "يجب تسجيل الدخول أولاً"}), 401
+    
+    data = request.json
+    name = data.get("name")
+    price = float(data.get("price", 0))
+    
+    if user.balance_usdt < price:
+        return jsonify({"status": "error", "message": "رصيدك غير كافٍ!"})
+    
+    # Check if it's a VIP Package
+    vip_packages = {
+        "VIP 1 ($5)": {"rate": 8.0, "price": 5.0},
+        "VIP 2 ($10)": {"rate": 16.0, "price": 10.0},
+        "VIP 3 ($15)": {"rate": 24.0, "price": 15.0},
+        "VIP 4 ($30)": {"rate": 30.0, "price": 30.0}
+    }
+    
+    if name in vip_packages:
+        package = vip_packages[name]
+        user.balance_usdt -= package["price"]
+        user.mining_rate = package["rate"]
+        user.vip_package = name
+        # إضافة سجل في الطلبات لتعريف المستخدم بعملية الشراء
+        new_order = Order(user_id=user.id, product_name=f"تفعيل {name}", price=package["price"], status="تم التفعيل تلقائياً ✅")
+        db.session.add(new_order)
+        db.session.commit()
+        return jsonify({"status": "success", "message": f"تم تفعيل باقة {name} بنجاح! قوة التعدين الجديدة: {package['rate']} نقطة/دقيقة"})
+    
+    # Regular product order
+    user.balance_usdt -= price
+    new_order = Order(user_id=user.id, product_name=name, price=price)
+    db.session.add(new_order)
+    db.session.commit()
+    
+    return jsonify({"status": "success", "message": "تم تقديم طلبك بنجاح! سيتم المراجعة قريباً."})
 
 @app.route("/sw.js")
 def serve_sw(): return send_from_directory('static', 'sw.js', mimetype='application/javascript')

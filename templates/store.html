@@ -7,9 +7,67 @@
         <div class="glass-card shadow-lg p-5 border-success border-opacity-25 text-center position-relative overflow-hidden">
             <div class="glow-bg-store"></div>
             <h1 class="cyber-font text-white mb-2"><i class="fa-solid fa-store text-success me-2 glow-pulse"></i> المتجر الشامل v19</h1>
-            <p class="text-dim fs-5">استثمر في تطوير عقدتك، اسحب أرباحك، أو اشحن ألعابك بـ ضغطة واحدة.</p>
         </div>
     </div>
+
+    <!-- قسم الباقات VIP -->
+    <div class="col-lg-12 mb-5">
+        <div class="d-flex align-items-center mb-4 gap-3">
+            <div class="vip-badge-main">VIP</div>
+            <h3 class="cyber-font text-white m-0">باقات التعدين الـ VIP الفائقة</h3>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <!-- VIP 1 -->
+            <div class="col-md-3">
+                <div class="vip-card glass-card p-4 text-center border-success border-opacity-25" style="--card-color: #00ff66; height: 100%;">
+                    <div class="vip-tier">الأساسية</div>
+                    <div class="vip-price">$5.0</div>
+                    <div class="vip-info">
+                        <div class="info-item text-white fw-bold"><i class="fa-solid fa-bolt me-2 text-success"></i> 8 نقاط / 60 ثانية</div>
+                        <div class="info-item"><i class="fa-solid fa-clock me-2"></i> صلاحية للأبد</div>
+                    </div>
+                    <button class="btn-vip btn w-100 mt-3" onclick="buyProduct('VIP 1 ($5)', 5.0)">تفعيل الآن</button>
+                </div>
+            </div>
+            <!-- VIP 2 -->
+            <div class="col-md-3">
+                <div class="vip-card glass-card p-4 text-center border-info border-opacity-25" style="--card-color: #00d2ff; height: 100%;">
+                    <div class="vip-tier">المتوسطة</div>
+                    <div class="vip-price">$10.0</div>
+                    <div class="vip-info">
+                        <div class="info-item text-white fw-bold"><i class="fa-solid fa-bolt me-2 text-info"></i> 16 نقطة / 60 ثانية</div>
+                        <div class="info-item"><i class="fa-solid fa-clock me-2"></i> صلاحية للأبد</div>
+                    </div>
+                    <button class="btn-vip btn w-100 mt-3" onclick="buyProduct('VIP 2 ($10)', 10.0)">تفعيل الآن</button>
+                </div>
+            </div>
+            <!-- VIP 3 -->
+            <div class="col-md-3">
+                <div class="vip-card glass-card p-4 text-center border-warning border-opacity-25" style="--card-color: #ff9900; height: 100%;">
+                    <div class="vip-tier">الاحترافية</div>
+                    <div class="vip-price">$15.0</div>
+                    <div class="vip-info">
+                        <div class="info-item text-white fw-bold"><i class="fa-solid fa-bolt me-2 text-warning"></i> 24 نقطة / 60 ثانية</div>
+                        <div class="info-item"><i class="fa-solid fa-clock me-2"></i> صلاحية للأبد</div>
+                    </div>
+                    <button class="btn-vip btn w-100 mt-3" onclick="buyProduct('VIP 3 ($15)', 15.0)">تفعيل الآن</button>
+                </div>
+            </div>
+            <!-- VIP 4 -->
+            <div class="col-md-3">
+                <div class="vip-card glass-card p-4 text-center border-danger border-opacity-25" style="--card-color: #ff0055; height: 100%;">
+                    <div class="vip-tier">الملكية (Ultimate)</div>
+                    <div class="vip-price">$30.0</div>
+                    <div class="vip-info">
+                        <div class="info-item text-white fw-bold"><i class="fa-solid fa-bolt me-2 text-danger"></i> 30 نقطة / 60 ثانية</div>
+                        <div class="info-item"><i class="fa-solid fa-clock me-2"></i> صلاحية للأبد</div>
+                    </div>
+                    <button class="btn-vip btn w-100 mt-3" onclick="buyProduct('VIP 4 ($30)', 30.0)">تفعيل الآن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
 
@@ -148,5 +206,71 @@
     .product-card:hover { transform: translateY(-10px); border-opacity: 0.8 !important; background: rgba(255,255,255,0.03); }
     .highlight-card { background: linear-gradient(135deg, rgba(0,230,118,0.05) 0%, rgba(0,0,0,0.8) 100%); }
     .shadow-glow { box-shadow: 0 0 20px rgba(0,230,118,0.3); }
+
+    .vip-badge-main {
+        background: linear-gradient(45deg, #ff9900, #ffcc00);
+        color: #000;
+        font-weight: 900;
+        padding: 5px 15px;
+        border-radius: 8px;
+        font-family: 'Orbitron', sans-serif;
+        box-shadow: 0 0 15px rgba(255, 153, 0, 0.4);
+    }
+    .vip-card {
+        position: relative;
+        z-index: 1;
+        transition: 0.4s;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .vip-card:hover {
+        transform: translateY(-10px);
+        border-color: var(--card-color) !important;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--card-color);
+    }
+    .vip-tier {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--card-color);
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+    .vip-price {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+    .vip-info {
+        text-align: right;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 15px;
+        margin-bottom: 20px;
+    }
+    .info-item {
+        font-size: 0.9rem;
+        color: #ccc;
+        margin-bottom: 8px;
+    }
+    .btn-vip {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--card-color);
+        color: var(--card-color);
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+    .btn-vip:hover {
+        background: var(--card-color);
+        color: #000 !important;
+        box-shadow: 0 0 20px var(--card-color);
+    }
 </style>
 {% endblock %}
