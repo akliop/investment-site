@@ -21,8 +21,8 @@
                 <input type="hidden" name="ref_code" value="{{ ref_code or '' }}">
                 <div class="row g-2 mb-3">
                     <div class="mb-3">
-                            <label class="text-dim small mb-2">اسم المستخدم</label>
-                            <input type="text" name="username" class="form-control bg-black text-white border-success border-opacity-25" placeholder="مثال: akli_node" required>
+                            <label class="text-dim small mb-2">البريد الإلكتروني (Gmail)</label>
+                            <input type="text" name="username" class="form-control bg-black text-white border-success border-opacity-25" placeholder="example@gmail.com" required>
                         </div>
                     <div class="col-md-6">
                         <input type="password" name="password" class="form-control py-3" placeholder="كلمة المرور السرية" required>
@@ -45,6 +45,7 @@
     </div>
 </div>
 
+<style>
     @keyframes pulse { 0% { opacity: 0.2; } 50% { opacity: 0.5; } 100% { opacity: 0.2; } }
     .pulsate { animation: pulse 3s infinite; }
 </style>
