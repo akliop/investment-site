@@ -398,40 +398,70 @@
         document.getElementById('resultsSection').style.display = "block";
         document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
 
-        // محاكاة نتائج الثغرات المكتشفة
-        document.getElementById('countCritical').innerText = "0";
-        document.getElementById('countHigh').innerText = "1";
-        document.getElementById('countMedium').innerText = "2";
+        // محاكاة نتائج الثغرات المكتشفة (أشهر 10 ثغرات - OWASP Top 10)
+        document.getElementById('countCritical').innerText = "2";
+        document.getElementById('countHigh').innerText = "3";
+        document.getElementById('countMedium').innerText = "3";
         document.getElementById('countLow').innerText = "2";
 
         const vulnerabilities = [
             {
-                title: "مكتبة جافاسكربت قديمة تحتوي على ثغرات (Vulnerable jQuery Version)",
-                desc: "الموقع يستخدم jQuery v1.12.4 وهي نسخة قديمة تحتوي على ثغرات XSS معروفة تجعل الموقع معرضاً لحقن الأكواد الخبيثة.",
+                title: "1. ضعف التحكم في الوصول (Broken Access Control)",
+                desc: "يسمح للمستخدمين بتجاوز الصلاحيات والوصول إلى بيانات أو صفحات غير مصرح بها (مثل لوحات الإدارة).",
+                severity: "critical",
+                badge: "Critical"
+            },
+            {
+                title: "2. فشل التشفير (Cryptographic Failures)",
+                desc: "تعريض البيانات الحساسة (مثل كلمات المرور أو بطاقات الائتمان) للخطر بسبب ضعف التشفير أو عدم استخدامه.",
+                severity: "critical",
+                badge: "Critical"
+            },
+            {
+                title: "3. حقن الأكواد (Injection)",
+                desc: "مثل ثغرات SQL Injection و XSS، حيث يتم حقن أكواد خبيثة تنفذ عبر خادم الموقع أو متصفح الضحية.",
                 severity: "high",
                 badge: "High"
             },
             {
-                title: "غياب ترويسة حماية إطار الموقع (Missing X-Frame-Options)",
-                desc: "عدم تفعيل ترويسة X-Frame-Options تسمح للمهاجمين بوضع موقعك داخل iframe على موقع آخر والقيام بهجمات الخداع (Clickjacking).",
+                title: "4. التصميم غير الآمن (Insecure Design)",
+                desc: "عيوب في تصميم بنية الموقع تسمح بحدوث ثغرات أمنية قبل كتابة الكود حتى.",
+                severity: "high",
+                badge: "High"
+            },
+            {
+                title: "5. سوء الإعدادات الأمنية (Security Misconfiguration)",
+                desc: "ترك الإعدادات الافتراضية، فتح منافذ غير ضرورية، أو عدم إخفاء رسائل الخطأ التفصيلية.",
+                severity: "high",
+                badge: "High"
+            },
+            {
+                title: "6. مكونات قديمة وضعيفة (Vulnerable and Outdated Components)",
+                desc: "استخدام إضافات، مكتبات، أو إصدارات برامج (مثل نسخ PHP قديمة) تحتوي على ثغرات معروفة.",
                 severity: "medium",
                 badge: "Medium"
             },
             {
-                title: "غياب ترويسة حماية المحتوى (Missing Content Security Policy - CSP)",
-                desc: "يساعد غياب CSP المهاجمين على تنفيذ هجمات XSS وتضمين نصوص برمجية خارجية دون رقابة.",
+                title: "7. فشل المصادقة (Identification and Authentication Failures)",
+                desc: "ضعف في آليات تسجيل الدخول، عدم وجود حماية ضد التخمين (Brute Force)، أو غياب المصادقة الثنائية.",
                 severity: "medium",
                 badge: "Medium"
             },
             {
-                title: "إعدادات تشفير ضعيفة (Weak SSL/TLS Ciphers)",
-                desc: "السيرفر يقبل بروتوكولات تشفير قديمة يمكن استغلالها لفك تشفير البيانات المارة بين الزائر والموقع.",
+                title: "8. فشل سلامة البرمجيات والبيانات (Software and Data Integrity Failures)",
+                desc: "الاعتماد على إضافات أو برامج من مصادر غير موثوقة دون التحقق من سلامتها.",
+                severity: "medium",
+                badge: "Medium"
+            },
+            {
+                title: "9. فشل التسجيل والمراقبة (Security Logging and Monitoring)",
+                desc: "عدم تسجيل الأنشطة المشبوهة أو تنبيه الإدارة، مما يتيح للمهاجمين وقتاً طويلاً للعبث.",
                 severity: "low",
                 badge: "Low"
             },
             {
-                title: "كشف معلومات السيرفر (Server Banner Disclosure)",
-                desc: "ترويسات الاستجابة تكشف نوع وإصدار نظام تشغيل السيرفر ونوع الويب سيرفر المستخدم، مما يسهل على المهاجم استهداف السيرفر.",
+                title: "10. تزوير الطلبات من جهة الخادم (SSRF)",
+                desc: "يجبر السيرفر على جلب أو إرسال بيانات إلى روابط خارجية غير موثوقة مما يكشف الشبكة الداخلية.",
                 severity: "low",
                 badge: "Low"
             }
