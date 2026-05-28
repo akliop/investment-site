@@ -332,7 +332,7 @@
         }, 1500);
     }
 
-    function startScan() {
+    async function startScan() {
         if (!isVerified) return;
 
         // إظهار الرادار والكونسول
@@ -348,41 +348,49 @@
         const progressText = document.getElementById('scanProgressText');
         const progressBar = document.getElementById('scanProgressBar');
 
-        const logs = [
-            "Initializing connection to target host...",
-            "Resolving DNS records...",
-            "Starting TCP port scan on common ports...",
-            "Port 80 (HTTP) - OPEN",
-            "Port 443 (HTTPS) - OPEN",
-            "Analyzing SSL/TLS Certificate configuration...",
-            "Weak Cipher Suites detected in TLS negotiation!",
-            "Crawling website directory structure...",
-            "Inspecting HTTP response headers...",
-            "Missing Security Headers: X-Frame-Options, Content-Security-Policy",
-            "Scanning for SQL Injection entrypoints...",
-            "Analyzing form fields and URL queries...",
-            "Scanning for Cross-Site Scripting (XSS) vulnerabilities...",
-            "Checking outdated Javascript libraries...",
-            "Warning: jQuery v1.12.4 is outdated and contains known vulnerabilities.",
-            "Compiling final scan reports..."
-        ];
-
-        let logIndex = 0;
+        addLog("Initializing connection to target host...");
+        
+        // Start a fake progress bar while waiting for the real API
         const interval = setInterval(() => {
-            progress += 6.25;
-            progressBar.style.width = progress + "%";
-            
-            if (logIndex < logs.length) {
-                addLog(logs[logIndex]);
-                progressText.innerText = "جاري الفحص... (" + Math.round(progress) + "%)";
-                logIndex++;
-            }
-
-            if (progress >= 100) {
-                clearInterval(interval);
-                finishScan();
+            if (progress < 90) {
+                progress += 5;
+                progressBar.style.width = progress + "%";
+                progressText.innerText = "جاري الفحص الحقيقي... (" + Math.round(progress) + "%)";
             }
         }, 500);
+
+        try {
+            addLog("Sending real HTTP requests to analyze headers and configuration...");
+            const response = await fetch("/api/scan_real", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: document.getElementById('targetUrl').value.trim() })
+            });
+            
+            const data = await response.json();
+            clearInterval(interval);
+            
+            if (data.status === "success") {
+                progressBar.style.width = "100%";
+                progressText.innerText = "اكتمل الفحص (100%)";
+                addLog("Real scan completed successfully.");
+                setTimeout(() => {
+                    finishScan(data.vulnerabilities, data.counts);
+                }, 1000);
+            } else {
+                addLog("Error during scan: " + data.message);
+                progressText.innerText = "فشل الفحص";
+                document.getElementById('radarSweep').style.display = "none";
+                document.getElementById('startScanBtn').disabled = false;
+            }
+            
+        } catch (error) {
+            clearInterval(interval);
+            addLog("Network error: " + error.message);
+            progressText.innerText = "خطأ في الشبكة";
+            document.getElementById('radarSweep').style.display = "none";
+            document.getElementById('startScanBtn').disabled = false;
+        }
     }
 
     function addLog(text) {
@@ -392,80 +400,16 @@
         consoleBox.scrollTop = consoleBox.scrollHeight;
     }
 
-    function finishScan() {
+    function finishScan(vulnerabilities, counts) {
         document.getElementById('radarSweep').style.display = "none";
         document.getElementById('scanProgressText').innerText = "تم الفحص بنجاح!";
         document.getElementById('resultsSection').style.display = "block";
         document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
 
-        // محاكاة نتائج الثغرات المكتشفة (أشهر 10 ثغرات - OWASP Top 10)
-        document.getElementById('countCritical').innerText = "2";
-        document.getElementById('countHigh').innerText = "3";
-        document.getElementById('countMedium').innerText = "3";
-        document.getElementById('countLow').innerText = "2";
-
-        const vulnerabilities = [
-            {
-                title: "1. ضعف التحكم في الوصول (Broken Access Control)",
-                desc: "يسمح للمستخدمين بتجاوز الصلاحيات والوصول إلى بيانات أو صفحات غير مصرح بها (مثل لوحات الإدارة).",
-                severity: "critical",
-                badge: "Critical"
-            },
-            {
-                title: "2. فشل التشفير (Cryptographic Failures)",
-                desc: "تعريض البيانات الحساسة (مثل كلمات المرور أو بطاقات الائتمان) للخطر بسبب ضعف التشفير أو عدم استخدامه.",
-                severity: "critical",
-                badge: "Critical"
-            },
-            {
-                title: "3. حقن الأكواد (Injection)",
-                desc: "مثل ثغرات SQL Injection و XSS، حيث يتم حقن أكواد خبيثة تنفذ عبر خادم الموقع أو متصفح الضحية.",
-                severity: "high",
-                badge: "High"
-            },
-            {
-                title: "4. التصميم غير الآمن (Insecure Design)",
-                desc: "عيوب في تصميم بنية الموقع تسمح بحدوث ثغرات أمنية قبل كتابة الكود حتى.",
-                severity: "high",
-                badge: "High"
-            },
-            {
-                title: "5. سوء الإعدادات الأمنية (Security Misconfiguration)",
-                desc: "ترك الإعدادات الافتراضية، فتح منافذ غير ضرورية، أو عدم إخفاء رسائل الخطأ التفصيلية.",
-                severity: "high",
-                badge: "High"
-            },
-            {
-                title: "6. مكونات قديمة وضعيفة (Vulnerable and Outdated Components)",
-                desc: "استخدام إضافات، مكتبات، أو إصدارات برامج (مثل نسخ PHP قديمة) تحتوي على ثغرات معروفة.",
-                severity: "medium",
-                badge: "Medium"
-            },
-            {
-                title: "7. فشل المصادقة (Identification and Authentication Failures)",
-                desc: "ضعف في آليات تسجيل الدخول، عدم وجود حماية ضد التخمين (Brute Force)، أو غياب المصادقة الثنائية.",
-                severity: "medium",
-                badge: "Medium"
-            },
-            {
-                title: "8. فشل سلامة البرمجيات والبيانات (Software and Data Integrity Failures)",
-                desc: "الاعتماد على إضافات أو برامج من مصادر غير موثوقة دون التحقق من سلامتها.",
-                severity: "medium",
-                badge: "Medium"
-            },
-            {
-                title: "9. فشل التسجيل والمراقبة (Security Logging and Monitoring)",
-                desc: "عدم تسجيل الأنشطة المشبوهة أو تنبيه الإدارة، مما يتيح للمهاجمين وقتاً طويلاً للعبث.",
-                severity: "low",
-                badge: "Low"
-            },
-            {
-                title: "10. تزوير الطلبات من جهة الخادم (SSRF)",
-                desc: "يجبر السيرفر على جلب أو إرسال بيانات إلى روابط خارجية غير موثوقة مما يكشف الشبكة الداخلية.",
-                severity: "low",
-                badge: "Low"
-            }
-        ];
+        document.getElementById('countCritical').innerText = counts.critical || "0";
+        document.getElementById('countHigh').innerText = counts.high || "0";
+        document.getElementById('countMedium').innerText = counts.medium || "0";
+        document.getElementById('countLow').innerText = counts.low || "0";
 
         const vulnList = document.getElementById('vulnList');
         vulnList.innerHTML = "";

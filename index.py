@@ -1,4 +1,7 @@
 import os
+import requests
+import socket
+from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from authlib.integrations.flask_client import OAuth
@@ -445,6 +448,116 @@ def buy_product():
     db.session.commit()
     
     return jsonify({"status": "success", "message": "تم تقديم طلبك بنجاح! سيتم المراجعة قريباً."})
+
+@app.route("/api/scan_real", methods=["POST"])
+def scan_real():
+    user = get_v_user()
+    if not user: return jsonify({"status": "error", "message": "Unauthorized"}), 401
+    
+    data = request.json
+    target_url = data.get("url")
+    if not target_url: return jsonify({"status": "error", "message": "No URL provided"}), 400
+    
+    try:
+        parsed_url = urlparse(target_url)
+        domain = parsed_url.netloc or parsed_url.path
+        if not domain: return jsonify({"status": "error", "message": "Invalid URL"}), 400
+        
+        # Ensure it starts with http or https for requests
+        if not target_url.startswith("http"):
+            target_url = "http://" + target_url
+            
+        # 1. إرسال طلب للحصول على الترويسات (Headers)
+        try:
+            # We ignore SSL warnings to scan misconfigured sites
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            response = requests.get(target_url, timeout=7, verify=False)
+            headers = response.headers
+            status_code = response.status_code
+        except Exception as e:
+            return jsonify({"status": "error", "message": f"فشل الاتصال بالموقع: {str(e)}"}), 400
+
+        vulns = []
+        
+        # 2. فحص الترويسات الأمنية
+        missing_headers = []
+        if 'X-Frame-Options' not in headers: missing_headers.append('X-Frame-Options')
+        if 'Content-Security-Policy' not in headers: missing_headers.append('Content-Security-Policy')
+        if 'Strict-Transport-Security' not in headers: missing_headers.append('Strict-Transport-Security (HSTS)')
+        
+        if missing_headers:
+            vulns.append({
+                "title": "5. سوء الإعدادات الأمنية (Missing Security Headers)",
+                "desc": f"الموقع يفتقر لترويسات حماية هامة: {', '.join(missing_headers)} مما يعرضه لهجمات XSS و Clickjacking.",
+                "severity": "high",
+                "badge": "High"
+            })
+            
+        # 3. فحص إفشاء معلومات السيرفر
+        server_header = headers.get('Server', '')
+        powered_by = headers.get('X-Powered-By', '')
+        if server_header or powered_by:
+            info = f"Server: {server_header}" if server_header else ""
+            info += f" | X-Powered-By: {powered_by}" if powered_by else ""
+            vulns.append({
+                "title": "5. سوء الإعدادات الأمنية (Server Banner Disclosure)",
+                "desc": f"السيرفر يفشي معلومات حساسة عن التكنولوجيا المستخدمة ({info}) مما يسهل استهدافه.",
+                "severity": "medium",
+                "badge": "Medium"
+            })
+            
+        # 4. ضعف التشفير (HTTPS Check)
+        if not target_url.startswith("https"):
+            vulns.append({
+                "title": "2. فشل التشفير (Insecure HTTP)",
+                "desc": "الموقع لا يستخدم تشفير HTTPS بشكل افتراضي، مما يعرض بيانات المستخدمين للاعتراض.",
+                "severity": "critical",
+                "badge": "Critical"
+            })
+            
+        # 5. فحص المنافذ المفتوحة بشكل سريع
+        open_ports = []
+        ports_to_check = [80, 443, 8080]
+        for port in ports_to_check:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(1)
+            result = s.connect_ex((domain.split(':')[0], port))
+            if result == 0:
+                open_ports.append(str(port))
+            s.close()
+            
+        if open_ports:
+            vulns.append({
+                "title": "5. سوء الإعدادات (Open Ports Detected)",
+                "desc": f"تم اكتشاف منافذ مفتوحة على السيرفر ({', '.join(open_ports)}). يجب إغلاق المنافذ غير الضرورية.",
+                "severity": "low",
+                "badge": "Low"
+            })
+            
+        # إذا كان الموقع محمياً جداً ولم نجد شيئاً
+        if not vulns:
+            vulns.append({
+                "title": "✅ نظام حماية قوي (Secured Server)",
+                "desc": "لم نتمكن من اكتشاف ثغرات سطحية. إعدادات السيرفر والترويسات تبدو آمنة ومخفية جيداً.",
+                "severity": "low",
+                "badge": "Safe"
+            })
+            
+        # إحصاء الثغرات
+        counts = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+        for v in vulns:
+            if v["severity"] in counts: counts[v["severity"]] += 1
+
+        return jsonify({
+            "status": "success",
+            "vulnerabilities": vulns,
+            "counts": counts
+        })
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 
 @app.route("/sw.js")
 def serve_sw(): return send_from_directory('static', 'sw.js', mimetype='application/javascript')
