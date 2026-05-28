@@ -472,11 +472,19 @@ def scan_real():
             # We ignore SSL warnings to scan misconfigured sites
             import urllib3
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-            response = requests.get(target_url, timeout=7, verify=False)
+            
+            # اضافة User-Agent حقيقي لتجنب الحظر من بعض المواقع
+            req_headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+            
+            response = requests.get(target_url, headers=req_headers, timeout=15, verify=False)
             headers = response.headers
             status_code = response.status_code
+        except requests.exceptions.Timeout:
+            return jsonify({"status": "error", "message": "انتهى وقت الاتصال (Timeout). السيرفر المستهدف بطيء جداً أو يحظر طلبات الفحص."}), 400
         except Exception as e:
-            return jsonify({"status": "error", "message": f"فشل الاتصال بالموقع: {str(e)}"}), 400
+            return jsonify({"status": "error", "message": f"فشل الاتصال بالموقع: تأكد من صحة الرابط أو أن الموقع يعمل. (الخطأ: {str(e)})"}), 400
 
         vulns = []
         
