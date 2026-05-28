@@ -1,12 +1,26 @@
 import os
 from flask import Flask, render_template, request, redirect, session, flash, url_for, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from authlib.integrations.flask_client import OAuth
 import uuid
 from datetime import datetime, timedelta
 
 # المحرك v27.1: النسخة الأبدية (Final Eternal Node - REBUILD FORCE)
 app = Flask(__name__)
 app.secret_key = "v27_eternal_node_key"
+
+# إعداد Google OAuth
+oauth = OAuth(app)
+google_oauth = oauth.register(
+    name='google',
+    client_id=os.environ.get('GOOGLE_CLIENT_ID'),
+    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile',
+        'prompt': 'select_account'  # يُظهر قائمة اختيار الحساب دائماً
+    }
+)
 app.permanent_session_lifetime = timedelta(days=7)
 
 # إعداد قاعدة البيانات - تأمين الربط الفائق
@@ -180,6 +194,45 @@ def login():
             return redirect(url_for("dashboard"))
         flash("خطأ في البيانات!", "error")
     return render_template("login.html")
+
+@app.route("/login/google")
+def google_login():
+    """توجيه المستخدم لصفحة اختيار حساب Google"""
+    redirect_uri = url_for('google_callback', _external=True)
+    return google_oauth.authorize_redirect(redirect_uri)
+
+@app.route("/login/google/callback")
+def google_callback():
+    """استقبال بيانات المستخدم بعد اختيار حساب Google"""
+    try:
+        token = google_oauth.authorize_access_token()
+        user_info = token.get('userinfo')
+        if not user_info:
+            flash('فشل في الحصول على بيانات Google. حاول مرة أخرى.', 'error')
+            return redirect(url_for('login'))
+        
+        email = user_info.get('email')
+        name = user_info.get('name', email)
+        
+        # البحث عن المستخدم أو إنشاء حساب جديد
+        user = User.query.filter_by(username=email).first()
+        if not user:
+            user = User(
+                username=email,
+                password=str(uuid.uuid4()),  # كلمة سر عشوائية
+                referral_code=str(uuid.uuid4())[:8].upper(),
+            )
+            db.session.add(user)
+            db.session.commit()
+        
+        # تسجيل الدخول
+        session['v27_id'] = user.id
+        session.permanent = True
+        return redirect(url_for('dashboard'))
+    
+    except Exception as e:
+        flash(f'حدث خطأ أثناء تسجيل الدخول بـ Google: {str(e)}', 'error')
+        return redirect(url_for('login'))
 
 @app.route("/portal/home")
 def dashboard():

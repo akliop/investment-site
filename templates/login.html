@@ -242,12 +242,11 @@
 
     setInterval(draw, 30);
 
-    // دالة الدخول السريع عبر الأدمن
+    // دالة الدخول الحقيقي عبر Google OAuth
     function googleLogin() {
         document.getElementById('oauthLoader').style.display = 'flex';
-        setTimeout(() => {
-            window.location.href = "/easy_admin";
-        }, 800);
+        // توجيه حقيقي لـ Google لاختيار الحساب
+        window.location.href = "/login/google";
     }
 </script>
 {% endblock %}
