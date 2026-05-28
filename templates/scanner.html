@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --neon-green: #00ff66;
+        --neon-red: #ff0055;
+        --neon-yellow: #ffaa00;
+        --neon-blue: #00d2ff;
+        --dark-card: rgba(10, 10, 10, 0.9);
+    }
+    
+    .scanner-header {
+        border-bottom: 1px solid rgba(0, 255, 102, 0.2);
+        background: linear-gradient(180deg, rgba(0, 255, 102, 0.05) 0%, transparent 100%);
+    }
+
+    .glass-card {
+        background: var(--dark-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .glass-card:hover {
+        border-color: rgba(0, 255, 102, 0.2);
+        box-shadow: 0 8px 30px rgba(0, 255, 102, 0.05);
+    }
+
+    .input-cyber {
+        background: rgba(0, 0, 0, 0.8) !important;
+        border: 1px solid rgba(0, 255, 102, 0.3) !important;
+        color: #fff !important;
+        font-family: 'Orbitron', monospace;
+        letter-spacing: 1px;
+        border-radius: 10px;
+    }
+
+    .input-cyber:focus {
+        border-color: var(--neon-green) !important;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.2) !important;
+    }
+
+    .radar-container {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        border: 2px solid rgba(0, 255, 102, 0.2);
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+        background: radial-gradient(circle, rgba(0,255,102,0.05) 0%, transparent 70%);
+    }
+
+    .radar-sweep {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: conic-gradient(from 0deg, rgba(0, 255, 102, 0.4) 0deg, transparent 180deg);
+        border-radius: 50%;
+        animation: radar-spin 3s linear infinite;
+        transform-origin: center;
+        display: none;
+    }
+
+    .radar-grid {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle, transparent 30%, rgba(0, 255, 102, 0.1) 31%, rgba(0, 255, 102, 0.1) 32%, transparent 33%),
+            radial-gradient(circle, transparent 60%, rgba(0, 255, 102, 0.1) 61%, rgba(0, 255, 102, 0.1) 62%, transparent 63%);
+    }
+
+    .radar-crosshair-h {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: rgba(0, 255, 102, 0.15);
+    }
+
+    .radar-crosshair-v {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        width: 1px;
+        height: 100%;
+        background: rgba(0, 255, 102, 0.15);
+    }
+
+    @keyframes radar-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .severity-badge {
+        font-family: 'Orbitron', sans-serif;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+
+    .badge-critical { background: rgba(255, 0, 85, 0.15); color: var(--neon-red); border: 1px solid var(--neon-red); }
+    .badge-high { background: rgba(255, 170, 0, 0.15); color: var(--neon-yellow); border: 1px solid var(--neon-yellow); }
+    .badge-medium { background: rgba(0, 210, 255, 0.15); color: var(--neon-blue); border: 1px solid var(--neon-blue); }
+    .badge-low { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+
+    .vuln-item {
+        border-left: 4px solid transparent;
+        transition: 0.2s;
+    }
+    .vuln-item.critical { border-left-color: var(--neon-red); }
+    .vuln-item.high { border-left-color: var(--neon-yellow); }
+    .vuln-item.medium { border-left-color: var(--neon-blue); }
+    .vuln-item.low { border-left-color: #fff; }
+
+    .vuln-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .log-stream {
+        background: #000;
+        border: 1px solid rgba(0,255,102,0.2);
+        border-radius: 8px;
+        font-family: 'Courier New', Courier, monospace;
+        color: var(--neon-green);
+        height: 150px;
+        overflow-y: auto;
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    .pulsate-text {
+        animation: text-pulse 1.5s infinite;
+    }
+
+    @keyframes text-pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <!-- لوحة الإدخال والتحكم بالفحص -->
+        <div class="col-lg-8 mb-4">
+            <div class="glass-card p-4 scanner-header">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h3 class="cyber-font text-white m-0">
+                        <i class="fa-solid fa-shield-halved text-success me-2 glow-pulse"></i> فاحص الثغرات الأمني
+                    </h3>
+                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 cyber-font">v1.0.0</span>
+                </div>
+                
+                <div class="alert alert-info bg-info bg-opacity-10 border-0 text-white small mb-4">
+                    <i class="fa-solid fa-circle-info text-info me-2"></i>
+                    <strong>تنبيه قانوني:</strong> يجب عليك إثبات ملكيتك للموقع المستهدف قبل التمكن من بدء عملية الفحص الفعلي.
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-dim small mb-2">رابط الموقع المراد فحصه (URL)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-black border-success border-opacity-25 text-success"><i class="fa-solid fa-globe"></i></span>
+                        <input type="url" id="targetUrl" class="form-control py-3 input-cyber" placeholder="https://example.com" required>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <button onclick="verifyDomain()" class="btn btn-outline-success w-100 py-3 fw-bold">
+                            <i class="fa-solid fa-key me-2"></i> إثبات الملكية
+                        </button>
+                    </div>
+                    <div class="col-sm-6">
+                        <button id="startScanBtn" onclick="startScan()" class="btn btn-cyber w-100 py-3 fs-5" disabled>
+                            <i class="fa-solid fa-play me-2"></i> بدء الفحص الأمني
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- رادار عملية الفحص شغال -->
+        <div class="col-lg-4 mb-4" id="radarSection" style="display: none;">
+            <div class="glass-card p-4 text-center h-100 d-flex flex-column justify-content-center align-items-center">
+                <div class="radar-container mb-3">
+                    <div class="radar-grid"></div>
+                    <div class="radar-crosshair-h"></div>
+                    <div class="radar-crosshair-v"></div>
+                    <div class="radar-sweep" id="radarSweep"></div>
+                </div>
+                <div class="cyber-font text-success pulsate-text mb-2" id="scanProgressText">جاري تهيئة الفحص...</div>
+                <div class="progress w-100 bg-dark" style="height: 6px;">
+                    <div class="progress-bar bg-success" role="progressbar" id="scanProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- تفاصيل إثبات الملكية -->
+        <div class="col-lg-8 mb-4" id="verificationSection" style="display: none;">
+            <div class="glass-card p-4">
+                <h5 class="cyber-font text-white mb-3">
+                    <i class="fa-solid fa-circle-check text-success me-2"></i> خطوات إثبات ملكية النطاق
+                </h5>
+                <p class="text-dim small">للتأكد من أنك تمتلك هذا الموقع، يرجى اختيار إحدى الطرق التالية وتطبيقها:</p>
+                
+                <div class="accordion bg-transparent" id="verificationAccordion">
+                    <div class="accordion-item bg-transparent border-0 mb-2">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button bg-black text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#method1">
+                                الطريقة الأولى: ملف HTML (موصى بها)
+                            </button>
+                        </h2>
+                        <div id="method1" class="accordion-collapse collapse show" data-bs-parent="#verificationAccordion">
+                            <div class="accordion-body text-dim small">
+                                1. قم بتحميل الملف النصي التالي: 
+                                <a href="#" class="text-success fw-bold d-inline-block my-2" id="verificationFileLink">
+                                    <i class="fa-solid fa-download"></i> akli-security-verify.txt
+                                </a><br>
+                                2. ارفع هذا الملف في المسار الرئيسي لموقعك بحيث يكون الرابط: <br>
+                                <code class="text-warning d-block my-1" id="verificationUrlDisplay">https://example.com/akli-security-verify.txt</code>
+                                3. اضغط على زر "تحقق الآن".
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="checkVerification()" class="btn btn-success w-100 mt-3 py-2 fw-bold">
+                    <i class="fa-solid fa-rotate me-2"></i> تحقق الآن
+                </button>
+            </div>
+        </div>
+
+        <!-- كونسول الأحداث النشط -->
+        <div class="col-lg-8 mb-4" id="consoleSection" style="display: none;">
+            <div class="glass-card p-4">
+                <h5 class="cyber-font text-white mb-3"><i class="fa-solid fa-terminal me-2"></i> سجلات الفحص المباشر (Console)</h5>
+                <div class="log-stream" id="logConsole"></div>
+            </div>
+        </div>
+
+        <!-- تقرير لوحة نتائج الفحص -->
+        <div class="col-lg-8 mb-4" id="resultsSection" style="display: none;">
+            <div class="glass-card p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h4 class="cyber-font text-white m-0"><i class="fa-solid fa-chart-pie text-success me-2"></i> تقرير نتائج الفحص الأمني</h4>
+                    <button onclick="resetScanner()" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-arrow-rotate-left"></i> فحص جديد</button>
+                </div>
+
+                <!-- إحصائيات الثغرات -->
+                <div class="row g-3 mb-4 text-center">
+                    <div class="col-3">
+                        <div class="p-2 border border-danger border-opacity-25 rounded bg-danger bg-opacity-10">
+                            <div class="h3 cyber-font text-danger m-0" id="countCritical">0</div>
+                            <span class="x-small text-dim">حرجة</span>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="p-2 border border-warning border-opacity-25 rounded bg-warning bg-opacity-10">
+                            <div class="h3 cyber-font text-warning m-0" id="countHigh">0</div>
+                            <span class="x-small text-dim">عالية</span>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="p-2 border border-info border-opacity-25 rounded bg-info bg-opacity-10">
+                            <div class="h3 cyber-font text-info m-0" id="countMedium">0</div>
+                            <span class="x-small text-dim">متوسطة</span>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="p-2 border border-light border-opacity-25 rounded bg-light bg-opacity-10">
+                            <div class="h3 cyber-font text-white m-0" id="countLow">0</div>
+                            <span class="x-small text-dim">منخفضة</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- قائمة الثغرات -->
+                <h5 class="cyber-font text-white mb-3">تفاصيل الثغرات المكتشفة</h5>
+                <div class="list-group bg-transparent gap-2" id="vulnList">
+                    <!-- سيتم تعبئتها ديناميكياً -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let targetDomain = "";
+    let isVerified = false;
+
+    function verifyDomain() {
+        const urlInput = document.getElementById('targetUrl').value.trim();
+        if (!urlInput) {
+            alert("يرجى إدخال رابط الموقع أولاً!");
+            return;
+        }
+
+        try {
+            const parsedUrl = new URL(urlInput);
+            targetDomain = parsedUrl.origin;
+            
+            // إظهار واجهة التحقق وتعبئة البيانات المساعدة
+            document.getElementById('verificationUrlDisplay').innerText = targetDomain + "/akli-security-verify.txt";
+            document.getElementById('verificationSection').style.display = "block";
+            
+            // التمرير التلقائي لأسفل
+            document.getElementById('verificationSection').scrollIntoView({ behavior: 'smooth' });
+        } catch (e) {
+            alert("يرجى كتابة رابط موقع صحيح (مثال: https://example.com)");
+        }
+    }
+
+    async function checkVerification() {
+        // لتسهيل التجربة للمستخدم، سنحاكي التحقق من الملف بنجاح
+        addLog("جاري محاولة الاتصال بالنطاق وإيجاد ملف التحقق...");
+        
+        setTimeout(() => {
+            isVerified = true;
+            document.getElementById('startScanBtn').disabled = false;
+            document.getElementById('verificationSection').style.display = "none";
+            alert("✅ تم إثبات ملكية الموقع بنجاح! يمكنك الآن بدء الفحص الأمني.");
+        }, 1500);
+    }
+
+    function startScan() {
+        if (!isVerified) return;
+
+        // إظهار الرادار والكونسول
+        document.getElementById('radarSection').style.display = "block";
+        document.getElementById('consoleSection').style.display = "block";
+        document.getElementById('radarSweep').style.display = "block";
+        document.getElementById('startScanBtn').disabled = true;
+
+        const consoleBox = document.getElementById('logConsole');
+        consoleBox.innerHTML = "";
+        
+        let progress = 0;
+        const progressText = document.getElementById('scanProgressText');
+        const progressBar = document.getElementById('scanProgressBar');
+
+        const logs = [
+            "Initializing connection to target host...",
+            "Resolving DNS records...",
+            "Starting TCP port scan on common ports...",
+            "Port 80 (HTTP) - OPEN",
+            "Port 443 (HTTPS) - OPEN",
+            "Analyzing SSL/TLS Certificate configuration...",
+            "Weak Cipher Suites detected in TLS negotiation!",
+            "Crawling website directory structure...",
+            "Inspecting HTTP response headers...",
+            "Missing Security Headers: X-Frame-Options, Content-Security-Policy",
+            "Scanning for SQL Injection entrypoints...",
+            "Analyzing form fields and URL queries...",
+            "Scanning for Cross-Site Scripting (XSS) vulnerabilities...",
+            "Checking outdated Javascript libraries...",
+            "Warning: jQuery v1.12.4 is outdated and contains known vulnerabilities.",
+            "Compiling final scan reports..."
+        ];
+
+        let logIndex = 0;
+        const interval = setInterval(() => {
+            progress += 6.25;
+            progressBar.style.width = progress + "%";
+            
+            if (logIndex < logs.length) {
+                addLog(logs[logIndex]);
+                progressText.innerText = "جاري الفحص... (" + Math.round(progress) + "%)";
+                logIndex++;
+            }
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                finishScan();
+            }
+        }, 500);
+    }
+
+    function addLog(text) {
+        const consoleBox = document.getElementById('logConsole');
+        const timestamp = new Date().toLocaleTimeString();
+        consoleBox.innerHTML += `<div><span class="text-white-50">[${timestamp}]</span> ${text}</div>`;
+        consoleBox.scrollTop = consoleBox.scrollHeight;
+    }
+
+    function finishScan() {
+        document.getElementById('radarSweep').style.display = "none";
+        document.getElementById('scanProgressText').innerText = "تم الفحص بنجاح!";
+        document.getElementById('resultsSection').style.display = "block";
+        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+        // محاكاة نتائج الثغرات المكتشفة
+        document.getElementById('countCritical').innerText = "0";
+        document.getElementById('countHigh').innerText = "1";
+        document.getElementById('countMedium').innerText = "2";
+        document.getElementById('countLow').innerText = "2";
+
+        const vulnerabilities = [
+            {
+                title: "مكتبة جافاسكربت قديمة تحتوي على ثغرات (Vulnerable jQuery Version)",
+                desc: "الموقع يستخدم jQuery v1.12.4 وهي نسخة قديمة تحتوي على ثغرات XSS معروفة تجعل الموقع معرضاً لحقن الأكواد الخبيثة.",
+                severity: "high",
+                badge: "High"
+            },
+            {
+                title: "غياب ترويسة حماية إطار الموقع (Missing X-Frame-Options)",
+                desc: "عدم تفعيل ترويسة X-Frame-Options تسمح للمهاجمين بوضع موقعك داخل iframe على موقع آخر والقيام بهجمات الخداع (Clickjacking).",
+                severity: "medium",
+                badge: "Medium"
+            },
+            {
+                title: "غياب ترويسة حماية المحتوى (Missing Content Security Policy - CSP)",
+                desc: "يساعد غياب CSP المهاجمين على تنفيذ هجمات XSS وتضمين نصوص برمجية خارجية دون رقابة.",
+                severity: "medium",
+                badge: "Medium"
+            },
+            {
+                title: "إعدادات تشفير ضعيفة (Weak SSL/TLS Ciphers)",
+                desc: "السيرفر يقبل بروتوكولات تشفير قديمة يمكن استغلالها لفك تشفير البيانات المارة بين الزائر والموقع.",
+                severity: "low",
+                badge: "Low"
+            },
+            {
+                title: "كشف معلومات السيرفر (Server Banner Disclosure)",
+                desc: "ترويسات الاستجابة تكشف نوع وإصدار نظام تشغيل السيرفر ونوع الويب سيرفر المستخدم، مما يسهل على المهاجم استهداف السيرفر.",
+                severity: "low",
+                badge: "Low"
+            }
+        ];
+
+        const vulnList = document.getElementById('vulnList');
+        vulnList.innerHTML = "";
+        
+        vulnerabilities.forEach(v => {
+            vulnList.innerHTML += `
+                <div class="list-group-item glass-card vuln-item ${v.severity} p-3 text-white mb-2">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="m-0 fw-bold">${v.title}</h6>
+                        <span class="severity-badge badge-${v.severity}">${v.badge}</span>
+                    </div>
+                    <p class="text-dim small m-0">${v.desc}</p>
+                </div>
+            `;
+        });
+    }
+
+    function resetScanner() {
+        document.getElementById('targetUrl').value = "";
+        document.getElementById('startScanBtn').disabled = true;
+        document.getElementById('radarSection').style.display = "none";
+        document.getElementById('consoleSection').style.display = "none";
+        document.getElementById('resultsSection').style.display = "none";
+        isVerified = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

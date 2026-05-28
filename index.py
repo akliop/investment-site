@@ -228,7 +228,8 @@ def portal_pages(page):
 
     try:
         return render_template(f"{page}.html", **context)
-    except:
+    except Exception as e:
+        print(f"Template error: {e}")
         return f"Page {page} not found.", 404
 
 # --- ADMIN API & ROUTES ---
