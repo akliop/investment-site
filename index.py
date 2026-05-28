@@ -71,12 +71,6 @@ class GlobalNotification(db.Model):
     message = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-# تهيئة الجداول بنظام v27
-with app.app_context():
-    try:
-        db.create_all()
-    except Exception as e:
-        print(f"DB Error: {e}")
 
 @app.route("/force_reset") # إعادة ضبط المصنع الشاملة
 def force_reset():
@@ -202,11 +196,9 @@ def portal_pages(page):
     if page in ["admin_dashboard", "dev_room"] and not user.is_admin:
         return "Access Denied: You are not an admin.", 403
 
-    # بيانات خاصة للـ Dashboard Admin
     context = {
         "user": user,
-        "ref_link": f"{request.url_root}?ref={user.referral_code}",
-        "top_miners": User.query.order_by(User.xp.desc()).limit(5).all()
+        "ref_link": f"{request.url_root}?ref={user.referral_code}"
     }
 
     if page == 'referrals':
