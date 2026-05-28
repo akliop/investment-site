@@ -191,9 +191,7 @@ def login():
 def dashboard():
     user = get_v_user()
     if not user: return redirect(url_for("login"))
-    top_miners = User.query.order_by(User.xp.desc()).limit(5).all()
-    ref_link = f"{request.url_root}?ref={user.referral_code}"
-    return render_template("dashboard.html", user=user, top_miners=top_miners, ref_link=ref_link)
+    return redirect("/portal/scanner")
 
 @app.route("/portal/<page>")
 def portal_pages(page):
@@ -363,23 +361,6 @@ def withdraw_submit():
     return redirect("/portal/home")
 
 # --- END FINANCE SUBMISSIONS ---
-
-@app.route("/api/v2/node/pulse", methods=["POST"])
-def pulse():
-    user = get_v_user()
-    if not user: return jsonify({"status": "fail"}), 401
-    
-    # Calculate rate based on device if no VIP package
-    if user.mining_rate > 0:
-        rate = user.mining_rate
-    else:
-        rate = 4.0 if user.is_pc else 2.0
-        
-    user.jewels += rate
-    user.xp += rate
-    user.has_mined = True
-    db.session.commit()
-    return jsonify({"status": "success", "jewels": round(user.jewels, 2), "xp": round(user.xp, 2), "balance_usdt": round(user.balance_usdt, 2)})
 
 @app.route("/api/v2/node/buy", methods=["POST"])
 def buy_product():

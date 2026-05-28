@@ -4,35 +4,35 @@
 <div class="row align-items-center py-5">
     <div class="col-lg-7 text-center text-lg-end">
         <h1 class="display-3 cyber-font fw-bold glow-pulse mb-3">
-            <span class="text-white">تعديـن</span> <span class="text-success">XMR</span> <span class="text-white">بجائزة ترحيبية</span>
+            <span class="text-white">فحص أمني</span> <span class="text-success">ذكي</span> <span class="text-white">للمواقع</span>
         </h1>
         <p class="h4 text-dim mb-4" style="line-height: 1.8;">
-            <i class="fa-solid fa-gift text-success me-2"></i> بونص ترحيبي: ابدأ التعدين واحصل على XP فوراً.
+            <i class="fa-solid fa-shield-halved text-success me-2"></i> اكتشف ثغرات موقعك قبل أن يستغلها الآخرون.
             <br>
-            <i class="fa-solid fa-users text-success me-2"></i> <span class="text-white">ادعُ أصدقاءك واربح 10% من نقاطهم للأبد!</span>
+            <i class="fa-solid fa-magnifying-glass-chart text-success me-2"></i> <span class="text-white">تحليل شامل للمنافذ والأكواد والترويسات الأمنية.</span>
             <br>
-            <i class="fa-solid fa-bolt text-success me-2"></i> <span class="text-white">اسحب USDT أو بطاقات هدايا أسبوعياً.</span>
+            <i class="fa-solid fa-file-shield text-success me-2"></i> <span class="text-white">تقارير أمنية احترافية وحلول فورية للمطورين.</span>
         </p>
 
-        <!-- التحديث النووي والنهائي للرابط لكسر أي 404 قديم -->
         <div class="glass-card shadow-lg p-4 text-start animate-fade-in border-success border-opacity-25">
-            <h4 class="cyber-font text-white mb-3 text-center"><i class="fa-solid fa-rocket me-2 text-success"></i> سجل وابحث عن الحظ</h4>
+            <h4 class="cyber-font text-white mb-3 text-center"><i class="fa-solid fa-user-plus me-2 text-success"></i> إنشاء حساب جديد</h4>
             <form action="/join_node" method="POST">
                 <input type="hidden" name="ref_code" value="{{ ref_code or '' }}">
                 <div class="row g-2 mb-3">
                     <div class="mb-3">
-                            <label class="text-dim small mb-2">البريد الإلكتروني (Gmail)</label>
-                            <input type="text" name="username" class="form-control bg-black text-white border-success border-opacity-25" placeholder="example@gmail.com" required>
-                        </div>
-                    <div class="col-md-6">
-                        <input type="password" name="password" class="form-control py-3" placeholder="كلمة المرور السرية" required>
+                        <label class="text-dim small mb-2">البريد الإلكتروني (Gmail)</label>
+                        <input type="text" name="username" class="form-control bg-black text-white border-success border-opacity-25" placeholder="example@gmail.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-dim small mb-2">كلمة المرور السرية</label>
+                        <input type="password" name="password" class="form-control bg-black text-white border-success border-opacity-25" placeholder="كلمة المرور" required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-cyber w-100 py-3 fs-5 glow-green-btn">ابدأ توليد الأرباح الآن <i class="fa-solid fa-chevron-left ms-2 fa-xs"></i></button>
+                <button type="submit" class="btn btn-cyber w-100 py-3 fs-5 glow-green-btn">سجل وابدأ الفحص المجاني الآن <i class="fa-solid fa-chevron-left ms-2 fa-xs"></i></button>
             </form>
             {% if ref_code %}
-            <div class="mt-2 text-center text-success small">أنت مدعو بواسطة كود الإحالة: <span class="fw-bold">{{ ref_code }}</span> (ستحصل على بونص ترحيبي)</div>
+            <div class="mt-2 text-center text-success small">كود الإحالة النشط: <span class="fw-bold">{{ ref_code }}</span></div>
             {% endif %}
         </div>
     </div>
@@ -40,7 +40,7 @@
     <div class="col-lg-5 text-center mt-5 mt-lg-0">
         <div class="position-relative">
             <div class="position-absolute translate-middle top-50 start-50 w-100 h-100 rounded-circle bg-success shadow-lg opacity-25 filter-blur pulsate" style="filter:blur(100px)"></div>
-            <i class="fa-solid fa-chart-line text-success icon-large shadow-green-glow" style="font-size: 250px;"></i>
+            <i class="fa-solid fa-user-shield text-success icon-large shadow-green-glow" style="font-size: 220px; filter: drop-shadow(0 0 25px var(--accent-green));"></i>
         </div>
     </div>
 </div>
