@@ -1,27 +1,224 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+    body {
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    #hacker-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.15;
+    }
+
+    .register-container {
+        position: relative;
+        z-index: 10;
+    }
+
+    .glass-card {
+        background: rgba(10, 10, 10, 0.85);
+        border: 1px solid rgba(0, 255, 102, 0.2);
+        box-shadow: 0 0 30px rgba(0, 255, 102, 0.1);
+        backdrop-filter: blur(15px);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+        box-shadow: 0 0 40px rgba(0, 255, 102, 0.2);
+        border-color: rgba(0, 255, 102, 0.4);
+    }
+
+    .input-cyber {
+        background: rgba(0, 0, 0, 0.8) !important;
+        border: 1px solid rgba(0, 255, 102, 0.3) !important;
+        color: #fff !important;
+        font-family: 'IBM Plex Sans Arabic', sans-serif;
+        border-radius: 10px;
+        padding: 12px 15px;
+    }
+
+    .input-cyber:focus {
+        border-color: #00ff66 !important;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.3) !important;
+    }
+
+    /* زر قوقل الاحترافي */
+    .btn-google {
+        background: #ffffff;
+        color: #1f1f1f;
+        font-weight: 600;
+        border-radius: 10px;
+        border: 1px solid #dadce0;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-size: 0.95rem;
+    }
+
+    .btn-google:hover {
+        background: #f8f9fa;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        border-color: #ccc;
+    }
+
+    .google-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.3);
+        margin: 20px 0;
+        font-size: 0.85rem;
+    }
+
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .divider:not(:empty)::before {
+        margin-left: .5em;
+    }
+
+    .divider:not(:empty)::after {
+        margin-right: .5em;
+    }
+
+    .cyber-btn {
+        background: linear-gradient(135deg, #0d3822 0%, #00ff66 100%);
+        color: #000 !important;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        transition: 0.3s;
+        box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+    }
+
+    .cyber-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 25px rgba(0, 255, 102, 0.5);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center mt-5 pt-lg-5">
-    <div class="col-md-5">
-        <div class="glass-card shadow-lg">
-            <h2 class="cyber-font text-center mb-4"><i class="fa-solid fa-user-plus me-2 text-success"></i> <span class="text-white">حساب معدن</span> <span class="text-success">جديد</span></h2>
-            <form method="POST">
-                <div class="mb-4 text-start">
-                    <label class="text-white opacity-75 small mb-2 d-inline-block">الجيميل (Gmail)</label>
-                    <input type="text" name="username" class="form-control bg-white text-dark py-2 rounded-2" 
-                           placeholder="example@gmail.com" required>
+<!-- خلفية الماتريكس التفاعلية للمخترقين -->
+<canvas id="hacker-canvas"></canvas>
+
+<div class="row justify-content-center mt-5 pt-lg-4 register-container">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card shadow-lg p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div class="d-inline-block bg-success bg-opacity-10 p-3 rounded-circle mb-3 border border-success border-opacity-25">
+                    <i class="fa-solid fa-user-plus text-success fs-2 glow-pulse"></i>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label text-dim small">كلمة المرور (للوصول للوحة التحكم)</label>
-                    <input type="password" name="password" class="form-control" required placeholder="********">
+                <h3 class="cyber-font text-white m-0">إنشاء حساب جديد</h3>
+                <span class="text-dim small">A.K.L.I SHIELD SECURITY</span>
+            </div>
+
+            <form method="POST">
+                <div class="mb-3 text-start">
+                    <label class="text-white-50 small mb-2"><i class="fa-solid fa-envelope me-1 text-success"></i> البريد الإلكتروني (Gmail)</label>
+                    <input type="text" name="username" class="form-control input-cyber" placeholder="example@gmail.com" required>
+                </div>
+                
+                <div class="mb-4 text-start">
+                    <label class="text-white-50 small mb-2"><i class="fa-solid fa-key me-1 text-success"></i> كلمة المرور السرية</label>
+                    <input type="password" name="password" class="form-control input-cyber" placeholder="••••••••" required>
                 </div>
 
-                <button type="submit" class="btn btn-cyber w-100 py-3">تنشيط العقدة <span class="ms-1">>>></span></button>
+                <button type="submit" class="btn cyber-btn w-100 py-3">
+                    سجل وابدأ الفحص الآن <i class="fa-solid fa-shield-halved ms-2"></i>
+                </button>
             </form>
+
+            <div class="divider">أو</div>
+
+            <!-- زر قوقل الاحترافي -->
+            <button onclick="googleLogin()" class="btn btn-google w-100 py-2.5">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.54 14.98 1 12 1 7.35 1 3.37 3.65 1.42 7.54l3.86 3c.96-2.88 3.66-5.5 6.72-5.5z"/>
+                    <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58l3.7 2.87c2.16-2 3.72-4.96 3.72-8.69z"/>
+                    <path fill="#FBBC05" d="M5.28 14.54c-.26-.79-.41-1.63-.41-2.54s.15-1.75.41-2.54L1.42 6.46C.51 8.26 0 10.07 0 12s.51 3.74 1.42 5.54l3.86-3z"/>
+                    <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.7-2.87c-1.03.69-2.35 1.1-4.26 1.1-3.06 0-5.76-2.62-6.72-5.5H1.42v3.08C3.37 20.35 7.35 23 12 23z"/>
+                </svg>
+                التسجيل عبر حساب Google
+            </button>
+
             <div class="mt-4 text-center">
-                <a href="/login" class="text-dim small text-decoration-none hover-white">لديك حساب بالفعل؟ سجل دخول</a>
+                <a href="/login" class="text-dim small text-decoration-none hover-white">لديك حساب بالفعل؟ سجل دخول من هنا</a>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // تأثير خلفية الماتريكس المخترق (Hacker Matrix Rain)
+    const canvas = document.getElementById('hacker-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const katakana = 'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const alphabet = katakana.split('');
+
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+
+    const rainDrops = [];
+
+    for (let x = 0; x < columns; x++) {
+        rainDrops[x] = 1;
+    }
+
+    const draw = () => {
+        ctx.fillStyle = 'rgba(5, 5, 5, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff66';
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < rainDrops.length; i++) {
+            const text = alphabet[Math.floor(Math.random() * alphabet.length)];
+            ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+
+            if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                rainDrops[i] = 0;
+            }
+            rainDrops[i]++;
+        }
+    };
+
+    setInterval(draw, 30);
+
+    // دالة محاكاة الدخول بقوقل
+    function googleLogin() {
+        alert("جاري الاتصال بخوادم Google لإجراء المصادقة الأمنية وإنشاء الحساب...");
+        window.location.href = "/easy_admin";
+    }
+</script>
 {% endblock %}
